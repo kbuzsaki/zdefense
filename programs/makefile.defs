@@ -1,0 +1,17 @@
+ASM=../../tools/bin/z80asm
+BIN2TAP=../../tools/bin/bin2tap
+BAS2TAP=../../tools/bin/bas2tap
+
+clean:
+	rm -f *.bin *.tap
+
+new: clean default
+
+%.bin: %.asm
+	$(ASM) $< -o $@
+
+%.tap: %.bin
+	$(BIN2TAP) -b $< -o $@
+
+%.tap: %.bas
+	$(BAS2TAP) -q $< $@
