@@ -11,6 +11,7 @@ Kyle Huynh
 
 ### Progress
 
+- Windows development environment is now functional.
 - Created a z80 assembly program that: reads keyboard input, changes border color, 
   changes screen color, and prints ascii to the screen.
 - Created simple etchasketch-style program that paints entire cells at a time.
