@@ -1,44 +1,53 @@
 
 org 32768
 
+
 start:
-    LD B, 0AH
-    LD C, 0DH
-    CALL Get_Pixel_Address
-    LD (23677), HL
-    CALL $2382
-    JP start
+    LD  B, 127  ; ypos - note that since this reg is 8bit, 128 is max val
+                ; so we'll need to figure something out
+    LD  C, 0 ; xpos
+    LD  D, 32
+    CALL pixel_addr
 
-    
 
-; Code used from:
-; http://www.animatez.co.uk/computers/zx-spectrum/screen-memory-layout/
-; Will have to replace with own routine to calc pixel address
-; Get screen address
-; B = Y pixel position
-; C = X pixel position
-; Returns address in HL
-Get_Pixel_Address:  LD A,B; Calculate Y2,Y1,Y0
-                    AND %00000111; Mask out unwanted bits
-                    OR %01000000; Set base address of screen
-                    LD H,A; Store in H
-                    LD A,B; Calculate Y7,Y6
-                    RRA; Shift to position
-                    RRA
-                    RRA
-                    AND %00011000; Mask out unwanted bits
-                    OR H; OR with Y2,Y1,Y0
-                    LD H,A; Store in H
-                    LD A,B; Calculate Y5,Y4,Y3
-                    RLA; Shift to position
-                    RLA
-                    AND %11100000; Mask out unwanted bits
-                    LD L,A; Store in L
-                    LD A,C; Calculate X4,X3,X2,X1,X0
-                    RRA; Shift into position
-                    RRA
-                    RRA
-                    AND %00011111; Mask out unwanted bits
-                    OR L; OR with Y5,Y4,Y3
-                    LD L,A; Store in L
-                    RET
+xloop:
+    LD  (HL), $FF
+    INC HL
+    DEC D
+    JP  NZ, xloop
+    RET
+
+
+    ;LD (23677), HL
+    ;CALL $2383
+    ;INC B
+
+; B = Y pos, C = X pos
+; Return addr in HL
+; Based on lecture slides
+pixel_addr:
+    ; Want to get B into H, needs to look like: 010y7y6y2y1y0
+    LD  A, B
+    AND $07
+    OR  $40
+    LD  H, A
+    LD  A, B        ; Now to retrieve y7y6
+    RRCA            ; Shift them by 3 to the right
+    RRCA
+    RRCA
+    AND $18
+    OR  H           ; Combine the two. H should now be complete
+
+    LD  A, B        ; Now make lower 8 bits, need y5y4y3
+    RLCA
+    RLCA
+    AND $E0
+    LD  L, A
+    LD  A, C
+    AND $1F
+    OR  L
+    RET
+
+
+
+   
