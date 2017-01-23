@@ -21,4 +21,5 @@ Kyle Huynh
 - Figure how to modify the screen more specifically, e.g draw lines or graphics by 
   the pixel
 - Figure out how to play sounds
+- Try to create moving backgrounds
 
