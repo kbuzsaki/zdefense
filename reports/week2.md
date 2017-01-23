@@ -15,6 +15,8 @@ Kyle Huynh
 - Created a z80 assembly program that: reads keyboard input, changes border color, 
   changes screen color, and prints ascii to the screen.
 - Created simple etchasketch-style program that paints entire cells at a time.
+- Attempted to create lines on screen, goal is to try to paint a box with
+  lines, can draw a single line using ROM routine so far.
 
 ### Plans for next week
 
