@@ -4,8 +4,8 @@
 
 org 32768
 
-	; set border to etch-a-sketch red
-	ld a, 2
+	; set border to green
+	ld a, 4
 	call 8859
 
 	call clear_pixels
@@ -40,10 +40,31 @@ org 32768
 ;	call draw_tile
 
 
+	ld d, $ff
+	call fill_all_pixels
 
+
+	; draw upper half of map
+	ld hl, tile_map
 	ld d, $40
 	ld e, $00
-	ld hl, tile_map
+	call draw_map
+
+	; draw lower half of map
+	ld d, $48
+	ld e, $00
+	call draw_map
+
+	; set a tower to red
+	ld hl, $5884
+	;ld (hl), 58
+
+	; set a tower to cyan
+	ld hl, $58ce
+	;ld (hl), 61
+
+
+	jp inf_loop
 
 
 ; pointers
@@ -53,15 +74,11 @@ org 32768
 ;   tile to print
 ; loop invariants
 ;   hl:
-loop_body:
-;	call wait_dur
-;	call wait_dur
-;	call wait_dur
-;	call wait_dur
-;	call wait_dur
+draw_map:
 	; de is the current position in vram
 	; hl is the current byte in the map bits
 
+draw_map_loop_body:
 	push hl
 	; load first 4 map bits into a
 	rld
@@ -71,12 +88,6 @@ loop_body:
 	call lookup_and_draw_tile
 	pop de
 	inc e
-
-;	call wait_dur
-;	call wait_dur
-;	call wait_dur
-;	call wait_dur
-;	call wait_dur
 
 	pop hl
 	push hl
@@ -94,7 +105,8 @@ loop_body:
 	inc hl
 	ld a, e
 	cp $00
-	jp nz, loop_body
+	jp nz, draw_map_loop_body
+	ret
 
 inf_loop:
 	jp inf_loop
@@ -140,28 +152,28 @@ clear_square:
 draw_tile:
 	ldi
 	inc d
-	dec e
+	dec de
 	ldi
 	inc d
-	dec e
+	dec de
 	ldi
 	inc d
-	dec e
+	dec de
 	ldi
 	inc d
-	dec e
+	dec de
 	ldi
 	inc d
-	dec e
+	dec de
 	ldi
 	inc d
-	dec e
+	dec de
 	ldi
 	inc d
-	dec e
+	dec de
 	ldi
 	inc d
-	dec e
+	dec de
 	ret
 	
 
@@ -259,12 +271,6 @@ get_attr:
 	ret
 
 
-clear_pixels:
-	ld d, 0
-	call fill_pixels
-	ret
-
-
 wait_dur:
 	ld c, 255
 wait_dur_outer_loop:
@@ -277,9 +283,15 @@ wait_dur_inner_loop:
 
 
 ; d = fill byte
-fill_pixels:
+clear_pixels:
+	ld d, 0
+	call fill_all_pixels
+	ret
+
+fill_all_pixels:
 	ld hl, $4000
 	ld c, 24
+fill_pixels:
 fill_pixels_outer_loop:
 	ld (hl), d
 	inc hl
@@ -292,15 +304,17 @@ fill_pixels_inner_loop:
 	jp nz, fill_pixels_outer_loop
 	ret
 
+
 clear_attrs:
 	ld d, $38
-	call fill_attrs
+	call fill_all_attrs
 	ret
 
 ; d = fill byte
-fill_attrs:
+fill_all_attrs:
 	ld hl, $5800
 	ld c, 3
+fill_attrs:
 fill_attrs_outer_loop:
 	ld (hl), d
 	inc hl
@@ -318,18 +332,37 @@ tile_map:
 	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	defb $00, $84, $44, $49, $00, $00, $00, $00, $00, $00, $84, $44, $44, $49, $00, $00
 	defb $00, $6f, $55, $e7, $00, $00, $00, $00, $00, $00, $6f, $55, $55, $e7, $00, $00
-	defb $84, $c7, $00, $67, $00, $00, $84, $44, $44, $44, $c7, $00, $00, $67, $00, $00
-	defb $a5, $5b, $00, $67, $00, $00, $6f, $55, $55, $55, $5b, $00, $00, $67, $00, $00
-	defb $00, $00, $00, $67, $00, $00, $67, $00, $00, $00, $00, $00, $00, $67, $00, $00
-	defb $00, $00, $00, $67, $00, $00, $67, $00, $00, $00, $00, $00, $00, $67, $00, $00
+	defb $44, $c7, $10, $67, $00, $00, $84, $44, $44, $44, $c7, $00, $00, $67, $00, $00
+	defb $55, $5b, $00, $67, $00, $00, $6f, $55, $55, $55, $5b, $00, $00, $67, $00, $00
+	defb $00, $00, $00, $67, $00, $00, $67, $10, $00, $00, $00, $00, $00, $67, $00, $00
+	defb $00, $00, $00, $67, $00, $00, $67, $00, $00, $00, $00, $00, $01, $67, $00, $00
+
 	defb $00, $00, $84, $c7, $00, $00, $6d, $49, $00, $00, $84, $44, $44, $c7, $00, $00
 	defb $00, $00, $6f, $5b, $00, $00, $a5, $e7, $00, $00, $6f, $55, $55, $5b, $00, $00
 	defb $00, $00, $67, $00, $00, $00, $00, $67, $00, $00, $67, $00, $00, $00, $00, $00
-	defb $00, $00, $67, $00, $00, $00, $00, $67, $00, $00, $67, $00, $00, $00, $00, $00
-	defb $00, $00, $6d, $44, $44, $44, $44, $c7, $00, $00, $6d, $44, $44, $44, $44, $49
-	defb $00, $00, $a5, $55, $55, $55, $55, $5b, $00, $00, $a5, $55, $55, $55, $55, $5b
+	defb $00, $00, $67, $10, $00, $00, $00, $67, $00, $00, $67, $00, $00, $00, $00, $00
+	defb $00, $00, $6d, $44, $44, $44, $44, $c7, $00, $00, $6d, $44, $44, $44, $44, $44
+	defb $00, $00, $a5, $55, $55, $55, $55, $5b, $00, $00, $a5, $55, $55, $55, $55, $55
 	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+
+;	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+;	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+;	defb $00, $84, $44, $49, $00, $00, $00, $00, $00, $00, $84, $44, $44, $49, $00, $00
+;	defb $00, $6f, $55, $e7, $00, $00, $00, $00, $00, $00, $6f, $55, $55, $e7, $00, $00
+;	defb $44, $c7, $00, $67, $00, $00, $84, $44, $44, $44, $c7, $00, $00, $67, $00, $00
+;	defb $55, $5b, $00, $67, $00, $00, $6f, $55, $55, $55, $5b, $00, $00, $67, $00, $00
+;	defb $00, $00, $00, $67, $00, $00, $67, $00, $00, $00, $00, $00, $00, $67, $00, $00
+;	defb $00, $00, $00, $67, $00, $00, $67, $00, $00, $00, $00, $00, $00, $67, $00, $00
+;
+;	defb $00, $00, $84, $c7, $00, $00, $6d, $49, $00, $00, $84, $44, $44, $c7, $00, $00
+;	defb $00, $00, $6f, $5b, $00, $00, $a5, $e7, $00, $00, $6f, $55, $55, $5b, $00, $00
+;	defb $00, $00, $67, $00, $00, $00, $00, $67, $00, $00, $67, $00, $00, $00, $00, $00
+;	defb $00, $00, $67, $00, $00, $00, $00, $67, $00, $00, $67, $00, $00, $00, $00, $00
+;	defb $00, $00, $6d, $44, $44, $44, $44, $c7, $00, $00, $6d, $44, $44, $44, $44, $44
+;	defb $00, $00, $a5, $55, $55, $55, $55, $5b, $00, $00, $a5, $55, $55, $55, $55, $55
+;	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+;	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 
 
 ;
@@ -368,7 +401,7 @@ tile_map:
 ;
 
 lookup:
-	defw blank_tile, circle_tile, cross_tile, some_tile
+	defw blank_tile, dot_tile, circle_tile, cross_tile
 	defw top_wall, bottom_wall, left_wall, right_wall
 	defw top_left_corner, top_right_corner, bottom_left_corner, bottom_right_corner
 	defw top_left_nub, top_right_nub, bottom_left_nub, bottom_right_nub
@@ -388,6 +421,9 @@ cross_tile:
 circle_tile:
 	defb $3c, $66, $c3, $81, $81, $c3, $66, $3c
 
+dot_tile:
+	defb $00, $3c, $7e, $7e, $7e, $7e, $3c, $00
+
 ;	defb $81, $c3, $66, $3c, $3c, $66, $c3, $81
 
 
@@ -396,27 +432,27 @@ top_wall:
 bottom_wall:
 	defb 0, 0, 0, 0, 0, 0, 219, 44
 left_wall:
-	defb 2, 2, 1, 1, 2, 2, 2, 1
-right_wall:
 	defb 128, 64, 64, 64, 128, 128, 64, 64
+right_wall:
+	defb 2, 2, 1, 1, 2, 2, 2, 1
 
 top_left_corner:
-	defb 152, 100, 6, 1, 2, 2, 2, 1
-top_right_corner:
 	defb 102, 153, 144, 128, 64, 128, 128, 64
+top_right_corner:
+	defb 152, 100, 6, 1, 2, 2, 2, 1
 bottom_left_corner:
-	defb 1, 2, 2, 2, 1, 6, 100, 152
-bottom_right_corner:
 	defb 64, 128, 128, 64, 128, 144, 153, 102
+bottom_right_corner:
+	defb 1, 2, 2, 2, 1, 6, 100, 152
 
 top_left_nub:
-	defb 2, 1, 0, 0, 0, 0, 0, 0
-top_right_nub:
 	defb 64, 128, 0, 0, 0, 0, 0, 0
+top_right_nub:
+	defb 2, 1, 0, 0, 0, 0, 0, 0
 bottom_left_nub:
-	defb 0, 0, 0, 0, 0, 0, 1, 2
-bottom_right_nub:
 	defb 0, 0, 0, 0, 0, 0, 128, 64
+bottom_right_nub:
+	defb 0, 0, 0, 0, 0, 0, 1, 2
 
 
 
