@@ -19,6 +19,7 @@ Kyle Huynh
 - Created animated stripe program that moves the stripe across the screen
   and wrapped around with the use of refresh interrupts. Figured out how to
   address the bottom portion of the screen.
+- Created version of cell-based etchasketch to have a blinking cursor
 
 ### Plans for next week
 Continue work on next steps for project:
