@@ -13,6 +13,8 @@ Kyle Huynh
 - Began implementing primitive sprite movement (atm only right movement) based
   on draw methods learned in lecture (i.e. stack POPing and preshifted
   spritemaps).
+- Combined cursor and map loader functionality into 'build_towers' program, which can 
+  also set the current cell (highlighted by the cursor) to a tower tile on button press.
 
 
 ### Plans for next week
@@ -22,3 +24,6 @@ Continue work on next steps for project:
 - Have a more dynamic sprite system set up (freely able to move
   left/right/up/down and being able to keep track of sprites in order to have
   multiple on screen)
+- Change keyboard input methods to be interupt based
+- add ability to build different towers (maybe also design new tower tiles?)
+  
