@@ -24,10 +24,10 @@ bin/z80asm: | bin/ zip/z80asm-1.8/
 	cp zip/z80asm-1.8/z80asm bin/
 
 bin/bas2tap: | bin/ zip/bas2tap/
-	gcc zip/bas2tap/bas2tap.c -o bin/bas2tap
+	gcc zip/bas2tap/bas2tap.c -o bin/bas2tap -lm
 
 bin/bin2tap: | bin/ zip/bin2tap/
-	gcc zip/bin2tap/bin2tap.c -o bin/bin2tap
+	gcc zip/bin2tap/bin2tap.c -o bin/bin2tap -lm
 
 
 # targets for downloading and extracting the source
