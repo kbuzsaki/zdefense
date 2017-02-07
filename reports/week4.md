@@ -1,4 +1,4 @@
-## Week 3 Report
+## Week 4 Report
 
 Jan 30th to Feb 5th
 
@@ -13,8 +13,11 @@ Kyle Huynh
 - Began implementing primitive sprite movement (atm only right movement) based
   on draw methods learned in lecture (i.e. stack POPing and preshifted
   spritemaps).
-- Combined cursor and map loader functionality into 'build_towers' program, which can 
-  also set the current cell (highlighted by the cursor) to a tower tile on button press.
+- Combined previous work on flashing cursor and map loading functionality into a single
+  program, 'build_towers'
+- Iterated on cursor design and map design
+- Added a "build tower" function where the current cell (highlighted by the cursor) is
+  set to a tower tile on button press.
 
 
 ### Plans for next week
