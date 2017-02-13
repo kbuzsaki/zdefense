@@ -12,34 +12,20 @@ start:
 
     CALL    pixel_addr          ; converts our raw x,y into the pixel address for use by draw_sprite
     ; LD      A, 8
-    LD      A, 56
+    LD      A, 56               ; This holds our initial pick for which sprite bitmap to draw, 56 is regular sprite
     CALL    draw_sprite
-    LD      D, 56
+    LD      D, 56               ; Register D is used in the sprite_move_* functions to represent what reg A represents above^
     CALL    sprite_move_left
+    CALL    sprite_move_right
+    CALL    sprite_move_right
+    CALL    sprite_move_right
+    CALL    sprite_move_right
+    CALL    sprite_move_right
     CALL    sprite_move_left
     CALL    sprite_move_left
     CALL    sprite_move_left
     CALL    sprite_move_left
 
-    ; CALL    sprite_move_down
-    ; CALL    sprite_move_down
-;    CALL    sprite_move_up
-;    CALL    sprite_move_up
-;    CALL    sprite_move_up
-;    CALL    sprite_move_up
-;    CALL    sprite_move_up
-;    CALL    sprite_move_up
-    ;LD      A, L
-    ;OR      $E0                 ; Set Y5Y4Y3 in the upper half of L to all 1's to get the write position back down to the very bottom of the third of screen
-    ;LD      L, A
-    ;CALL    sprite_move_up
-    ;CALL    sprite_move_right
-    ;CALL    sprite_move_right
-    ;CALL    sprite_move_right
-    ;CALL    sprite_move_right
-    ;CALL    sprite_move_right
-    ;CALL    sprite_move_right
-    ;CALL    sprite_move_right
 
 
 primary_data_loop:              ; fall through to this routine, HALT until interrupt occurs and start all over again.
@@ -80,6 +66,10 @@ sprite_move_up:
     ;POP     HL
     RET
 
+
+; BUG:
+;       If we move right into the next cell, and then move left all the way back to original cell
+;       then there's a sprite artifact that remains in the cell to the right
 sprite_move_left:
     PUSH    HL
 
@@ -89,14 +79,22 @@ sprite_move_left:
     CALL    draw_sprite
 
     ; TODO: Add condition to only do this if A < 56
+    LD      A, D
+    CP      56
+    JP      NC, sprite_move_left_end
+    
+    ; The case where A < 56, we want to modify the cell to the left as well
     DEC     L
     LD      A, D
     ADD     64
     CALL    draw_sprite
 
+sprite_move_left_end:
     POP     HL
     RET
 
+
+; NOTE: Suffers from the same artifact bug as sprite_move_left above
 sprite_move_right:
     PUSH    HL
 
@@ -109,31 +107,20 @@ sprite_move_right:
 
     ; Drew the new original cell, now time to draw the cell to the right
     ; TODO: Add condition to only do this if A > 56
+    LD      A, 56
+    CP      D           ; 56 < D?
+    JP      NC, sprite_move_right_end
+
     INC     L
     LD      A, D
     ;ADD     56
     SUB     64
     CALL    draw_sprite
 
+sprite_move_right_end:
     POP     HL
     RET
 
-; Sprite map offset specified in reg A
-; 0 -> left most sprite representation
-; 0-48 -> left side sprites, 56 -> regular sprite, 64-112 -> right side sprites
-; Sprite map address in DE after
-; select_sprite_map:
-;     ;PUSH    HL
-;     ;PUSH    DE
-
-;     LD      HL, happy_dude_bitmap
-;     LD      D, 0
-;     LD      E, A
-;     ADD     HL, DE
-
-;     ;POP     DE
-;     ;POP     HL
-;     RET
 
 ; Assumes that pixel address is in HL
 ; Can specify which sprite offset to use in reg A
@@ -164,8 +151,6 @@ draw_sprite:
                             ; ~32 cycles just for picking proper sprite...
                             ; NOTE: AFI
 
-    ;CALL    select_sprite_map
-    ;LD      sp, HL
 
     ; Once we have the stack pointer set to the actual sprite address
     ; start popping in an unrolled loop fashion till we draw all 8 lines
@@ -208,9 +193,6 @@ c_c_loop:
     DEC     A
     JP      NZ, c_c_loop
 
-    ;LD      A, H
-    ;SUB     8
-    ;LD      H, A
     POP     HL
     POP     AF
     RET
@@ -294,19 +276,7 @@ happy_dude_bitmap:
     defb    0, 0, 1,  0,  2,  1, 0, 0
     defb    0, 0, 0,  0,  1,  0, 0, 0
     defb    0, 0, 0,  0,  0,  0, 0, 0   ; do I really need this empty one?
-    ; START OF LEFT-SHIFTED MAPS
-    ; defb    0, 0,  0, 0,   0,  0,0, 0  
-    ; defb    0, 0,  0, 0, 128,  0,0, 0
-    ; defb    0, 0,128, 0,  64,128,0, 0
-    ; defb    0, 0, 64, 0,  32,192,0, 0
-    ; defb    0, 0, 32, 0,  16,224,0, 0
-    ; defb    0, 0,144, 0,   8,240,0, 0
-    ; defb    0, 0, 72, 0, 132,120,0, 0
-    
-
-; happy_dude_addr_table:
-;     defw    happy_dude_bitmap, happy_dude_bitmap+8, happy_dude_bitmap+16, happy_dude_bitmap+24, happy_dude_bitmap+32, happy_dude_bitmap+40, happy_dude_bitmap+48,
-;             happy_dude_bitmap+56, happy_dude_bitmap+64, happy_dude_bitmap+72, happy_dude_bitmap+80, happy_dude_bitmap+88, happy_dude_bitmap+96, happy_dude_bitmap+104, happy_dude_bitmap+112
+ 
 
 saved_sp:
     defw    0
