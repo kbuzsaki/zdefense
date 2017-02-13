@@ -2,7 +2,9 @@
 org 32768
 
 start:
-;    CALL    interrupt_setup
+    LD      E, 0
+    CALL    interrupt_setup
+
     LD      C, 4                ; 0000 0100
     LD      B, 80               ; 0100 0000
                                 ; pixel address: 010|01000 | 000 00100
@@ -15,16 +17,17 @@ start:
     LD      A, 56               ; This holds our initial pick for which sprite bitmap to draw, 56 is regular sprite
     CALL    draw_sprite
     LD      D, 56               ; Register D is used in the sprite_move_* functions to represent what reg A represents above^
-    CALL    sprite_move_left
-    CALL    sprite_move_right
-    CALL    sprite_move_right
-    CALL    sprite_move_right
-    CALL    sprite_move_right
-    CALL    sprite_move_right
-    CALL    sprite_move_left
-    CALL    sprite_move_left
-    CALL    sprite_move_left
-    CALL    sprite_move_left
+    
+    ; CALL    sprite_move_left
+    ; CALL    sprite_move_right
+    ; CALL    sprite_move_right
+    ; CALL    sprite_move_right
+    ; CALL    sprite_move_right
+    ; CALL    sprite_move_right
+    ; CALL    sprite_move_left
+    ; CALL    sprite_move_left
+    ; CALL    sprite_move_left
+    ; CALL    sprite_move_left
 
 
 
@@ -219,11 +222,20 @@ interrupt_handler:
     DI                          ; Disable interrupts
     PUSH    AF                  ; Preserve registers that we may overwrite
     PUSH    BC
-    PUSH    DE
+    ;PUSH    DE
     ;PUSH    HL                 ; HL contains coordinates of the beginning of stripe, want effects to last so we dont save it.
-    CALL    sprite_move_right
+    
+    INC     E
+    LD      A, E
+    CP      10
+    JP      NZ, i_h_cont
+
+    CALL    sprite_move_down
+    LD      E, 0
+
+i_h_cont:
     ;POP     HL
-    POP     DE
+    ;POP     DE
     POP     BC
     POP     AF
     EI                          ; Enable interrupts
