@@ -17,7 +17,16 @@ start:
     LD      A, 56               ; This holds our initial pick for which sprite bitmap to draw, 56 is regular sprite
     CALL    draw_sprite
     LD      D, 56               ; Register D is used in the sprite_move_* functions to represent what reg A represents above^
-    
+    ; CALL    sprite_move_right
+    ; CALL    sprite_move_right
+    ; CALL    sprite_move_right
+    ; CALL    sprite_move_right
+    ; CALL    sprite_move_right
+    ; CALL    sprite_move_right
+    ; CALL    sprite_move_right
+    ; CALL    sprite_move_right
+    ; CALL    sprite_move_right
+
     ; CALL    sprite_move_left
     ; CALL    sprite_move_right
     ; CALL    sprite_move_right
@@ -103,6 +112,7 @@ sprite_move_right:
 
     ; Next sprite map to be loaded is in A. This is for the original cell
     ; Calculate corresponding map for the right cell and put it in A'
+
     LD      A, D
     ADD     8
     LD      D, A
@@ -121,8 +131,22 @@ sprite_move_right:
     CALL    draw_sprite
 
 sprite_move_right_end:
-    POP     HL
+
+    ; Check if we are entirely in the right square now.
+    ; If we are, we need to move the origin to the next square
+    ; our original square is nothing to us now.
+    ; Last bitmap is at 112, so anything after that we do it
+    LD      A, D
+    CP      120
+    JP      Z, sprite_move_right_final_end      ; D == 120? If so, we've overflowed. Reset!
+    
+    POP     HL                                  ; NORMAL EXIT
     RET
+sprite_move_right_final_end:
+    POP     HL                                  ; Move origin cell one to the right
+    INC     L
+    LD      D, 56                               ; Reset our bitmap position to be 56 (regular sprite)
+    RET                                         ; bye bye man
 
 
 ; Assumes that pixel address is in HL
@@ -230,7 +254,7 @@ interrupt_handler:
     CP      10
     JP      NZ, i_h_cont
 
-    CALL    sprite_move_down
+    CALL    sprite_move_right
     LD      E, 0
 
 i_h_cont:
