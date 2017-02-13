@@ -3,20 +3,43 @@ org 32768
 
 start:
 ;    CALL    interrupt_setup
-    LD      C, 4
-    LD      B, 64
+    LD      C, 4                ; 0000 0100
+    LD      B, 80               ; 0100 0000
+                                ; pixel address: 010|01000 | 000 00100
+
+                                ; pix addr: 0100 1000|010
+                                ; pix addr: 0100 0111   - switch to lower part of screen, end of cell
 
     CALL    pixel_addr          ; converts our raw x,y into the pixel address for use by draw_sprite
-    LD      A, 0
+    ; LD      A, 8
+    LD      A, 56
     CALL    draw_sprite
-    LD      D, 0
-    CALL    sprite_move_right
-    CALL    sprite_move_right
-    CALL    sprite_move_right
-    CALL    sprite_move_right
-    CALL    sprite_move_right
-    CALL    sprite_move_right
-    CALL    sprite_move_right
+    LD      D, 56
+    CALL    sprite_move_left
+    CALL    sprite_move_left
+    CALL    sprite_move_left
+    CALL    sprite_move_left
+    CALL    sprite_move_left
+
+    ; CALL    sprite_move_down
+    ; CALL    sprite_move_down
+;    CALL    sprite_move_up
+;    CALL    sprite_move_up
+;    CALL    sprite_move_up
+;    CALL    sprite_move_up
+;    CALL    sprite_move_up
+;    CALL    sprite_move_up
+    ;LD      A, L
+    ;OR      $E0                 ; Set Y5Y4Y3 in the upper half of L to all 1's to get the write position back down to the very bottom of the third of screen
+    ;LD      L, A
+    ;CALL    sprite_move_up
+    ;CALL    sprite_move_right
+    ;CALL    sprite_move_right
+    ;CALL    sprite_move_right
+    ;CALL    sprite_move_right
+    ;CALL    sprite_move_right
+    ;CALL    sprite_move_right
+    ;CALL    sprite_move_right
 
 
 primary_data_loop:              ; fall through to this routine, HALT until interrupt occurs and start all over again.
@@ -24,6 +47,55 @@ primary_data_loop:              ; fall through to this routine, HALT until inter
     JR      primary_data_loop
 
 ; ============================sprites galore============================================
+
+sprite_move_down:
+    
+    CALL    clear_cell          ; Much slower, XOR drawing may solve this
+
+    LD      A, L
+    ADD     $20
+    LD      L, A
+
+    LD      A, 56
+    CALL    draw_sprite
+
+    RET
+
+sprite_move_up:
+    ;PUSH    HL
+
+    ; Change beginning address of HL to move up a few rows and then just draw sprite
+    ; Challenges:
+    ;       Case where sprite spans across two horizontally or 2 vertically
+    ;       If we go up a few rows, we may end up in totally different section of screen
+
+    CALL    clear_cell
+    LD      A, L
+    SUB     $20             ; Subtracts from y5y4y3 in the lower 8 bits, causes to go up 1 total color cell
+    LD      L, A
+
+    LD      A, 56            ; Will change based upon sprite's current offset from center
+    CALL    draw_sprite
+
+    ;POP     HL
+    RET
+
+sprite_move_left:
+    PUSH    HL
+
+    LD      A, D
+    SUB     8
+    LD      D, A
+    CALL    draw_sprite
+
+    ; TODO: Add condition to only do this if A < 56
+    DEC     L
+    LD      A, D
+    ADD     64
+    CALL    draw_sprite
+
+    POP     HL
+    RET
 
 sprite_move_right:
     PUSH    HL
@@ -36,13 +108,32 @@ sprite_move_right:
     CALL    draw_sprite
 
     ; Drew the new original cell, now time to draw the cell to the right
+    ; TODO: Add condition to only do this if A > 56
     INC     L
     LD      A, D
-    ADD     56
+    ;ADD     56
+    SUB     64
     CALL    draw_sprite
 
     POP     HL
     RET
+
+; Sprite map offset specified in reg A
+; 0 -> left most sprite representation
+; 0-48 -> left side sprites, 56 -> regular sprite, 64-112 -> right side sprites
+; Sprite map address in DE after
+; select_sprite_map:
+;     ;PUSH    HL
+;     ;PUSH    DE
+
+;     LD      HL, happy_dude_bitmap
+;     LD      D, 0
+;     LD      E, A
+;     ADD     HL, DE
+
+;     ;POP     DE
+;     ;POP     HL
+;     RET
 
 ; Assumes that pixel address is in HL
 ; Can specify which sprite offset to use in reg A
@@ -62,7 +153,7 @@ draw_sprite:
     ;       That's what was giving us problem before. 
     ;       Add ASM directive to put sprite data on clean boundary?
     exx                     ; 4 cycles
-    LD      HL, happy_dude  ; 10 cycles
+    LD      HL, happy_dude_bitmap  ; 10 cycles
     LD      D, 0
     LD      E, A
     ADD     HL, DE
@@ -72,6 +163,9 @@ draw_sprite:
     exx                     ; 4 cycles
                             ; ~32 cycles just for picking proper sprite...
                             ; NOTE: AFI
+
+    ;CALL    select_sprite_map
+    ;LD      sp, HL
 
     ; Once we have the stack pointer set to the actual sprite address
     ; start popping in an unrolled loop fashion till we draw all 8 lines
@@ -103,6 +197,23 @@ draw_sprite:
     RET
 
 
+clear_cell:
+    PUSH    AF
+    PUSH    HL
+    LD      A, 8
+
+c_c_loop:
+    LD      (HL), $00
+    INC     H
+    DEC     A
+    JP      NZ, c_c_loop
+
+    ;LD      A, H
+    ;SUB     8
+    ;LD      H, A
+    POP     HL
+    POP     AF
+    RET
 
 ; ===================================logistics==========================================
 
@@ -137,25 +248,6 @@ interrupt_handler:
     RETI                        ; Return from interrupt handler
     
 
-
-sprite_move_right_old:
-    LD      A, 4
-    OUT     (254), A
-    LD      A, D
-    CALL    draw_sprite
-    ADD     8
-    CP      72
-    JP      NZ, s_m_r_cont
-    LD      D, 0
-    JR      s_m_r_end
-s_m_r_cont:
-    LD      D, A
-s_m_r_end:
-    LD      A, 0
-    OUT     (254), A
-    RET
-
-
 ; B = Y pos, C = X pos
 ; Return addr in HL
 ; Based on lecture slides
@@ -186,8 +278,14 @@ pixel_addr:
 
 
 
-  
-happy_dude:
+happy_dude_bitmap:
+    defb    0, 0,  0, 0,   0,  0,0, 0  
+    defb    0, 0,  0, 0, 128,  0,0, 0
+    defb    0, 0,128, 0,  64,128,0, 0
+    defb    0, 0, 64, 0,  32,192,0, 0
+    defb    0, 0, 32, 0,  16,224,0, 0
+    defb    0, 0,144, 0,   8,240,0, 0
+    defb    0, 0, 72, 0, 132,120,0, 0
     defb    0, 0, 36, 0, 66, 60, 0, 0   ; default sprite, proper position
     defb    0, 0, 18, 0, 33, 30, 0, 0
     defb    0, 0, 9,  0, 16, 15, 0, 0
@@ -197,18 +295,18 @@ happy_dude:
     defb    0, 0, 0,  0,  1,  0, 0, 0
     defb    0, 0, 0,  0,  0,  0, 0, 0   ; do I really need this empty one?
     ; START OF LEFT-SHIFTED MAPS
-    defb    0, 0,  0, 0,   0,  0,0, 0  
-    defb    0, 0,  0, 0, 128,  0,0, 0
-    defb    0, 0,128, 0,  64,128,0, 0
-    defb    0, 0, 64, 0,  32,192,0, 0
-    defb    0, 0, 32, 0,  16,224,0, 0
-    defb    0, 0,144, 0,   8,240,0, 0
-    defb    0, 0, 72, 0, 132,120,0, 0
+    ; defb    0, 0,  0, 0,   0,  0,0, 0  
+    ; defb    0, 0,  0, 0, 128,  0,0, 0
+    ; defb    0, 0,128, 0,  64,128,0, 0
+    ; defb    0, 0, 64, 0,  32,192,0, 0
+    ; defb    0, 0, 32, 0,  16,224,0, 0
+    ; defb    0, 0,144, 0,   8,240,0, 0
+    ; defb    0, 0, 72, 0, 132,120,0, 0
     
 
-happy_dude_addr_table:
-    defw    happy_dude, happy_dude+8, happy_dude+16, happy_dude+24
-
+; happy_dude_addr_table:
+;     defw    happy_dude_bitmap, happy_dude_bitmap+8, happy_dude_bitmap+16, happy_dude_bitmap+24, happy_dude_bitmap+32, happy_dude_bitmap+40, happy_dude_bitmap+48,
+;             happy_dude_bitmap+56, happy_dude_bitmap+64, happy_dude_bitmap+72, happy_dude_bitmap+80, happy_dude_bitmap+88, happy_dude_bitmap+96, happy_dude_bitmap+104, happy_dude_bitmap+112
 
 saved_sp:
     defw    0
