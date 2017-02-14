@@ -79,36 +79,48 @@ sprite_move_up:
     RET
 
 
-; BUG:
-;       If we move right into the next cell, and then move left all the way back to original cell
-;       then there's a sprite artifact that remains in the cell to the right
+; - HL - Cell address of current sprite position
+; - D  - Current sprite position of bitmap
+; - HL may be changed and D will definitely be changed
 sprite_move_left:
     PUSH    HL
 
-    LD      A, D
-    SUB     8
-    LD      D, A
+    LD      A, D                                ; Register D contains the sprite position in the bitmap
+    SUB     8                                   ; Since we're going left, subtract 1 bitmap (8bytes)
+    CP      $F8                                 ; If we go below 0, we overflow, thus itd subtract from 0xFF
+    JP      Z, sprite_move_left_overflow        ; If D == 0-8, go to overflow case
+
+    LD      D, A                                ; Store new val back in D and call sprite
     CALL    draw_sprite
 
-    ; TODO: Add condition to only do this if A < 56
-    LD      A, D
+    ; We only draw the cell on the left only if we need to. i.e. If we're overfilling into their cell, or A < 56
+    LD      A, D            
     CP      56
-    JP      NC, sprite_move_left_end
+    JP      NC, sprite_move_left_end            ; If D >= 56, we just end.
     
     ; The case where A < 56, we want to modify the cell to the left as well
     DEC     L
     LD      A, D
-    ADD     64
+    ADD     64                                  ; Mirroring sprite map found at 8 rows above current row, 8*8=64
     CALL    draw_sprite
 
 sprite_move_left_end:
-    POP     HL
+    POP     HL                                  ; NORMAL EXIT
+    RET
+sprite_move_left_overflow:
+    POP     HL                                  ; Now that we've taken over the left cell, we relinquish ownership of current cell
+    DEC     L                                   ; We permenantly move origin address to left cell
+    LD      D, 56                               ; Reset D to be center neutral sprite (56)
+    LD      A, D                                ; draw_sprite needs sprite pos in reg A
+    CALL    draw_sprite
     RET
 
 
-; NOTE: Suffers from the same artifact bug as sprite_move_left above
+; - HL - Cell address of current sprite position
+; - D  - Current sprite position of bitmap
+; - HL may be changed and D will definitely be changed
 sprite_move_right:
-    PUSH    HL
+    PUSH    HL                                  ; TODO: Think we could probably get rid of these
 
     ; Next sprite map to be loaded is in A. This is for the original cell
     ; Calculate corresponding map for the right cell and put it in A'
@@ -247,10 +259,10 @@ interrupt_handler:
     
     INC     E
     LD      A, E
-    CP      10
+    CP      5
     JP      NZ, i_h_cont
 
-    CALL    sprite_move_right
+    CALL    sprite_move_left
     LD      E, 0
 
 i_h_cont:
