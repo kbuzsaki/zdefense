@@ -2,6 +2,13 @@
 org 32768
 
 start:
+
+    ; Sprite Data:
+    ; 8-bit for offset of sprite bitmap position, 0 - (15*8) + 2 range 
+    ; 16-bit fo origin address
+    ; 24 total, round up to 32?
+    ; 16-bit address | 8-bit offset | 8-bit data
+
     LD      E, 0
     CALL    interrupt_setup
 
