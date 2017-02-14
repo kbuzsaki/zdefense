@@ -113,41 +113,37 @@ sprite_move_right:
     ; Next sprite map to be loaded is in A. This is for the original cell
     ; Calculate corresponding map for the right cell and put it in A'
 
+    ; Current sprite position is held in D, increment it to the next position to the right
+    ; and then check if we overflowed. If not, just draw the sprite in the new position
     LD      A, D
-    ADD     8
-    LD      D, A
+    ADD     8                                   ; Increment bitmap to the next position, i.e. +8
+    CP      120                                 ; Did we overflow, are we past the list of acceptable sprites?
+    JP      Z, sprite_move_right_overflow
+
+    LD      D, A                                ; If we're safe, put new val back in D and draw the sprite
     CALL    draw_sprite
 
     ; Drew the new original cell, now time to draw the cell to the right
-    ; TODO: Add condition to only do this if A > 56
+    ; This only occurs if we NEED to draw cell to the right, i.e. if sprite pos > 56 (normal position)
     LD      A, 56
-    CP      D           ; 56 < D?
-    JP      NC, sprite_move_right_end
+    CP      D                                   ; 56 < D?
+    JP      NC, sprite_move_right_end           ; If not, exit normally
 
-    INC     L
-    LD      A, D
-    ;ADD     56
-    SUB     64
+    INC     L                                   ; Move one cell to the right
+    LD      A, D                                ; Determine which sprite model to draw based off of current sprite pos
+    SUB     64                                  ; These are always 64 apart (8 rows below current position)
     CALL    draw_sprite
 
 sprite_move_right_end:
-
-    ; Check if we are entirely in the right square now.
-    ; If we are, we need to move the origin to the next square
-    ; our original square is nothing to us now.
-    ; Last bitmap is at 112, so anything after that we do it
-    LD      A, D
-    CP      120
-    JP      Z, sprite_move_right_final_end      ; D == 120? If so, we've overflowed. Reset!
-    
     POP     HL                                  ; NORMAL EXIT
     RET
-sprite_move_right_final_end:
-    POP     HL                                  ; Move origin cell one to the right
-    INC     L
-    LD      D, 56                               ; Reset our bitmap position to be 56 (regular sprite)
+sprite_move_right_overflow:                     ; OVERFLOW CASE EXIT
+    POP     HL                                  ; Here, we permanently change the origin address to cell to the right
+    INC     L                                   ; Our previous address means nothing to us, we don't care about it anymore.
+    LD      D, 56                               ; Reset sprite position to default sprite position (centered, neutral)
+    LD      A, D                                ; draw_sprite requires sprite pos in reg A
+    CALL    draw_sprite
     RET                                         ; bye bye man
-
 
 ; Assumes that pixel address is in HL
 ; Can specify which sprite offset to use in reg A
