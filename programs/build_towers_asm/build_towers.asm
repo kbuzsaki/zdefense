@@ -4,7 +4,9 @@
 
 org 32768
 
-	di
+	; setup interrupt handler, disable interrupts
+	ld hl, interrupt_handler
+	call setup_interrupt_handler
 
 	; set border to green
 	ld a, 4
@@ -23,12 +25,27 @@ org 32768
 	ld hl, tile_map
 	call load_map
 
-
 	ld d, 10
 	ld e, 9
 
+	push bc
+	push bc
+
+	; enable interrupts again now that we're set up
+	ei
+	; wait for next interrupt
+infinite_wait:
+	jp infinite_wait
+
 ; cursor stuff
-main_loop:
+interrupt_handler:
+	di
+
+	ld a, (frame_counter)
+	add 1
+	ld (frame_counter), a
+	and 1
+	jp nz, interrupt_handler_end
 
 	; save old coordinates
 	push de
@@ -59,8 +76,6 @@ main_loop:
     add a, d
 	ld d, a
 
-	call wait_dur
-
 	; check if new coords differ from old coords
 	; brind old de into hl
 	pop hl
@@ -77,7 +92,9 @@ main_loop:
 
     call set_flash
 
-	jp main_loop
+interrupt_handler_end:
+	ei
+	reti
 
 
 draw_tower:
@@ -459,6 +476,25 @@ fill_attrs_inner_loop:
 	jp nz, fill_attrs_outer_loop
 	ret
 
+
+; Address space wrap-around interrupt handler discussed in class
+; Code adapted from:
+; http://www.animatez.co.uk/computers/zx-spectrum/interrupts/
+; Uses the address in hl as the interrupt handler
+setup_interrupt_handler:
+    di                         ; disable interrupts
+    ld ix, $FFF0               ; Where to stick this code
+    ld (ix + $4), $C3          ; Z80 opcode for JP
+    ld (ix + $5), l            ; Where to JP to (in HL)
+    ld (ix + $6), h
+    ld (ix + $F), $18          ; Z80 Opcode for JR
+    ld a, $39                  ; High byte address of vector table
+    ld i, a                    ; Set I register to this
+    im 2                       ; Set Interrupt Mode 2
+	ret
+
+frame_counter:
+	defb 0
 
 ignore_filler:
 	defs 128
