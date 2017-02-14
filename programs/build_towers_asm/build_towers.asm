@@ -590,7 +590,145 @@ bottom_left_nub:
 bottom_right_nub:
 	defb 0, 0, 0, 0, 0, 0, 1, 2
 
+tower_basic:
+    defb 90     #     # ## #
+    defb 255    #    ########
+    defb 126    #     ######
+    defb 60     #      ####
+    defb 60     #      ####
+    defb 60     #      ####
+    defb 60     #      ####
+    defb 60     #      ####
 
+tower_basic_upgrade:
+    defb 165    #    # #  # #
+    defb 255    #    ########
+    defb 219    #    ## ## ##
+    defb 255    #    ########
+    defb 126    #     ######
+    defb 60     #      ####
+    defb 60     #      ####
+    defb 60     #      ####
+
+tower_bomb:
+    defb 255    #    ########
+    defb 129    #    #      #
+    defb 153    #    #  ##  #
+    defb 165    #    # #  # #
+    defb 165    #    # #  # #
+    defb 153    #    #  ##  #
+    defb 129    #    #      #
+    defb 255    #    ########
+
+tower_bomb_upgrade:
+    defb 60     #      ####
+    defb 36     #      #  #
+    defb 219    #    ## ## ##
+    defb 165    #    # #  # #
+    defb 165    #    # #  # #
+    defb 219    #    ## ## ##
+    defb 36     #      #  #
+    defb 60     #      ####
+
+tower_zap:
+    defb 60     #      ####
+    defb 66     #     #    #
+    defb 66     #     #    #
+    defb 60     #      ####
+    defb 24     #       ##
+    defb 24     #       ##
+    defb 24     #       ##
+    defb 24     #       ##
+
+tower_zap_upgrade:
+    defb 126    #     ######
+    defb 129    #    #      #
+    defb 129    #    #      #
+    defb 129    #    #      #
+    defb 126    #     ######
+    defb 60     #      ####
+    defb 24     #       ##
+    defb 24     #       ##
+
+tower_obelisk:
+    defb 24     #       ##   
+    defb 60     #      ####  
+    defb 60     #      ####  
+    defb 60     #      ####  
+    defb 60     #      ####  
+    defb 126    #     ###### 
+    defb 255    #    ########
+    defb 255    #    ########
+
+tower_obelisk_upgrade:
+    defb 60     #      #### 
+    defb 36     #      #  #  
+    defb 102    #     ##  ## 
+    defb 66     #     #    # 
+    defb 66     #     #    # 
+    defb 66     #     #    # 
+    defb 195    #    ##    ##
+    defb 255    #    ########
+
+lightning:
+    defb 3      #          ##
+    defb 14     #        ###
+    defb 56     #      ###
+    defb 254    #    #######
+    defb 127    #     #######
+    defb 28     #       ###
+    defb 122    #     ###
+    defb 192    #    ##
+
+dollar:
+    defb 36     #      #  #
+    defb 126    #     ######
+    defb 165    #    # #  # #
+    defb 116    #     ### #
+    defb 46     #      # ###
+    defb 165    #    # #  # #
+    defb 126    #     ######
+    defb 36     #      #  #
+
+heart:
+    defb 102    #     ##  ##
+    defb 255    #    ########
+    defb 255    #    ########
+    defb 255    #    ########
+    defb 126    #     ######
+    defb 60     #      ####
+    defb 24     #       ##
+    defb 0      #
+
+heart_hollow:
+    defb 102    #     ##  ##
+    defb 154    #    #  ##  #
+    defb 129    #    #      #
+    defb 129    #    #      #
+    defb 66     #     #    #
+    defb 36     #      #  #
+    defb 24     #       ##
+    defb 0      #
+
+bullet:
+    defb 24     #       ##
+    defb 60     #      ####
+    defb 126    #     ######
+    defb 126    #     ######
+    defb 126    #     ######
+    defb 126    #     ######
+    defb 0      #
+    defb 126    #     ######
+
+bullet_hollow:
+    defb 24     #       ##
+    defb 36     #      #  #
+    defb 66     #     #    #
+    defb 66     #     #    #
+    defb 66     #     #    #
+    defb 126    #     ######
+    defb 0      #
+    defb 126    #     ######
 
 ; ################
 ; #   ######    ##
