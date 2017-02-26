@@ -9,6 +9,43 @@ TILE_MAP = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0],
             [0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+SIMPLE_TILE_MAP = [
+    "################################",
+    "################################",
+    "################################",
+    "###########         ############",
+    "########### ####### ############",
+    "     ###### ####### ############",
+    "#### ###### ####### ############",
+    "#### ###### ####### #######     ",
+    "#### ###### ####### ####### ####",
+    "####        ####### ####### ####",
+    "################### ####### ####",
+    "################### ####### ####",
+    "###################         ####",
+    "################################",
+    "################################",
+    "################################",
+]
+
+SIMPLE_TILE_MAP = [
+    "################################",
+    "################################",
+    "##########avvvvvvvvvb###########",
+    "##########>         <###########",
+    "vvvvvb####> e^^^^^f <###########",
+    "     <####> <#####> <###########",
+    "^^^f <####> <#####> <#####avvvvv",
+    "###> <####> <#####> <#####>     ",
+    "###> gvvvvh <#####> <#####> e^^^",
+    "###>        <#####> <#####> <###",
+    "###c^^^^^^^^d#####> <#####> <###",
+    "##################> gvvvvvh <###",
+    "##################>         <###",
+    "##################c^^^^^^^^^d###",
+    "################################",
+    "################################",
+]
 
 @unique
 class Tiles(Enum):
@@ -28,6 +65,25 @@ class Tiles(Enum):
     top_right_nub = 13
     bottom_left_nub = 14
     bottom_right_nub = 15
+
+CHARACTER_MAP = {
+    "#": Tiles.blank,
+    " ": Tiles.blank,
+    "^": Tiles.bottom_wall,
+    "v": Tiles.top_wall,
+    ">": Tiles.left_wall,
+    "<": Tiles.right_wall,
+
+    "a": Tiles.top_left_corner,
+    "b": Tiles.top_right_corner,
+    "c": Tiles.bottom_left_corner,
+    "d": Tiles.bottom_right_corner,
+
+    "h": Tiles.top_left_nub,
+    "g": Tiles.top_right_nub,
+    "f": Tiles.bottom_left_nub,
+    "e": Tiles.bottom_right_nub,
+}
 
 
 def pad_map(tile_map):
@@ -167,6 +223,9 @@ def make_tiles(tile_map):
 
     return tiles
 
+def make_simple_tiles(simple_tile_map):
+    return [[CHARACTER_MAP[c] for c in row] for row in simple_tile_map]
+
 def make_hex_vals(row):
     pairs = [(row[i*2], row[i*2+1]) for i in range(len(row)//2)]
     return ["".join(hex(e)[-1] for e in pair) for pair in pairs]
@@ -175,6 +234,6 @@ def make_defb(row):
     return "defb " + ", ".join("$" + e for e in make_hex_vals(row))
 
 if __name__ == "__main__":
-    t = make_tiles(TILE_MAP)
+    t = make_simple_tiles(SIMPLE_TILE_MAP)
     for r in t:
         print(make_defb([e.value for e in r]))
