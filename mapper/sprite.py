@@ -1,5 +1,5 @@
 
-SPRITE = [
+fat_center = [
     "  ####  ",
     " # ## # ",
     "########",
@@ -10,6 +10,29 @@ SPRITE = [
     "###  ###",
 ]
 
+fat_left_up = [
+    "  ####  ",
+    " # ## # ",
+    "########",
+    "###  ###",
+    "## ## ##",
+    " #######",
+    "####### ",
+    "     ###",
+]
+
+fat_right_up = [
+    "  ####  ",
+    " # ## # ",
+    "########",
+    "###  ###",
+    "## ## ##",
+    "####### ",
+    " #######",
+    "###     ",
+]
+
+fat_sprites = [fat_center, fat_right_up, fat_center, fat_left_up]
 
 def sprite_to_pixels(sprite):
     pixels = []
@@ -25,6 +48,7 @@ def format_byte(b):
 
 
 if __name__ == "__main__":
-    pixels = sprite_to_pixels(SPRITE)
-    for pixel in pixels:
-        print("defb " + format_byte(pixel))
+    for sprite_rows in fat_sprites:
+        pixels = sprite_to_pixels(sprite_rows)
+        for pixel, sprite_row in zip(pixels, sprite_rows):
+            print("defb " + format_byte(pixel) + "    ; " + sprite_row)
