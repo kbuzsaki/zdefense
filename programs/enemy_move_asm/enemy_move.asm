@@ -27,29 +27,32 @@ org 32768
 	ld d, 10
 	ld e, 9
 
-	push bc
-	push bc
+;	push bc
+;	push bc
+;
+;	ld hl, enemy_path
+;	ld b, 56
+;	ld c, 0
+;loop_thing:
+;	ld e, (hl)
+;	inc hl
+;	ld d, (hl)
+;	inc hl
+;
+;	push hl
+;	push bc
+;	call wait_dur
+;	ld hl, fat_enemy
+;	call draw_tile
+;	pop bc
+;	pop hl
+;	djnz loop_thing
+;
+;
+;	jp end
 
 	ld hl, enemy_path
-	ld b, 56
-	ld c, 0
-loop_thing:
-	ld e, (hl)
-	inc hl
-	ld d, (hl)
-	inc hl
-
 	push hl
-	push bc
-	call wait_dur
-	ld hl, fat_enemy
-	call draw_tile
-	pop bc
-	pop hl
-	djnz loop_thing
-
-
-	jp end
 
 	; enable interrupts again now that we're set up
 	ei
@@ -61,56 +64,42 @@ infinite_wait:
 interrupt_handler:
 	di
 
+	; only animate every 8th frame
 	ld a, (frame_counter)
 	add 1
 	ld (frame_counter), a
-	and 1
+	and $0f
 	jp nz, interrupt_handler_end
 
-	; save old coordinates
-	push de
+	; get old position
+	dec hl
+	dec hl
+	ld e, (hl)
+	inc hl
+	ld d, (hl)
+	inc hl
 
-
-	call is_r_down
-	cp 1
-	call z, draw_tower
-
-
-	call is_w_down
-    ld c, a
-	ld a, e
-	sub c
-	ld e, a
-
-	call is_s_down
-	add a, e
-	ld e, a
-
-	call is_a_down
-    ld c, a
-	ld a, d
-	sub c
-	ld d, a
-
-	call is_d_down
-    add a, d
-	ld d, a
-
-	; check if new coords differ from old coords
-	; brind old de into hl
+	; clear old position
+	push hl
+	ld hl, blank_tile
+	call draw_tile
 	pop hl
-	; check if h == d
-	ld a, h
-	sub d
-	ld b, a
-	; check if l == e
-	ld a, l
-	sub e
-	or b
-	; if not equal
-	call nz, do_thing
 
-    call set_flash
+	; get new position
+	ld e, (hl)
+	inc hl
+	ld d, (hl)
+	inc hl
+
+	; draw new position
+	push hl
+	ld a, (frame_counter)
+	and $38
+	srl a
+	ld hl, fat_enemy
+	ld l, a
+	call draw_tile
+	pop hl
 
 interrupt_handler_end:
 	ei
@@ -847,15 +836,42 @@ bullet_hollow:
     defb 0      ;
     defb 126    ;     ######
 
+; pad so enemy sprites are aligned
+defs $b000 - $
+
 fat_enemy:
-defb $3c
-defb $5a
-defb $ff
-defb $e7
-defb $db
-defb $ff
-defb $7e
-defb $e7
+	defb $3c    ;   ####  
+	defb $5a    ;  # ## # 
+	defb $ff    ; ########
+	defb $e7    ; ###  ###
+	defb $db    ; ## ## ##
+	defb $ff    ; ########
+	defb $7e    ;  ###### 
+	defb $e7    ; ###  ###
+	defb $3c    ;   ####  
+	defb $5a    ;  # ## # 
+	defb $ff    ; ########
+	defb $e7    ; ###  ###
+	defb $db    ; ## ## ##
+	defb $fe    ; ####### 
+	defb $7f    ;  #######
+	defb $e0    ; ###     
+	defb $3c    ;   ####  
+	defb $5a    ;  # ## # 
+	defb $ff    ; ########
+	defb $e7    ; ###  ###
+	defb $db    ; ## ## ##
+	defb $ff    ; ########
+	defb $7e    ;  ###### 
+	defb $e7    ; ###  ###
+	defb $3c    ;   ####  
+	defb $5a    ;  # ## # 
+	defb $ff    ; ########
+	defb $e7    ; ###  ###
+	defb $db    ; ## ## ##
+	defb $7f    ;  #######
+	defb $fe    ; ####### 
+	defb $07    ;      ###
 
 ; ################
 ; #   ######    ##
