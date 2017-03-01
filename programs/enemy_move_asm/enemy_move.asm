@@ -10,7 +10,7 @@ org 32768
 
 	; set border to green
 	ld a, 4
-	call 8859
+	out ($fe), a
 
 	; set pixels to 0, background to white, foreground to black
 	call clear_pixels
@@ -68,42 +68,146 @@ interrupt_handler:
 	ld a, (frame_counter)
 	add 1
 	ld (frame_counter), a
-	and $0f
+	and $07
 	jp nz, interrupt_handler_end
 
-	; get old position
-	dec hl
-	dec hl
+	; b is our index into the fat enemy array
+	ld b, 0
+handle_fat_enemy_loop:
+	; load the position for this enemy to do checks
+	ld hl, fat_enemy_array
+	ld l, b
+	ld a, (hl)
+	; check for $fe (skip enemy)
+	cp $fe
+	jp z, skip_handle_enemy
+	; check for $ff (end of array)
+	cp $ff
+	jp z, interrupt_handler_end
+
+	; if it's not, then call handle_enemy
+	push bc
+	ld a, b
+	call handle_enemy
+	pop bc
+
+skip_handle_enemy:
+	inc b
+	; repeat
+	jp handle_fat_enemy_loop
+
+	jp interrupt_handler_end
+
+;	; get old position
+;	dec hl
+;	dec hl
+;	ld e, (hl)
+;	inc hl
+;	ld d, (hl)
+;	inc hl
+;
+;	; check if old position was end of the path
+;	ld a, d
+;	cp $ff
+;	jp z, interrupt_handler_end
+;
+;	; clear old position
+;	push hl
+;	ld hl, blank_tile
+;	call draw_tile
+;	pop hl
+;
+;	; get new position
+;	ld e, (hl)
+;	inc hl
+;	ld d, (hl)
+;	inc hl
+;
+;	; check if we reached the end of the path (high byte $ff)
+;	ld a, d
+;	cp $ff
+;	jp nz, draw_new_position
+;	; if we did reach the end of the path, set border to red and abort
+;	ld a, 2
+;	out ($fe), a
+;	jp interrupt_handler_end
+;
+;draw_new_position:
+;	; draw new position
+;	push hl
+;	ld a, (frame_counter)
+;	and $18
+;	ld hl, fat_enemy
+;	ld l, a
+;	call draw_tile
+;	pop hl
+
+interrupt_handler_end:
+	ei
+	reti
+
+
+; inputs:
+;  a: the enemy's index into the enemy array
+; todo: take the ticker as a param?
+handle_enemy:
+	ld hl, fat_enemy_array
+	ld l, a
+	ld (current_enemy_index), a
+
+	; load the enemy's current position index
+	; and store its next position index back
+	ld a, (hl)
+	inc a
+	ld (hl), a
+	dec a
+
+	; load the enemy's old position in vram
+	sla a
+	ld hl, enemy_path
+	ld l, a
 	ld e, (hl)
 	inc hl
 	ld d, (hl)
 	inc hl
 
-	; clear old position
+	; clear the enemy at its old position
 	push hl
 	ld hl, blank_tile
 	call draw_tile
 	pop hl
 
-	; get new position
+	; load the enemy's new position in vram
 	ld e, (hl)
 	inc hl
 	ld d, (hl)
 	inc hl
 
-	; draw new position
-	push hl
+	; if the enemy's new position is the end ($ff), then abort
+	ld a, d
+	cp $ff
+	jp nz, draw_new_position
+	; if we did reach the end of the path, then:
+	; set position to fe so this enemy is skipped
+	ld hl, fat_enemy_array
+	ld a, (current_enemy_index)
+	ld l, a
+	ld (hl), $fe
+	; set border to red, and abort
+	ld a, 2
+	out ($fe), a
+	jp interrupt_handler_end
+
+draw_new_position:
+	; draw the enemy at its new position
+	; load the frame ticker
 	ld a, (frame_counter)
-	and $38
-	srl a
+	and $18
 	ld hl, fat_enemy
 	ld l, a
 	call draw_tile
-	pop hl
 
-interrupt_handler_end:
-	ei
-	reti
+	ret
 
 
 draw_tower:
@@ -539,6 +643,7 @@ frame_counter:
 defs $9000 - $
 
 enemy_path:
+	defw $0000
 	defw $40a0, $40a1, $40a2, $40a3, $40a4, $40c4, $40e4, $4804
 	defw $4824, $4825, $4826, $4827, $4828, $4829, $482a, $482b
 	defw $480b, $40eb, $40cb, $40ab, $408b, $406b, $406c, $406d
@@ -546,7 +651,21 @@ enemy_path:
 	defw $40d3, $40f3, $4813, $4833, $4853, $4873, $4893, $4894
 	defw $4895, $4896, $4897, $4898, $4899, $489a, $489b, $487b
 	defw $485b, $483b, $481b, $40fb, $40fc, $40fd, $40fe, $40ff
+	defw $ffff
 
+current_enemy_index:
+	defb $00
+
+defs $9100 - $
+
+; enemy positions
+fat_enemy_array:
+	defb $00
+	defb $02
+	defb $04
+	defb $08
+	defb $10
+	defb $ff
 
 ; tiles and sprites
 defs $a000 - $
