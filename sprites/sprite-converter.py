@@ -32,20 +32,23 @@ for y in range(height):
     for i in range(int(width / total_sprite_width)):
         binary_string = "".join(all_pixels[y][i * total_sprite_width:i * total_sprite_width + sprite_width])
 
-        byte_list[i][y] = str(int(binary_string, 2))
+        byte_list[i][y] = binary_string
 
-"""
+
 print("Expanded Format:")
 for line in byte_list:
     for byte in line:
-        print("defb " + byte)
-    print()
-"""
+        defb_line = "defb " + str(int(byte, 2))
+        comment = "  \t; " + byte.replace('0', ' ').replace('1', '#')
 
+        print(defb_line + comment)
+    print()
+
+"""
 print("Compact Format:")
 for line in byte_list:
     print("defb " + ", ".join(line))
-
+"""
 
 
          
