@@ -10,7 +10,7 @@ org 32768
 
 	; set border to green
 	ld a, 4
-	call 8859
+	out ($fe), a
 
 	; set pixels to 0, background to white, foreground to black
 	call clear_pixels
@@ -24,97 +24,121 @@ org 32768
 	ld hl, tile_map
 	call load_map
 
-	ld d, 10
-	ld e, 9
+	; enable interrupts again now that we're set up
+	ei
 
-	push bc
-	push bc
+	; infinite loop that spins while we wait for an interrupt
+infinite_wait:
+	jp infinite_wait
 
+
+; main game loop
+interrupt_handler:
+	di
+
+	; only animate every 8th frame
+	ld a, (frame_counter)
+	add 1
+	ld (frame_counter), a
+	and $07
+	jp nz, interrupt_handler_end
+
+	; loop over the array of fat enemies
+	; b is our index into the fat enemy array
+	ld b, 0
+handle_fat_enemy_loop:
+	; load the position for this enemy to do checks
+	ld hl, fat_enemy_array
+	ld l, b
+	ld a, (hl)
+	; check for $fe (skip enemy)
+	cp $fe
+	jp z, skip_handle_enemy
+	; check for $ff (end of array)
+	cp $ff
+	jp z, interrupt_handler_end
+
+	; if it's not, then call handle_enemy
+	push bc
+	ld a, b
+	call handle_enemy
+	pop bc
+
+skip_handle_enemy:
+	inc b
+	; repeat
+	jp handle_fat_enemy_loop
+
+	jp interrupt_handler_end
+
+interrupt_handler_end:
+	ei
+	reti
+
+
+; handle_enemy does enemy processing for an enemy in the
+; fat_enemy_array
+; inputs:
+;  a: the enemy's index into the enemy array
+; todo: take the ticker as a param?
+handle_enemy:
+	ld hl, fat_enemy_array
+	ld l, a
+	ld (current_enemy_index), a
+
+	; load the enemy's current position index
+	; and store its next position index back
+	ld a, (hl)
+	inc a
+	ld (hl), a
+	dec a
+
+	; load the enemy's old position in vram
+	sla a
 	ld hl, enemy_path
-	ld b, 56
-	ld c, 0
-loop_thing:
+	ld l, a
 	ld e, (hl)
 	inc hl
 	ld d, (hl)
 	inc hl
 
+	; clear the enemy at its old position
 	push hl
-	push bc
-	call wait_dur
-	ld hl, fat_enemy
+	ld hl, blank_tile
 	call draw_tile
-	pop bc
 	pop hl
-	djnz loop_thing
 
+	; load the enemy's new position in vram
+	ld e, (hl)
+	inc hl
+	ld d, (hl)
+	inc hl
 
-	jp end
-
-	; enable interrupts again now that we're set up
-	ei
-	; wait for next interrupt
-infinite_wait:
-	jp infinite_wait
-
-; cursor stuff
-interrupt_handler:
-	di
-
-	ld a, (frame_counter)
-	add 1
-	ld (frame_counter), a
-	and 1
-	jp nz, interrupt_handler_end
-
-	; save old coordinates
-	push de
-
-
-	call is_r_down
-	cp 1
-	call z, draw_tower
-
-
-	call is_w_down
-    ld c, a
-	ld a, e
-	sub c
-	ld e, a
-
-	call is_s_down
-	add a, e
-	ld e, a
-
-	call is_a_down
-    ld c, a
+	; if the enemy's new position is the end ($ff), then abort
 	ld a, d
-	sub c
-	ld d, a
+	cp $ff
+	jp nz, draw_new_position
+	; if we did reach the end of the path, then:
+	; set position to fe so this enemy is skipped
+	ld hl, fat_enemy_array
+	ld a, (current_enemy_index)
+	ld l, a
+	ld (hl), $fe
+	; set border to red, and abort
+	ld a, 2
+	out ($fe), a
+	jp interrupt_handler_end
 
-	call is_d_down
-    add a, d
-	ld d, a
+draw_new_position:
+	; draw the enemy at its new position
+	; load the frame ticker
+	ld a, (frame_counter)
+	and $18
+	ld hl, fat_enemy
+	ld l, a
+	call draw_tile
 
-	; check if new coords differ from old coords
-	; brind old de into hl
-	pop hl
-	; check if h == d
-	ld a, h
-	sub d
-	ld b, a
-	; check if l == e
-	ld a, l
-	sub e
-	or b
-	; if not equal
-	call nz, do_thing
-
-    call set_flash
-
-interrupt_handler_end:
-	ei
-	reti
+	ret
 
 
 draw_tower:
@@ -550,6 +574,7 @@ frame_counter:
 defs $9000 - $
 
 enemy_path:
+	defw $0000
 	defw $40a0, $40a1, $40a2, $40a3, $40a4, $40c4, $40e4, $4804
 	defw $4824, $4825, $4826, $4827, $4828, $4829, $482a, $482b
 	defw $480b, $40eb, $40cb, $40ab, $408b, $406b, $406c, $406d
@@ -557,7 +582,18 @@ enemy_path:
 	defw $40d3, $40f3, $4813, $4833, $4853, $4873, $4893, $4894
 	defw $4895, $4896, $4897, $4898, $4899, $489a, $489b, $487b
 	defw $485b, $483b, $481b, $40fb, $40fc, $40fd, $40fe, $40ff
+	defw $ffff
 
+current_enemy_index:
+	defb $00
+
+defs $9100 - $
+
+; enemy positions
+fat_enemy_array:
+	defb $00
+	defb $02
+	defs $9300 - $, $ff
 
 ; tiles and sprites
 defs $a000 - $
@@ -581,77 +617,6 @@ tile_map:
 	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 
-;	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-;	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-;	defb $00, $84, $44, $49, $00, $00, $00, $00, $00, $00, $84, $44, $44, $49, $00, $00
-;	defb $00, $6f, $55, $e7, $00, $00, $00, $00, $00, $00, $6f, $55, $55, $e7, $00, $00
-;	defb $44, $c7, $10, $67, $00, $00, $84, $44, $44, $44, $c7, $00, $00, $67, $00, $00
-;	defb $55, $5b, $00, $67, $00, $00, $6f, $55, $55, $55, $5b, $00, $00, $67, $00, $00
-;	defb $00, $00, $00, $67, $00, $00, $67, $10, $00, $00, $00, $00, $00, $67, $00, $00
-;	defb $00, $00, $00, $67, $00, $00, $67, $00, $00, $00, $00, $00, $01, $67, $00, $00
-;
-;	defb $00, $00, $84, $c7, $00, $00, $6d, $49, $00, $00, $84, $44, $44, $c7, $00, $00
-;	defb $00, $00, $6f, $5b, $00, $00, $a5, $e7, $00, $00, $6f, $55, $55, $5b, $00, $00
-;	defb $00, $00, $67, $00, $00, $00, $00, $67, $00, $00, $67, $00, $00, $00, $00, $00
-;	defb $00, $00, $67, $10, $00, $00, $00, $67, $00, $00, $67, $00, $00, $00, $00, $00
-;	defb $00, $00, $6d, $44, $44, $44, $44, $c7, $00, $00, $6d, $44, $44, $44, $44, $44
-;	defb $00, $00, $a5, $55, $55, $55, $55, $5b, $00, $00, $a5, $55, $55, $55, $55, $55
-;	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-;	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-
-;	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-;	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-;	defb $00, $84, $44, $49, $00, $00, $00, $00, $00, $00, $84, $44, $44, $49, $00, $00
-;	defb $00, $6f, $55, $e7, $00, $00, $00, $00, $00, $00, $6f, $55, $55, $e7, $00, $00
-;	defb $44, $c7, $00, $67, $00, $00, $84, $44, $44, $44, $c7, $00, $00, $67, $00, $00
-;	defb $55, $5b, $00, $67, $00, $00, $6f, $55, $55, $55, $5b, $00, $00, $67, $00, $00
-;	defb $00, $00, $00, $67, $00, $00, $67, $00, $00, $00, $00, $00, $00, $67, $00, $00
-;	defb $00, $00, $00, $67, $00, $00, $67, $00, $00, $00, $00, $00, $00, $67, $00, $00
-;
-;	defb $00, $00, $84, $c7, $00, $00, $6d, $49, $00, $00, $84, $44, $44, $c7, $00, $00
-;	defb $00, $00, $6f, $5b, $00, $00, $a5, $e7, $00, $00, $6f, $55, $55, $5b, $00, $00
-;	defb $00, $00, $67, $00, $00, $00, $00, $67, $00, $00, $67, $00, $00, $00, $00, $00
-;	defb $00, $00, $67, $00, $00, $00, $00, $67, $00, $00, $67, $00, $00, $00, $00, $00
-;	defb $00, $00, $6d, $44, $44, $44, $44, $c7, $00, $00, $6d, $44, $44, $44, $44, $44
-;	defb $00, $00, $a5, $55, $55, $55, $55, $5b, $00, $00, $a5, $55, $55, $55, $55, $55
-;	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-;	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-
-
-;
-;	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-;	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-;	defb $00, $84, $44, $49, $00, $00, $00, $00, $00, $00, $84, $44, $44, $49, $00, $00
-;	defb $00, $6f, $55, $e7, $00, $00, $00, $00, $00, $00, $6f
-;
-;	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-;	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-;
-;old_tile_map:
-;	defb $02, $03, $12, $13, $23, $01, $01, $01
-;	defb $11, $11, $11, $11, $11, $11, $11, $11
-;
-;	defb $01, $02, $03, $12, $13, $23, $01, $01
-;	defb $11, $11, $11, $11, $11, $11, $11, $11
-;
-;	defb $01, $01, $02, $03, $12, $13, $23, $01
-;	defb $11, $11, $11, $11, $11, $11, $11, $11
-;
-;	defb $01, $01, $01, $02, $03, $12, $13, $23
-;	defb $11, $11, $11, $11, $11, $11, $11, $11
-;
-;	defb $01, $01, $01, $02, $03, $12, $13, $23
-;	defb $11, $11, $11, $11, $11, $11, $11, $11
-;
-;	defb $01, $01, $02, $03, $12, $13, $23, $01
-;	defb $11, $11, $11, $11, $11, $11, $11, $11
-;
-;	defb $01, $02, $03, $12, $13, $23, $01, $01
-;	defb $11, $11, $11, $11, $11, $11, $11, $11
-;
-;	defb $02, $03, $12, $13, $23, $01, $01, $01
-;	defb $11, $11, $11, $11, $11, $11, $11, $11
-;
 
 lookup:
 	defw blank_tile, dot_tile, circle_tile, cross_tile
@@ -847,15 +812,42 @@ bullet_hollow:
     defb 0      ;
     defb 126    ;     ######
 
+; pad so enemy sprites are aligned
+defs $b000 - $
+
 fat_enemy:
-defb $3c
-defb $5a
-defb $ff
-defb $e7
-defb $db
-defb $ff
-defb $7e
-defb $e7
+	defb $3c    ;   ####  
+	defb $5a    ;  # ## # 
+	defb $ff    ; ########
+	defb $e7    ; ###  ###
+	defb $db    ; ## ## ##
+	defb $ff    ; ########
+	defb $7e    ;  ###### 
+	defb $e7    ; ###  ###
+	defb $3c    ;   ####  
+	defb $5a    ;  # ## # 
+	defb $ff    ; ########
+	defb $e7    ; ###  ###
+	defb $db    ; ## ## ##
+	defb $fe    ; ####### 
+	defb $7f    ;  #######
+	defb $e0    ; ###     
+	defb $3c    ;   ####  
+	defb $5a    ;  # ## # 
+	defb $ff    ; ########
+	defb $e7    ; ###  ###
+	defb $db    ; ## ## ##
+	defb $ff    ; ########
+	defb $7e    ;  ###### 
+	defb $e7    ; ###  ###
+	defb $3c    ;   ####  
+	defb $5a    ;  # ## # 
+	defb $ff    ; ########
+	defb $e7    ; ###  ###
+	defb $db    ; ## ## ##
+	defb $7f    ;  #######
+	defb $fe    ; ####### 
+	defb $07    ;      ###
 
 ; ################
 ; #   ######    ##
@@ -865,14 +857,5 @@ defb $e7
 ; ## #### ## #####
 ; ##      ##      
 ; ################
-
-;[[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-; [0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0],
-; [1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0],
-; [0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0],
-; [0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0],
-; [0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0],
-; [0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1],
-; [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
 end:
