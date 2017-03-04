@@ -37,11 +37,17 @@ interrupt_handler:
 	di
 
 	; only animate every 8th frame
-	ld a, (frame_counter)
+	ld a, (real_frame_counter)
 	add 1
-	ld (frame_counter), a
-	and $07
+	ld (real_frame_counter), a
+	and 7
 	jp nz, interrupt_handler_end
+	ld a, (real_frame_counter)
+	srl a
+	srl a
+	srl a
+	and 3
+	ld (frame_counter), a
 
 	; loop over the array of fat enemies
 	; b is our index into the fat enemy array
@@ -89,6 +95,17 @@ handle_enemy:
 	; load the enemy's current position index
 	; and store its next position index back
 	ld a, (hl)
+
+	; if frame_counter == 0:
+	;     then move to the next cell
+	; else:
+	;     just animate in the current cell
+	ld b, a
+	ld a, (frame_counter)
+	cp 0
+	ld a, b
+	jp nz, animate_current_cell
+
 	inc a
 	ld (hl), a
 	dec a
@@ -105,8 +122,20 @@ handle_enemy:
 	; clear the enemy at its old position
 	push hl
 	ld hl, blank_tile
-	call draw_tile
+	call old_draw_tile
 	pop hl
+
+animate_current_cell:
+	;;; load the enemy's position address
+    ; use enemy array index to load enemy position index
+	ld a, (current_enemy_index)
+	ld hl, fat_enemy_array
+	ld l, a
+	ld a, (hl)
+	; use enemy position index to load enemy position address
+	sla a
+	ld hl, enemy_path
+	ld l, a
 
 	; load the enemy's new position in vram
 	ld e, (hl)
@@ -132,11 +161,23 @@ handle_enemy:
 draw_new_position:
 	; draw the enemy at its new position
 	; load the frame ticker
-	ld a, (frame_counter)
-	and $18
-	ld hl, fat_enemy
+
+	; load the enemy's position from the enemy array
+	ld a, (current_enemy_index)
+	ld hl, fat_enemy_array
 	ld l, a
-	call draw_tile
+	ld a, (hl)
+	; load the enemy's direction from the position -> direction array
+	ld hl, enemy_path_direction
+	ld l, a
+	ld a, (hl)
+
+	; load the enemy sprite
+	ld hl, fat_enemy
+	; assume healthy for now
+    ld      l, $80
+    
+    call    draw_next_sprite
 
 	ret
 
@@ -146,7 +187,7 @@ draw_tower:
 	call get_cell_addr
 	ex de, hl
 	ld a, 1
-	call lookup_and_draw_tile
+	call lookup_and_old_draw_tile
 	pop de
 	ret
 
@@ -223,7 +264,7 @@ draw_map_loop_body:
 	and $0f
 
 	push de
-	call lookup_and_draw_tile
+	call lookup_and_old_draw_tile
 	pop de
 	inc e
 
@@ -234,7 +275,7 @@ draw_map_loop_body:
 	and $0f
 
 	push de
-	call lookup_and_draw_tile
+	call lookup_and_old_draw_tile
 	pop de
 	inc e
 
@@ -251,7 +292,7 @@ inf_loop:
 
 ; a = tile code
 ; de = tile location in vram
-lookup_and_draw_tile:
+lookup_and_old_draw_tile:
 	; lookup 4 bits in offset table
 	ld hl, lookup
 	add a, a
@@ -267,7 +308,7 @@ lookup_and_draw_tile:
 	pop de
 
 	; draw the tile
-	call draw_tile
+	call old_draw_tile
 
 	ret
 
@@ -284,7 +325,7 @@ clear_square:
 
 ; de = addr of dest in vram
 ; hl = addr of src tile
-draw_tile:
+old_draw_tile:
 	push de
 
 	; load y2, y1, y0 into a
@@ -295,17 +336,17 @@ draw_tile:
 	ld b, a
 	ld a, 7
 	sub b
-	jp z, end_draw_tile_loop_a
+	jp z, end_old_draw_tile_loop_a
 	add 1
 	ld b, a
 	ld c, 0
 
-draw_tile_loop_a:
+old_draw_tile_loop_a:
 	ldi
 	inc d
 	dec de
-	djnz draw_tile_loop_a
-end_draw_tile_loop_a:
+	djnz old_draw_tile_loop_a
+end_old_draw_tile_loop_a:
 
 	ld a, (hl)
 	ld (de), a
@@ -315,25 +356,25 @@ end_draw_tile_loop_a:
 
 	ld a, d
 	and 7
-	jp z, end_draw_tile_loop_b
+	jp z, end_old_draw_tile_loop_b
 	ld b, a
 	xor d
 	ld d, a
 	ld a, e
 	add 32
 	ld e, a
-	jp nc, skip_fix
+	jp nc, old_draw_tile_skip_fix
 	ld a, d
 	add 8
 	ld d, a
-skip_fix:
+old_draw_tile_skip_fix:
 
-draw_tile_loop_b:
+old_draw_tile_loop_b:
 	ldi
 	inc d
 	dec de
-	djnz draw_tile_loop_b
-end_draw_tile_loop_b:
+	djnz old_draw_tile_loop_b
+end_old_draw_tile_loop_b:
 	ret
 
 ; takes x and y coordinates of cell
@@ -544,6 +585,247 @@ fill_attrs_inner_loop:
 	ret
 
 
+packing_test:
+
+    ld      a, $03
+    ld      (frame_counter), a    ; default sprite position (neutral)
+
+    ld      a, $02          ; direction - move up (REMEBER- only 0,1,2,3)
+    ld      h, $F0          ; base address $F0 + enemy type $0 = $F0
+    ld      l, $80          ; if to be unhealthy, would be 80 since health is in MSB
+    ld      de, $40E4
+    
+    call    draw_next_sprite
+
+    ; Result:   left cell sprite addr: 0xF000
+    ;           right cell sprite adr: 0xF020
+
+    ret
+
+
+; Function will pack necesary data into address for the *next* sprite bitmap
+
+; Direction - Reg A
+; Health    - Reg L (MSB no shifting required)
+; Ticker    - grab from mem ( frame_counter )
+; VRAM      - DE
+; Enemy type- Reg H
+; Do check if enemy is at rightmost point on screen, dont draw the second call
+
+; NOTE TO BRING UP: Up and down sprite maps reversed?
+
+; TODO:
+; take vram as additional param (DONE - push vram address onto stack as first param before function call)
+; do not calc sprite offset in draw method, just draw cell, call it twice to draw overlapping cells (DONE)
+; calculate starting address of line that vertical draw method will use, i.e. it doesnt always start at beginning of color cell (NOT DONE)
+; call horizontal draw method twice for the left cell and the right cell (NOT DONE)
+; vertical: addr of sprite - hl
+;           de - vram address
+draw_next_sprite:
+    ld      b, a            ; preserve direction for later when we're checking
+
+    ; Pack direction into given l (l already contains health in MSB)
+    rrc     a
+    rrc     a
+    rrc     a
+    or      l
+
+    ; Pack ticker into l
+    ld      l, a
+    ld      a, (frame_counter)
+    sla     a
+    sla     a
+    sla     a
+    or      l
+
+    ; Save into L
+    ld      l, a
+
+    ; H should already be set 
+
+    ; ---- Now, address packed, determine which draw method to call
+    ;      based on direction
+
+    ; Direction format:
+    ; right 1 (left cell)   - 00
+    ; right 2 (right cell)  - 01
+    ; up                    - 10
+    ; down                  - 11
+    ; Do a bit test on MSB to see where to branch (1- vertical, 0 -horizontal)
+    ; bit test sets z flag to OPPOSITE of that bit's value
+    
+    bit     1, b
+    jp      nz, test_vertical
+
+    ; MSB is 0, so its a move right
+    ; DE unmodified and is vram address, keep as parameter
+    ; HL is newly constructed bitmap data, passed in as well
+    ; TODO: 
+    ;       handle case of overflow (i.e. dont do second call if overflow imminent)
+    call    draw_sprite_entire_cell
+
+    ; Did first call, now make second call to cell to the right
+    ; a should still contain the l we were previously using.
+    ld      a, l
+    or      $20             ; turn the packed direction info in l to a 01 (right 2)
+    ld      l, a
+    inc     e               ; go to next cell to the right on x-axis
+
+    call    draw_sprite_entire_cell
+
+
+    jr      draw_next_sprite_end
+test_vertical:
+    ; Modify pixel address to start at proper offset dictated by ticker 
+    ;   (either up or down)
+    ; ticker val | shift up val | shift down val
+    ; ------------------------------------------
+    ;   0 - 0 - 0
+    ;   1 - 6 - 2
+    ;   2 - 4 - 4
+    ;   3 - 2 - 6
+    ; shift ticker by two for shift down val then sub from 8 for shift up val
+    ld      a, (frame_counter)
+    sla     a                   ; multiply by two
+    ld      c, a                ; We're gonna trash a, so c will contain that frame_counter*2
+    srl     b                   ; test lsb of direction, 0 - up, 1 - down
+    
+    jr      nc, draw_next_sprite_up
+
+    ; else, we're moving down. no other processing, just adjust HL and call
+    ld      a, d
+    add     a, c
+    ld      d, a
+    ; DE and HL in place as parameters for VRAM and sprite bitmap addr
+    ; NOTE: REGISTERS MAY BE TRASHED AFTER VERTICAL CALLS    
+    call    sprite_move_vertical
+
+    jr      draw_next_sprite_end
+draw_next_sprite_up:
+    ld      a, 7
+    sub     c                   ; 8 - c gives us shift up val
+    
+    ; no other processing, just adjust vram address and call
+    add     a, d
+    ld      d, a
+    ; DE and HL in place as VRAM & bitmap addr
+    call    sprite_move_vertical
+
+draw_next_sprite_end:
+    ret
+
+; de = addr of dest in vram
+; hl = addr of src tile
+sprite_move_vertical:
+	push de
+
+	; load y2, y1, y0 into a
+	ld a, d
+	and 7
+
+	; calculate the number of iterations until y2, y1, y0 == 0
+	ld b, a
+	ld a, 7
+	sub b
+	jp z, end_draw_tile_loop_a
+	add 1
+	ld b, a
+	ld c, 0
+
+draw_tile_loop_a:
+	ldi
+	inc d
+	dec de
+	djnz draw_tile_loop_a
+end_draw_tile_loop_a:
+
+	ld a, (hl)
+	ld (de), a
+	inc hl
+
+	pop de
+
+	ld a, d
+	and 7
+	jp z, end_draw_tile_loop_b
+	ld b, a
+	xor d
+	ld d, a
+	ld a, e
+	add 32
+	ld e, a
+	jp nc, skip_fix
+	ld a, d
+	add 8
+	ld d, a
+skip_fix:
+
+draw_tile_loop_b:
+	ldi
+	inc d
+	dec de
+	djnz draw_tile_loop_b
+end_draw_tile_loop_b:
+
+	ret
+	
+
+
+; sprite bitmap data address is in HL
+; take vram address in DE
+draw_sprite_entire_cell:
+    PUSH    HL
+    PUSH    DE
+    LD      (saved_sp), sp
+
+
+    ; Set stack pointer to beginning of sprite data
+    ; Pop off two bytes at once and write them onto screen
+    ; ....as to why its E and then D, not sure.
+
+    ; NOTE: We can make this shorter. Replace with commented code.
+    ;       However, we need to ensure that sprite addresses are clean
+    ;       i.e. adding a number between 0-64 won't overflow the L register
+    ;       That's what was giving us problem before. 
+    ;       Add ASM directive to put sprite data on clean boundary?
+
+
+    ld      sp, hl          ; load sprite bitmap data as stackpointer
+    ex      de, hl          ; switch so that de -> sprite bitmap data addr, hl -> vram address
+
+
+    ; Once we have the stack pointer set to the actual sprite address
+    ; start popping in an unrolled loop fashion till we draw all 8 lines
+    POP     DE
+    LD      (HL), E
+    INC     H
+    LD      (HL), D
+    INC     H
+    POP     DE
+    LD      (HL), E
+    INC     H
+    LD      (HL), D
+    INC     H
+    POP     DE
+    LD      (HL), E
+    INC     H
+    LD      (HL), D
+    INC     H
+    POP     DE
+    LD      (HL), E
+    INC     H
+    LD      (HL), D
+    INC     H
+    
+    LD      sp, (saved_sp)
+    POP     DE
+    POP     HL
+    RET
+
+saved_sp:
+    defw    0
+
+
 ; Address space wrap-around interrupt handler discussed in class
 ; Code adapted from:
 ; http://www.animatez.co.uk/computers/zx-spectrum/interrupts/
@@ -559,6 +841,9 @@ setup_interrupt_handler:
     ld i, a                    ; Set I register to this
     im 2                       ; Set Interrupt Mode 2
 	ret
+
+real_frame_counter:
+	defb 0
 
 frame_counter:
 	defb 0
@@ -584,15 +869,26 @@ enemy_path:
 	defw $485b, $483b, $481b, $40fb, $40fc, $40fd, $40fe, $40ff
 	defw $ffff
 
+defs $9100 - $
+
+enemy_path_direction:
+	defb $00
+	defb $00, $00, $00, $00, $03, $03, $03, $03
+	defb $00, $00, $00, $00, $00, $00, $00, $02
+	defb $02, $02, $02, $02, $02, $00, $00, $00
+	defb $00, $00, $00, $00, $00, $03, $03, $03
+	defb $03, $03, $03, $03, $03, $03, $00, $00
+	defb $00, $00, $00, $00, $00, $00, $02, $02
+	defb $02, $02, $02, $00, $00, $00, $00, $00
+
 current_enemy_index:
 	defb $00
 
-defs $9100 - $
+defs $9200 - $
 
 ; enemy positions
 fat_enemy_array:
 	defb $00
-	defb $02
 	defs $9300 - $, $ff
 
 ; tiles and sprites
@@ -816,46 +1112,290 @@ bullet_hollow:
 defs $b000 - $
 
 fat_enemy:
-	defb $3c    ;   ####  
-	defb $5a    ;  # ## # 
-	defb $ff    ; ########
-	defb $e7    ; ###  ###
-	defb $db    ; ## ## ##
-	defb $ff    ; ########
-	defb $7e    ;  ###### 
-	defb $e7    ; ###  ###
-	defb $3c    ;   ####  
-	defb $5a    ;  # ## # 
-	defb $ff    ; ########
-	defb $e7    ; ###  ###
-	defb $db    ; ## ## ##
-	defb $fe    ; ####### 
-	defb $7f    ;  #######
-	defb $e0    ; ###     
-	defb $3c    ;   ####  
-	defb $5a    ;  # ## # 
-	defb $ff    ; ########
-	defb $e7    ; ###  ###
-	defb $db    ; ## ## ##
-	defb $ff    ; ########
-	defb $7e    ;  ###### 
-	defb $e7    ; ###  ###
-	defb $3c    ;   ####  
-	defb $5a    ;  # ## # 
-	defb $ff    ; ########
-	defb $e7    ; ###  ###
-	defb $db    ; ## ## ##
-	defb $7f    ;  #######
-	defb $fe    ; ####### 
-	defb $07    ;      ###
+defb 60  	;   ####  
+defb 122  	;  #### # 
+defb 255  	; ########
+defb 253  	; ###### #
+defb 254  	; ####### 
+defb 127  	;  #######
+defb 24  	;    ##   
+defb 28  	;    ###  
 
-; ################
-; #   ######    ##
-;   # ##     ## ##
-; ### ## ###### ##
-; ##  ##  ##    ##
-; ## #### ## #####
-; ##      ##      
-; ################
+defb 15  	;     ####
+defb 30  	;    #### 
+defb 63  	;   ######
+defb 63  	;   ######
+defb 63  	;   ######
+defb 31  	;    #####
+defb 13  	;     ## #
+defb 14  	;     ### 
 
-end:
+defb 3  	;       ##
+defb 7  	;      ###
+defb 15  	;     ####
+defb 15  	;     ####
+defb 15  	;     ####
+defb 7  	;      ###
+defb 1  	;        #
+defb 1  	;        #
+
+defb 0  	;         
+defb 1  	;        #
+defb 3  	;       ##
+defb 3  	;       ##
+defb 3  	;       ##
+defb 1  	;        #
+defb 0  	;         
+defb 0  	;         
+
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+
+defb 0  	;         
+defb 128  	; #       
+defb 192  	; ##      
+defb 64  	;  #      
+defb 128  	; #       
+defb 192  	; ##      
+defb 128  	; #       
+defb 192  	; ##      
+
+defb 192  	; ##      
+defb 160  	; # #     
+defb 240  	; ####    
+defb 208  	; ## #    
+defb 224  	; ###     
+defb 240  	; ####    
+defb 128  	; #       
+defb 192  	; ##      
+
+defb 240  	; ####    
+defb 232  	; ### #   
+defb 252  	; ######  
+defb 244  	; #### #  
+defb 248  	; #####   
+defb 252  	; ######  
+defb 216  	; ## ##   
+defb 236  	; ### ##  
+
+defb 60  	;   ####  
+defb 126  	;  ###### 
+defb 255  	; ########
+defb 255  	; ########
+defb 255  	; ########
+defb 255  	; ########
+defb 126  	;  ###### 
+defb 231  	; ###  ###
+
+defb 60  	;   ####  
+defb 126  	;  ###### 
+defb 255  	; ########
+defb 255  	; ########
+defb 255  	; ########
+defb 127  	;  #######
+defb 254  	; ####### 
+defb 7  	;      ###
+
+defb 60  	;   ####  
+defb 126  	;  ###### 
+defb 255  	; ########
+defb 255  	; ########
+defb 255  	; ########
+defb 255  	; ########
+defb 126  	;  ###### 
+defb 231  	; ###  ###
+
+defb 60  	;   ####  
+defb 126  	;  ###### 
+defb 255  	; ########
+defb 255  	; ########
+defb 255  	; ########
+defb 254  	; ####### 
+defb 127  	;  #######
+defb 224  	; ###     
+
+defb 60  	;   ####  
+defb 90  	;  # ## # 
+defb 255  	; ########
+defb 219  	; ## ## ##
+defb 231  	; ###  ###
+defb 255  	; ########
+defb 126  	;  ###### 
+defb 231  	; ###  ###
+
+defb 60  	;   ####  
+defb 90  	;  # ## # 
+defb 255  	; ########
+defb 219  	; ## ## ##
+defb 231  	; ###  ###
+defb 254  	; ####### 
+defb 127  	;  #######
+defb 224  	; ###     
+
+defb 60  	;   ####  
+defb 90  	;  # ## # 
+defb 255  	; ########
+defb 219  	; ## ## ##
+defb 231  	; ###  ###
+defb 255  	; ########
+defb 126  	;  ###### 
+defb 231  	; ###  ###
+
+defb 60  	;   ####  
+defb 90  	;  # ## # 
+defb 255  	; ########
+defb 219  	; ## ## ##
+defb 231  	; ###  ###
+defb 127  	;  #######
+defb 254  	; ####### 
+defb 7  	;      ###
+
+defb 60  	;   ####  
+defb 122  	;  #### # 
+defb 255  	; ########
+defb 254  	; ####### 
+defb 253  	; ###### #
+defb 127  	;  #######
+defb 24  	;    ##   
+defb 28  	;    ###  
+
+defb 15  	;     ####
+defb 30  	;    #### 
+defb 63  	;   ######
+defb 63  	;   ######
+defb 63  	;   ######
+defb 31  	;    #####
+defb 13  	;     ## #
+defb 14  	;     ### 
+
+defb 3  	;       ##
+defb 7  	;      ###
+defb 15  	;     ####
+defb 15  	;     ####
+defb 15  	;     ####
+defb 7  	;      ###
+defb 1  	;        #
+defb 1  	;        #
+
+defb 0  	;         
+defb 1  	;        #
+defb 3  	;       ##
+defb 3  	;       ##
+defb 3  	;       ##
+defb 1  	;        #
+defb 0  	;         
+defb 0  	;         
+
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+
+defb 0  	;         
+defb 128  	; #       
+defb 192  	; ##      
+defb 128  	; #       
+defb 64  	;  #      
+defb 192  	; ##      
+defb 128  	; #       
+defb 192  	; ##      
+
+defb 192  	; ##      
+defb 160  	; # #     
+defb 240  	; ####    
+defb 224  	; ###     
+defb 208  	; ## #    
+defb 240  	; ####    
+defb 128  	; #       
+defb 192  	; ##      
+
+defb 240  	; ####    
+defb 232  	; ### #   
+defb 252  	; ######  
+defb 248  	; #####   
+defb 244  	; #### #  
+defb 252  	; ######  
+defb 216  	; ## ##   
+defb 236  	; ### ##  
+
+defb 60  	;   ####  
+defb 126  	;  ###### 
+defb 255  	; ########
+defb 255  	; ########
+defb 255  	; ########
+defb 255  	; ########
+defb 126  	;  ###### 
+defb 231  	; ###  ###
+
+defb 60  	;   ####  
+defb 126  	;  ###### 
+defb 255  	; ########
+defb 255  	; ########
+defb 255  	; ########
+defb 127  	;  #######
+defb 254  	; ####### 
+defb 7  	;      ###
+
+defb 60  	;   ####  
+defb 126  	;  ###### 
+defb 255  	; ########
+defb 255  	; ########
+defb 255  	; ########
+defb 255  	; ########
+defb 126  	;  ###### 
+defb 231  	; ###  ###
+
+defb 60  	;   ####  
+defb 126  	;  ###### 
+defb 255  	; ########
+defb 255  	; ########
+defb 255  	; ########
+defb 254  	; ####### 
+defb 127  	;  #######
+defb 224  	; ###     
+
+defb 60  	;   ####  
+defb 90  	;  # ## # 
+defb 255  	; ########
+defb 231  	; ###  ###
+defb 219  	; ## ## ##
+defb 255  	; ########
+defb 126  	;  ###### 
+defb 231  	; ###  ###
+
+defb 60  	;   ####  
+defb 90  	;  # ## # 
+defb 255  	; ########
+defb 231  	; ###  ###
+defb 219  	; ## ## ##
+defb 254  	; ####### 
+defb 127  	;  #######
+defb 224  	; ###     
+
+defb 60  	;   ####  
+defb 90  	;  # ## # 
+defb 255  	; ########
+defb 231  	; ###  ###
+defb 219  	; ## ## ##
+defb 255  	; ########
+defb 126  	;  ###### 
+defb 231  	; ###  ###
+
+defb 60  	;   ####  
+defb 90  	;  # ## # 
+defb 255  	; ########
+defb 231  	; ###  ###
+defb 219  	; ## ## ##
+defb 127  	;  #######
+defb 254  	; ####### 
+defb 7  	;      ###
