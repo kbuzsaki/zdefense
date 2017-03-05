@@ -13,12 +13,12 @@ org 32768
 	out ($fe), a
 
 	; set pixels to 0, background to white, foreground to black
-	call clear_pixels
-	call clear_attrs
+	call util_clear_pixels
+	call util_clear_attrs
 
 	; set the screen to black
 	ld d, $ff
-	call fill_all_pixels
+	call util_fill_all_pixels
 
 	; draw the map from the tile map
 	ld hl, tile_map
