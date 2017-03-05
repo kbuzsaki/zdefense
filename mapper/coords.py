@@ -6,8 +6,14 @@ import sys
 # attr address
 # [0, 1, 0,  1,  1,  0, y7, y6] [y5, y4, y3, x7, x6, x5, x4, x3]
 
+def chunk(seq, size):
+    return (seq[i:i + size] for i in range(0, len(seq), size))
+
 def format_address(addr):
     return '${:04x}'.format(addr)
+
+def format_byte(b):
+    return '${:02x}'.format(b)
 
 
 def cell_coords_to_pixel_address(cell_x, cell_y):
@@ -50,6 +56,19 @@ def expand_corners(corners):
         prev_corner = corner
 
     return cells
+
+def direction(start, end):
+    sx, sy = start
+    ex, ey = end
+
+    # moving right - direction 0
+    if ex > sx:
+        return 0
+    elif ey < sy:
+        return 2
+    else:
+        return 3
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
@@ -97,5 +116,13 @@ if __name__ == "__main__":
     print()
     print()
 
-    for i in range(len(addrs) // 8):
-        print("defw " + ", ".join(map(format_address, addrs[i*8:(i+1)*8])))
+    for a in chunk(addrs, 8):
+        print("defw " + ", ".join(map(format_address, a)))
+
+    print()
+    print()
+    dirs = [direction(cells[i], cells[i+1]) for i in range(len(cells)-1)]
+    for a in chunk(dirs, 8):
+        print("defb " + ", ".join(map(format_byte, a)))
+
+
