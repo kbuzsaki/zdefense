@@ -126,12 +126,37 @@ handle_enemy:
 	pop hl
 
 animate_current_cell:
+	;;; check direction
+	; load the enemy's position from the enemy array
+	ld a, (current_enemy_index)
+	ld hl, fat_enemy_array
+	ld l, a
+	ld a, (hl)
+	; load the enemy's direction from the position -> direction array
+	ld hl, enemy_path_direction
+	ld l, a
+	ld a, (hl)
+	;;; if direction is up, then give the next cell address
+	;;; else give the current one
+	cp 2
+	jp nz, animate_current_cell_load_pos_index
 	;;; load the enemy's position address
     ; use enemy array index to load enemy position index
 	ld a, (current_enemy_index)
 	ld hl, fat_enemy_array
 	ld l, a
 	ld a, (hl)
+	inc a
+	jp animate_current_cell_load_pos_addr
+
+animate_current_cell_load_pos_index:
+	;;; load the enemy's position address
+    ; use enemy array index to load enemy position index
+	ld a, (current_enemy_index)
+	ld hl, fat_enemy_array
+	ld l, a
+	ld a, (hl)
+animate_current_cell_load_pos_addr:
 	; use enemy position index to load enemy position address
 	sla a
 	ld hl, enemy_path
@@ -719,6 +744,18 @@ draw_next_sprite_end:
 sprite_move_vertical:
 	push de
 
+	; just draw a blank tile on top of us first
+	; todo: make this more efficient?
+	push hl
+	push de
+	ld hl, blank_tile
+	ld a, d
+	and $f8
+	ld d, a
+	call old_draw_tile
+	pop de
+	pop hl
+
 	; load y2, y1, y0 into a
 	ld a, d
 	and 7
@@ -759,6 +796,20 @@ end_draw_tile_loop_a:
 	add 8
 	ld d, a
 skip_fix:
+
+	; just draw a blank tile on top of us first
+	; todo: make this more efficient?
+	push hl
+	push de
+	push bc
+	ld hl, blank_tile
+	ld a, d
+	and $f8
+	ld d, a
+	call old_draw_tile
+	pop bc
+	pop de
+	pop hl
 
 draw_tile_loop_b:
 	ldi
@@ -889,6 +940,29 @@ defs $9200 - $
 ; enemy positions
 fat_enemy_array:
 	defb $00
+	defb $02
+	defb $04
+	defb $06
+	defb $08
+	defb $0a
+	defb $0c
+	defb $0e
+	defb $10
+	defb $12
+	defb $14
+	defb $16
+	defb $18
+	defb $1a
+	defb $1c
+	defb $1e
+	defb $20
+	defb $22
+	defb $24
+	defb $26
+	defb $28
+	defb $2a
+	defb $2c
+	defb $2e
 	defs $9300 - $, $ff
 
 ; tiles and sprites
