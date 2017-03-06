@@ -45,33 +45,7 @@ interrupt_handler:
 	and 3
 	ld (frame_counter), a
 
-	; loop over the array of fat enemies
-	; b is our index into the fat enemy array
-	ld b, 0
-handle_fat_enemy_loop:
-	; load the position for this enemy to do checks
-	ld hl, fat_enemy_array
-	ld l, b
-	ld a, (hl)
-	; check for $fe (skip enemy)
-	cp $fe
-	jp z, skip_handle_enemy
-	; check for $ff (end of array)
-	cp $ff
-	jp z, interrupt_handler_end
-
-	; if it's not, then call handle_enemy
-	push bc
-	ld a, b
-	call enemy_handler_handle_enemy
-	pop bc
-
-skip_handle_enemy:
-	inc b
-	; repeat
-	jp handle_fat_enemy_loop
-
-	jp interrupt_handler_end
+	call enemy_handler_entry_point
 
 interrupt_handler_end:
 	ei
