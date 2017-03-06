@@ -20,6 +20,9 @@ org 32768
 	;ld d, $ff
 	;call fill_all_pixels
 
+    ; set the initial tower to build
+    ld a, 0
+    ld (49152), a
 
 	; draw the map from the tile map
 	ld hl, tile_map
@@ -27,6 +30,44 @@ org 32768
 
 	ld d, 10
 	ld e, 9
+
+    call clear_status
+
+    ld a,2              ; upper screen
+    call 5633           ; open channel
+    
+    ld de, round       ; address of string
+    ld bc, r_end-round  ; length of string to print
+    call 8252           ; print our string
+    
+    ld de, enemy_count 
+    ld bc, ec_end-enemy_count
+    call 8252
+
+    ld de, money_life
+    ld bc, ml_end-money_life
+    call 8252
+
+    ld de, tower_title
+    ld bc, tt_end-tower_title
+    call 8252
+
+    ld de, laser
+    ld bc, l_end-laser
+    call 8252
+
+    ld a, 1
+    call 5633
+    ld de, bomb
+    ld bc, bo_end-bomb
+    call 8252
+
+    ld de, slow
+    ld bc, s_end-slow
+    call 8252
+
+    call set_status_attrs
+
 
 	push bc
 	push bc
@@ -50,11 +91,13 @@ interrupt_handler:
 	; save old coordinates
 	push de
 
+    call is_e_down
+    cp 1
+    call z, change_tower
 
 	call is_r_down
 	cp 1
 	call z, draw_tower
-
 
 	call is_w_down
     ld c, a
@@ -96,12 +139,16 @@ interrupt_handler_end:
 	ei
 	reti
 
+change_tower:
+    ld a, (49152)
+    inc a
+    ld (49152), a
 
 draw_tower:
 	push de
 	call get_cell_addr
 	ex de, hl
-	ld a, 1
+    ld a, (49152)
 	call lookup_and_draw_tile
 	pop de
 	ret
@@ -394,6 +441,13 @@ is_r_down:
 	jp z, set_a
 	ld a, 0
 	ret
+is_e_down:
+    ld bc, $fbfe
+    in b, (c)
+	bit 2, b
+	jp z, set_a
+	ld a, 0
+	ret
 is_a_down:
     ld bc, $fdfe
     in b, (c)
@@ -430,10 +484,52 @@ wait_dur_inner_loop:
 	jp nz, wait_dur_outer_loop
 	ret
 
+clear_status:
+    ld d, 0
+	call fill_all_status
+	ret
+
+fill_all_status:
+	ld hl, $5000
+	ld c, 8
+fill_status:
+fill_status_outer_loop:
+	ld (hl), d
+	inc hl
+	ld b, 255
+fill_status_inner_loop:
+	ld (hl), d
+	inc hl
+	djnz fill_status_inner_loop
+	dec c
+	jp nz, fill_status_outer_loop
+	ret
+
+set_status_attrs:
+	ld d, $07
+	call do_set_status_attrs
+	ret
+
+; d = fill byte
+do_set_status_attrs:
+	ld hl, $5a00
+	ld c, 3
+set_status_attrs_outer_loop:
+	ld (hl), d
+	inc hl
+	ld b, 255
+set_status_attrs_inner_loop:
+	ld (hl), d
+	inc hl
+	djnz set_status_attrs_inner_loop
+	dec c
+	jp nz, set_status_attrs_outer_loop
+	ret
+
 
 ; d = fill byte
 clear_pixels:
-	ld d, 0
+    ld d, 0
 	call fill_all_pixels
 	ret
 
@@ -577,6 +673,10 @@ lookup:
 	defw top_wall, bottom_wall, left_wall, right_wall
 	defw top_left_corner, top_right_corner, bottom_left_corner, bottom_right_corner
 	defw top_left_nub, top_right_nub, bottom_left_nub, bottom_right_nub
+    defw tower_basic, tower_basic_upgrade
+    defw tower_bomb, tower_bomb_upgrade
+    defw tower_zap, tower_zap_upgrade
+    defw tower_obelisk, tower_obelisk_upgrade
 
 old_lookup:
 	defw some_tile, blank_tile, cross_tile, circle_tile
@@ -627,145 +727,169 @@ bottom_right_nub:
 	defb 0, 0, 0, 0, 0, 0, 1, 2
 
 tower_basic:
-    defb 90     #     # ## #
-    defb 255    #    ########
-    defb 126    #     ######
-    defb 60     #      ####
-    defb 60     #      ####
-    defb 60     #      ####
-    defb 60     #      ####
-    defb 60     #      ####
+    defb 90     ;     # ## #
+    defb 255    ;    ########
+    defb 126    ;     ######
+    defb 60     ;      ####
+    defb 60     ;      ####
+    defb 60     ;      ####
+    defb 60     ;      ####
+    defb 60     ;      ####
 
 tower_basic_upgrade:
-    defb 165    #    # #  # #
-    defb 255    #    ########
-    defb 219    #    ## ## ##
-    defb 255    #    ########
-    defb 126    #     ######
-    defb 60     #      ####
-    defb 60     #      ####
-    defb 60     #      ####
+    defb 165    ;    # #  # #
+    defb 255    ;    ########
+    defb 219    ;    ## ## ##
+    defb 255    ;    ########
+    defb 126    ;     ######
+    defb 60     ;      ####
+    defb 60     ;      ####
+    defb 60     ;      ####
 
 tower_bomb:
-    defb 255    #    ########
-    defb 129    #    #      #
-    defb 153    #    #  ##  #
-    defb 165    #    # #  # #
-    defb 165    #    # #  # #
-    defb 153    #    #  ##  #
-    defb 129    #    #      #
-    defb 255    #    ########
+    defb 255    ;    ########
+    defb 129    ;    #      #
+    defb 153    ;    #  ##  #
+    defb 165    ;    # #  # #
+    defb 165    ;    # #  # #
+    defb 153    ;    #  ##  #
+    defb 129    ;    #      #
+    defb 255    ;    ########
 
 tower_bomb_upgrade:
-    defb 60     #      ####
-    defb 36     #      #  #
-    defb 219    #    ## ## ##
-    defb 165    #    # #  # #
-    defb 165    #    # #  # #
-    defb 219    #    ## ## ##
-    defb 36     #      #  #
-    defb 60     #      ####
+    defb 60     ;      ####
+    defb 36     ;      #  #
+    defb 219    ;    ## ## ##
+    defb 165    ;    # #  # #
+    defb 165    ;    # #  # #
+    defb 219    ;    ## ## ##
+    defb 36     ;      #  #
+    defb 60     ;      ####
 
 tower_zap:
-    defb 60     #      ####
-    defb 66     #     #    #
-    defb 66     #     #    #
-    defb 60     #      ####
-    defb 24     #       ##
-    defb 24     #       ##
-    defb 24     #       ##
-    defb 24     #       ##
+    defb 60     ;      ####
+    defb 66     ;     #    #
+    defb 66     ;     #    #
+    defb 60     ;      ####
+    defb 24     ;       ##
+    defb 24     ;       ##
+    defb 24     ;       ##
+    defb 24     ;       ##
 
 tower_zap_upgrade:
-    defb 126    #     ######
-    defb 129    #    #      #
-    defb 129    #    #      #
-    defb 129    #    #      #
-    defb 126    #     ######
-    defb 60     #      ####
-    defb 24     #       ##
-    defb 24     #       ##
+    defb 126    ;     ######
+    defb 129    ;    #      #
+    defb 129    ;    #      #
+    defb 129    ;    #      #
+    defb 126    ;     ######
+    defb 60     ;      ####
+    defb 24     ;       ##
+    defb 24     ;       ##
 
 tower_obelisk:
-    defb 24     #       ##   
-    defb 60     #      ####  
-    defb 60     #      ####  
-    defb 60     #      ####  
-    defb 60     #      ####  
-    defb 126    #     ###### 
-    defb 255    #    ########
-    defb 255    #    ########
+    defb 24     ;       ##   
+    defb 60     ;      ####  
+    defb 60     ;      ####  
+    defb 60     ;      ####  
+    defb 60     ;      ####  
+    defb 126    ;     ###### 
+    defb 255    ;    ########
+    defb 255    ;    ########
 
 tower_obelisk_upgrade:
-    defb 60     #      #### 
-    defb 36     #      #  #  
-    defb 102    #     ##  ## 
-    defb 66     #     #    # 
-    defb 66     #     #    # 
-    defb 66     #     #    # 
-    defb 195    #    ##    ##
-    defb 255    #    ########
+    defb 60     ;      #### 
+    defb 36     ;      #  #  
+    defb 102    ;     ##  ## 
+    defb 66     ;     #    # 
+    defb 66     ;     #    # 
+    defb 66     ;     #    # 
+    defb 195    ;    ##    ##
+    defb 255    ;    ########
 
 lightning:
-    defb 3      #          ##
-    defb 14     #        ###
-    defb 56     #      ###
-    defb 254    #    #######
-    defb 127    #     #######
-    defb 28     #       ###
-    defb 122    #     ###
-    defb 192    #    ##
+    defb 3      ;          ##
+    defb 14     ;        ###
+    defb 56     ;      ###
+    defb 254    ;    #######
+    defb 127    ;     #######
+    defb 28     ;       ###
+    defb 122    ;     ###
+    defb 192    ;    ##
 
 dollar:
-    defb 36     #      #  #
-    defb 126    #     ######
-    defb 165    #    # #  # #
-    defb 116    #     ### #
-    defb 46     #      # ###
-    defb 165    #    # #  # #
-    defb 126    #     ######
-    defb 36     #      #  #
+    defb 36     ;      #  #
+    defb 126    ;     ######
+    defb 165    ;    # #  # #
+    defb 116    ;     ### #
+    defb 46     ;      # ###
+    defb 165    ;    # #  # #
+    defb 126    ;     ######
+    defb 36     ;      #  #
 
 heart:
-    defb 102    #     ##  ##
-    defb 255    #    ########
-    defb 255    #    ########
-    defb 255    #    ########
-    defb 126    #     ######
-    defb 60     #      ####
-    defb 24     #       ##
-    defb 0      #
+    defb 102    ;     ##  ##
+    defb 255    ;    ########
+    defb 255    ;    ########
+    defb 255    ;    ########
+    defb 126    ;     ######
+    defb 60     ;      ####
+    defb 24     ;       ##
+    defb 0      ;
 
 heart_hollow:
-    defb 102    #     ##  ##
-    defb 154    #    #  ##  #
-    defb 129    #    #      #
-    defb 129    #    #      #
-    defb 66     #     #    #
-    defb 36     #      #  #
-    defb 24     #       ##
-    defb 0      #
+    defb 102    ;     ##  ##
+    defb 154    ;    #  ##  #
+    defb 129    ;    #      #
+    defb 129    ;    #      #
+    defb 66     ;     #    #
+    defb 36     ;      #  #
+    defb 24     ;       ##
+    defb 0      ;
 
 bullet:
-    defb 24     #       ##
-    defb 60     #      ####
-    defb 126    #     ######
-    defb 126    #     ######
-    defb 126    #     ######
-    defb 126    #     ######
-    defb 0      #
-    defb 126    #     ######
+    defb 24     ;       ##
+    defb 60     ;      ####
+    defb 126    ;     ######
+    defb 126    ;     ######
+    defb 126    ;     ######
+    defb 126    ;     ######
+    defb 0      ;
+    defb 126    ;     ######
 
 bullet_hollow:
-    defb 24     #       ##
-    defb 36     #      #  #
-    defb 66     #     #    #
-    defb 66     #     #    #
-    defb 66     #     #    #
-    defb 126    #     ######
-    defb 0      #
-    defb 126    #     ######
+    defb 24     ;       ##
+    defb 36     ;      #  #
+    defb 66     ;     #    #
+    defb 66     ;     #    #
+    defb 66     ;     #    #
+    defb 126    ;     ######
+    defb 0      ;
+    defb 126    ;     ######
 
+
+
+
+    round:      defb 22, 16, 0,'Wave: 1'
+    r_end:      equ $
+
+    enemy_count:defb 22, 17, 0,'Enemies: 5'
+    ec_end:     equ $
+
+    money_life: defb 22, 16, 20,'$800    *10'
+    ml_end:     equ $
+
+    tower_title:defb 22, 20, 20,'Towers:'
+    tt_end:     equ $
+
+    laser:      defb 22, 21, 20,'1:Laser $100'
+    l_end:      equ $
+
+    ; Printed using channel 1, so their y offset is different
+    bomb:       defb 22, 0, 20,'2:Bomb  $300'
+    bo_end:     equ $
+
+    slow:       defb 22, 1, 20,'3:Slow  $200'
+    s_end:      equ $
 ; ################
 ; #   ######    ##
 ;   # ##     ## ##
