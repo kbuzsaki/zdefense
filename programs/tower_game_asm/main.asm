@@ -32,24 +32,66 @@ infinite_wait:
 interrupt_handler:
 	di
 
-	; only animate every 8th frame
-	ld a, (real_frame_counter)
-	add 1
-	ld (real_frame_counter), a
-	and 7
+	; increment the counters, skip rendering unless we're on a render frame
+	call increment_frame_counters
+	ld a, (sub_frame_counter)
+	cp 0
 	jp nz, interrupt_handler_end
-	ld a, (real_frame_counter)
-	srl a
-	srl a
-	srl a
-	and 3
-	ld (frame_counter), a
 
-	call enemy_handler_entry_point
+	; call handle enemies every frame
+	call enemy_handler_entry_point_handle_enemies
 
 interrupt_handler_end:
 	ei
+
 	reti
+
+
+; increment_frame_counters increments the various frame counters
+;
+; real_frame_counter bit layout:
+; MSB                 LSB
+; +-------+-----+-------+
+; | a a a | b b | c c c |
+; +-------+-----+-------+
+; c: sub_frame_counter: 
+;        the game animates a visual frame when this is 0
+; b: frame_counter: 
+;        these bits determine which visual frame each animation plays
+;        when all 4 visual frames play, each enemy will have moved 1 cell
+;        this is one "cell frame"
+; a: cell_frame_counter: 
+;        a modulo 8 counter of the number of cell frames that have passed
+;        this is used to time things that only occur every few cell moves,
+;        such as enemy spawning
+increment_frame_counters:
+	; increment the lowest level frame counter
+	ld a, (real_frame_counter)
+	inc a
+	ld (real_frame_counter), a
+
+	; mask off the bottom 3 bits as the sub_frame_counter
+	ld b, a
+	and 7
+	ld (sub_frame_counter), a
+	ld a, b
+	rrca
+	rrca
+	rrca
+
+	; mask off the middle 2 bits as the frame_counter
+	ld b, a
+	and 3
+	ld (frame_counter), a
+	ld a, b
+	rrca
+	rrca
+
+	; mask off the upper 3 bits as the cell_frame_counter
+	and 7
+	ld (cell_frame_counter), a
+
+	ret
 
 
 include "enemy_handler.asm"
@@ -83,7 +125,13 @@ saved_sp:
 real_frame_counter:
 	defb 0
 
+sub_frame_counter:
+	defb 0
+
 frame_counter:
+	defb 0
+
+cell_frame_counter:
 	defb 0
 
 ; pixel address:

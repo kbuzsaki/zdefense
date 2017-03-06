@@ -1,4 +1,4 @@
-enemy_handler_entry_point:
+enemy_handler_entry_point_handle_enemies:
 	ld hl, weak_enemy
 	ld (current_enemy_sprite_page), hl
 	ld hl, weak_enemy_array
