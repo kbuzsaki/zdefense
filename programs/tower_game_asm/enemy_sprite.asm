@@ -1,12 +1,14 @@
+
+; testable vram address -> 0x40E4
 packing_test:
 
-    ld      a, $03
+    ld      a, $01
     ld      (frame_counter), a    ; default sprite position (neutral)
 
-    ld      a, $02          ; direction - move up (REMEBER- only 0,1,2,3)
+    ld      a, $00          ; direction - move up (REMEBER- only 0,1,2,3)
     ld      h, $F0          ; base address $F0 + enemy type $0 = $F0
-    ld      l, $80          ; if to be unhealthy, would be 80 since health is in MSB
-    ld      de, $40E4
+    ld      l, $00          ; if to be unhealthy, would be 80 since health is in MSB
+    ld      de, $40FF
     
     call    draw_next_sprite
 
@@ -84,8 +86,15 @@ draw_next_sprite:
     ld      l, a
     inc     e               ; go to next cell to the right on x-axis
 
+    ; Check if we overflowed by masking out bottom 5 bits to determine if its 0
+    ld      a, e
+    and     $1F             ; bottom 5 bits
+    cp      $0
+    jr      z, skip_second_horiz_call  ; If it did overflow, don't make that second call just end
+
     call    draw_sprite_entire_cell
 
+skip_second_horiz_call:
 
     jr      draw_next_sprite_end
 test_vertical:
