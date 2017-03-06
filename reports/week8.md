@@ -19,6 +19,10 @@ Kyle Huynh
 - Refactored large resulting codebase into multiple files to prepare for group
   work on the larger project.
 - Laid plans out for Tower storage structure
+- Reordered the sprites in the spritesheet to match their expected order in memory.
+- Finished script to convert spritesheet bmp files to 'defb' definitions
+- Started work on the status bar in the lower third of the screen. Figured out
+  convenient way to write text to any cell using built-in routine.
 
 ### Plans for next week
 Continue work on next steps for project:
