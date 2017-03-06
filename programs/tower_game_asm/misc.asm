@@ -1,35 +1,35 @@
 
-draw_tower:
+misc_draw_tower:
 	push de
-	call get_cell_addr
+	call misc_get_cell_addr
 	ex de, hl
 	ld a, 1
 	call load_map_lookup_and_old_draw_tile
 	pop de
 	ret
 
-do_thing:
+misc_do_thing:
 	push de
 	ex de, hl
-	call set_no_flash
+	call misc_set_no_flash
 	pop de
 	ret
 
-set_flash:
-    call get_coord
+misc_set_flash:
+    call misc_get_coord
 	ld a, $c0
 	or (hl)
 	ld (hl), a
     ret
 
-set_no_flash:
-    call get_coord
+misc_set_no_flash:
+    call misc_get_coord
 	ld a, $3f
 	and (hl)
 	ld (hl), a
     ret
 
-get_coord:
+misc_get_coord:
 	ld a, d
 	and $1f
 	ld l, a
@@ -49,13 +49,13 @@ get_coord:
 	ld h, a
 	ret
 
-draw_square:
-	call get_coord
+misc_draw_square:
+	call misc_get_coord
 	ld (hl), 0
 	ret
 
-clear_square:
-	call get_attr_coord
+misc_clear_square:
+	call misc_get_attr_coord
 	ld (hl), 255
 	ret
 
@@ -65,7 +65,7 @@ clear_square:
 ;
 ; read coordinates from d = x, e = y
 ; set address to hl
-get_attr_coord:
+misc_get_attr_coord:
 	ld a, d
 	and $1f
 	ld l, a
@@ -87,7 +87,7 @@ get_attr_coord:
 
 ; read coordinates from d = x, e = y
 ; set address to hl
-get_cell_addr:
+misc_get_cell_addr:
 	ld a, e
 	sla a
 	sla a
@@ -98,12 +98,12 @@ get_cell_addr:
 	sla a
 	sla a
 	ld d, a
-	call get_pixel_addr
+	call misc_get_pixel_addr
 	ret
 
 ; read coordinates from d = x, e = y
 ; set address to hl
-get_pixel_addr:
+misc_get_pixel_addr:
 	ld a, d
 	and $f8
 	srl a
@@ -129,23 +129,23 @@ get_pixel_addr:
 	ld h, a
 	ret
 
-get_pixel_bit:
+misc_get_pixel_bit:
 	ld a, d
 	and $07
-	jp z, get_pixel_bit_ret_one
+	jp z, misc_get_pixel_bit_ret_one
 	ld b, a
 	ld a, $80
-get_pixel_bit_loop:
+misc_get_pixel_bit_loop:
 	srl a
-	djnz get_pixel_bit_loop
+	djnz misc_get_pixel_bit_loop
 	ret
-get_pixel_bit_ret_one:
+misc_get_pixel_bit_ret_one:
 	ld a, $80
 	ret
 
 
 
-get_attr:
+misc_get_attr:
 	xor a
 	ld h, $54
 	ld l, a
