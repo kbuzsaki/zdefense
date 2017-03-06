@@ -1,6 +1,6 @@
 
 ; testable vram address -> 0x40E4
-packing_test:
+enemy_sprite_packing_test:
 
     ld      a, $01
     ld      (frame_counter), a    ; default sprite position (neutral)
@@ -10,7 +10,7 @@ packing_test:
     ld      l, $00          ; if to be unhealthy, would be 80 since health is in MSB
     ld      de, $40FF
     
-    call    draw_next_sprite
+    call    enemy_sprite_draw_next_sprite
 
     ; Result:   left cell sprite addr: 0xF000
     ;           right cell sprite adr: 0xF020
@@ -36,7 +36,7 @@ packing_test:
 ; call horizontal draw method twice for the left cell and the right cell (NOT DONE)
 ; vertical: addr of sprite - hl
 ;           de - vram address
-draw_next_sprite:
+enemy_sprite_draw_next_sprite:
     ld      b, a            ; preserve direction for later when we're checking
 
     ; Pack direction into given l (l already contains health in MSB)
@@ -70,14 +70,14 @@ draw_next_sprite:
     ; bit test sets z flag to OPPOSITE of that bit's value
     
     bit     1, b
-    jp      nz, test_vertical
+    jp      nz, enemy_sprite_test_vertical
 
     ; MSB is 0, so its a move right
     ; DE unmodified and is vram address, keep as parameter
     ; HL is newly constructed bitmap data, passed in as well
     ; TODO: 
     ;       handle case of overflow (i.e. dont do second call if overflow imminent)
-    call    draw_sprite_entire_cell
+    call    enemy_sprite_draw_sprite_entire_cell
 
     ; Did first call, now make second call to cell to the right
     ; a should still contain the l we were previously using.
@@ -90,14 +90,14 @@ draw_next_sprite:
     ld      a, e
     and     $1F             ; bottom 5 bits
     cp      $0
-    jr      z, skip_second_horiz_call  ; If it did overflow, don't make that second call just end
+    jr      z, enemy_sprite_skip_second_horiz_call  ; If it did overflow, don't make that second call just end
 
-    call    draw_sprite_entire_cell
+    call    enemy_sprite_draw_sprite_entire_cell
 
-skip_second_horiz_call:
+enemy_sprite_skip_second_horiz_call:
 
-    jr      draw_next_sprite_end
-test_vertical:
+    jr      enemy_sprite_draw_next_sprite_end
+enemy_sprite_test_vertical:
     ; Modify pixel address to start at proper offset dictated by ticker 
     ;   (either up or down)
     ; ticker val | shift up val | shift down val
@@ -112,7 +112,7 @@ test_vertical:
     ld      c, a                ; We're gonna trash a, so c will contain that frame_counter*2
     srl     b                   ; test lsb of direction, 0 - up, 1 - down
     
-    jr      nc, draw_next_sprite_up
+    jr      nc, enemy_sprite_draw_next_sprite_up
 
     ; else, we're moving down. no other processing, just adjust HL and call
     ld      a, d
@@ -120,10 +120,10 @@ test_vertical:
     ld      d, a
     ; DE and HL in place as parameters for VRAM and sprite bitmap addr
     ; NOTE: REGISTERS MAY BE TRASHED AFTER VERTICAL CALLS    
-    call    sprite_move_vertical
+    call    enemy_sprite_sprite_move_vertical
 
-    jr      draw_next_sprite_end
-draw_next_sprite_up:
+    jr      enemy_sprite_draw_next_sprite_end
+enemy_sprite_draw_next_sprite_up:
     ld      a, 7
     sub     c                   ; 8 - c gives us shift up val
     
@@ -131,14 +131,14 @@ draw_next_sprite_up:
     add     a, d
     ld      d, a
     ; DE and HL in place as VRAM & bitmap addr
-    call    sprite_move_vertical
+    call    enemy_sprite_sprite_move_vertical
 
-draw_next_sprite_end:
+enemy_sprite_draw_next_sprite_end:
     ret
 
 ; de = addr of dest in vram
 ; hl = addr of src tile
-sprite_move_vertical:
+enemy_sprite_sprite_move_vertical:
 	push de
 
 	; just draw a blank tile on top of us first
@@ -161,17 +161,17 @@ sprite_move_vertical:
 	ld b, a
 	ld a, 7
 	sub b
-	jp z, end_draw_tile_loop_a
+	jp z, enemy_sprite_end_draw_tile_loop_a
 	add 1
 	ld b, a
 	ld c, 0
 
-draw_tile_loop_a:
+enemy_sprite_draw_tile_loop_a:
 	ldi
 	inc d
 	dec de
-	djnz draw_tile_loop_a
-end_draw_tile_loop_a:
+	djnz enemy_sprite_draw_tile_loop_a
+enemy_sprite_end_draw_tile_loop_a:
 
 	ld a, (hl)
 	ld (de), a
@@ -181,18 +181,18 @@ end_draw_tile_loop_a:
 
 	ld a, d
 	and 7
-	jp z, end_draw_tile_loop_b
+	jp z, enemy_sprite_end_draw_tile_loop_b
 	ld b, a
 	xor d
 	ld d, a
 	ld a, e
 	add 32
 	ld e, a
-	jp nc, skip_fix
+	jp nc, enemy_sprite_skip_fix
 	ld a, d
 	add 8
 	ld d, a
-skip_fix:
+enemy_sprite_skip_fix:
 
 	; just draw a blank tile on top of us first
 	; todo: make this more efficient?
@@ -208,12 +208,12 @@ skip_fix:
 	pop de
 	pop hl
 
-draw_tile_loop_b:
+enemy_sprite_draw_tile_loop_b:
 	ldi
 	inc d
 	dec de
-	djnz draw_tile_loop_b
-end_draw_tile_loop_b:
+	djnz enemy_sprite_draw_tile_loop_b
+enemy_sprite_end_draw_tile_loop_b:
 
 	ret
 	
@@ -221,7 +221,7 @@ end_draw_tile_loop_b:
 
 ; sprite bitmap data address is in HL
 ; take vram address in DE
-draw_sprite_entire_cell:
+enemy_sprite_draw_sprite_entire_cell:
     PUSH    HL
     PUSH    DE
     LD      (saved_sp), sp

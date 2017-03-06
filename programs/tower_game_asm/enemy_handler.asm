@@ -118,6 +118,6 @@ draw_new_position:
 	; assume healthy for now
     ld      l, $80
     
-    call    draw_next_sprite
+    call    enemy_sprite_draw_next_sprite
 
 	ret
