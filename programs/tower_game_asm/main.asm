@@ -20,6 +20,10 @@ org 32768
 	ld hl, tile_map
 	call load_map_load_map
 
+	; initialize the enemy spawn script
+	ld hl, enemy_spawn_script
+	ld (enemy_spawn_script_ptr), hl
+
 	; enable interrupts again now that we're set up
 	ei
 
@@ -40,6 +44,17 @@ interrupt_handler:
 
 	; call handle enemies every frame
 	call enemy_handler_entry_point_handle_enemies
+
+	;; only do enemy spawning every other cell frame when the frame_counter is 0
+	; this part is sketch because it will cause problems for future handlers
+	ld a, (frame_counter)
+	cp 0
+	jp nz, interrupt_handler_end
+	; this part checks if the cell_frame_counter is 1, but we need the above check 
+	; so that it doesn't fire 4 times
+	ld a, (cell_frame_counter)
+	and 1
+	call z, enemy_handler_entry_point_handle_spawn_enemies
 
 interrupt_handler_end:
 	ei
@@ -176,25 +191,38 @@ current_enemy_index:
 current_enemy_sprite_page:
 	defw $00
 
+enemy_spawn_script_ptr:
+	defw $00
+
 defs $9200 - $
 
 weak_enemy_array:
-	defb $20
 	defs $9300 - $, $ff
 
 defs $9300 - $
 
 ; enemy positions
 strong_enemy_array:
-	defb $00
-	defb $02
-	defb $04
-	defb $06
-	defb $08
-	defb $0a
-	defb $0c
-	defb $0e
 	defs $9400 - $, $ff
+
+
+defs $9400 - $
+
+enemy_spawn_script:
+	defb $01
+	defb $01
+	defb $fe
+	defb $01
+	defb $02
+	defb $fe
+	defb $02
+	defb $02
+	defb $fe
+	defb $01
+	defb $01
+	defb $02
+	defb $02
+	defb $9500 - $, $ff
 
 ; tiles and sprites
 defs $a000 - $

@@ -15,7 +15,6 @@ enemy_handler_entry_point_handle_enemies:
 
 	ret
 
-
 enemy_handler_handle_enemy:
 	; if the frame counter is modulo 0, then run game logic (move enemies to next cell)
 	ld a, (frame_counter)
@@ -27,6 +26,61 @@ enemy_handler_handle_enemy:
 	ret
 
 	
+
+enemy_handler_entry_point_handle_spawn_enemies:
+	ld hl, (enemy_spawn_script_ptr)
+
+	; if ff, then we've hit the end so return and do nothing
+	ld a, (hl)
+	cp $ff
+	ret z
+
+	; we didn't hit the end, so increment and store the pointer
+	inc hl
+	ld (enemy_spawn_script_ptr), hl
+
+	; if 01, then weak enemy
+	ld hl, weak_enemy_array
+	cp $01
+	jp z, enemy_handler_handle_spawn_enemy
+
+	; if 02, then strong enemy
+	ld hl, strong_enemy_array
+	cp $02
+	jp z, enemy_handler_handle_spawn_enemy
+
+	; else we fell through, so just return
+	ret
+
+
+;;; enemy_handler_handle_spawn_enemy spawns an enemy into the given array
+; input:
+;   hl - the enemy array to spawn into
+enemy_handler_handle_spawn_enemy:
+enemy_handler_handle_spawn_enemy_loop:
+	ld a, (hl)
+
+	; if it's $fe, then the slot is open so we can use it
+	cp $fe
+	jp z, enemy_handler_handle_spawn_enemy_do_spawn
+
+	; if it's $ff, then we hit the end of the array so just use it
+	cp $ff
+	jp z, enemy_handler_handle_spawn_enemy_do_spawn
+
+	; this spot is occupied, so increment and try again
+	inc hl
+	jp enemy_handler_handle_spawn_enemy_loop
+
+enemy_handler_handle_spawn_enemy_do_spawn:
+	; we found a viable index, so store 0 at it (the start position)
+	ld a, 0
+	ld (hl), a
+
+	ret
+
+
+
 
 ;;; main enemy update function - enemy_handler_update_enemies
 ; calls enemy_handler_update_enemy for every enemy in the (current_enemy_array)
