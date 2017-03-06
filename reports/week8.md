@@ -23,6 +23,8 @@ Kyle Huynh
 - Finished script to convert spritesheet bmp files to 'defb' definitions
 - Started work on the status bar in the lower third of the screen. Figured out
   convenient way to write text to any cell using built-in routine.
+- Improved audio engine to use 16 bit counters for deeper notes,
+  two channel audio, and improved note articulation
 
 ### Plans for next week
 Continue work on next steps for project:
