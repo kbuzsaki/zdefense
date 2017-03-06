@@ -29,6 +29,7 @@ enemy_handler_update_fat_enemy_loop:
 	; if it's not, then call handle_enemy
 	push bc
 	ld a, b
+	ld (current_enemy_index), a
 	call enemy_handler_update_fat_enemy
 	;call enemy_handler_handle_enemy_old
 	pop bc
@@ -63,6 +64,7 @@ enemy_handler_handle_fat_enemy_loop:
 	; if it's not, then call handle_enemy
 	push bc
 	ld a, b
+	ld (current_enemy_index), a
 	call enemy_handler_animate_fat_enemy
 	;call enemy_handler_handle_enemy_old
 	pop bc
@@ -125,11 +127,9 @@ enemy_handler_load_position_vram:
 
 
 ; animate_fat_enemy animates a single fat enemy
-; a: the enemy's index in the fat_enemy array
+; input:
+;   none - index stored at (current_enemy_index)
 enemy_handler_animate_fat_enemy:
-	ld (current_enemy_index), a
-
-enemy_handler_animate_current_cell:
 	;; load enemy position index, stash it in b
 	ld a, (current_enemy_index)
 	call enemy_handler_load_position_index
@@ -171,10 +171,11 @@ enemy_handler_animate_fat_enemy_not_up:
 
 
 ; input:
-;   a - the enemy index to update
+;   none - index stored at (current_enemy_index)
 ; side effects:
 ;   updates the position of the enemy at index a
 enemy_handler_update_fat_enemy:
+	ld a, (current_enemy_index)
 	call enemy_handler_load_position_index
 
 	; increment the position index and store it back
