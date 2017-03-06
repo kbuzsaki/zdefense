@@ -149,7 +149,7 @@ enemy_sprite_sprite_move_vertical:
 	ld a, d
 	and $f8
 	ld d, a
-	call old_draw_tile
+	call load_map_old_draw_tile
 	pop de
 	pop hl
 
@@ -203,7 +203,7 @@ enemy_sprite_skip_fix:
 	ld a, d
 	and $f8
 	ld d, a
-	call old_draw_tile
+	call load_map_old_draw_tile
 	pop bc
 	pop de
 	pop hl

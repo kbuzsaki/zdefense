@@ -4,7 +4,7 @@ draw_tower:
 	call get_cell_addr
 	ex de, hl
 	ld a, 1
-	call lookup_and_old_draw_tile
+	call load_map_lookup_and_old_draw_tile
 	pop de
 	ret
 

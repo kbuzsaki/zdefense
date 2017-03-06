@@ -1,7 +1,3 @@
-; this program uses the attr cells to make a black and white display
-; where a box is moved around with wasd
-; it's sort of like an etchasketch
-
 org 32768
 
 	; setup interrupt handler, disable interrupts
@@ -22,7 +18,7 @@ org 32768
 
 	; draw the map from the tile map
 	ld hl, tile_map
-	call load_map
+	call load_map_load_map
 
 	; enable interrupts again now that we're set up
 	ei
@@ -109,7 +105,6 @@ setup_interrupt_handler:
 
 saved_sp:
     defw    0
-
 
 real_frame_counter:
 	defb 0

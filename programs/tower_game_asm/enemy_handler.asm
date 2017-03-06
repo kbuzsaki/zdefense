@@ -38,7 +38,7 @@ handle_enemy:
 	; clear the enemy at its old position
 	push hl
 	ld hl, blank_tile
-	call old_draw_tile
+	call load_map_old_draw_tile
 	pop hl
 
 animate_current_cell:
