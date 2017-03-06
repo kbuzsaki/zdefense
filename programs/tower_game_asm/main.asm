@@ -119,13 +119,25 @@ enemy_path_direction:
 	defb $00, $00, $00, $00, $00, $00, $02, $02
 	defb $02, $02, $02, $00, $00, $00, $00, $00
 
+current_enemy_array:
+	defw $00
+
 current_enemy_index:
 	defb $00
 
+current_enemy_sprite_page:
+	defw $00
+
 defs $9200 - $
 
+weak_enemy_array:
+	defb $20
+	defs $9300 - $, $ff
+
+defs $9300 - $
+
 ; enemy positions
-fat_enemy_array:
+strong_enemy_array:
 	defb $00
 	defb $02
 	defb $04
@@ -134,23 +146,7 @@ fat_enemy_array:
 	defb $0a
 	defb $0c
 	defb $0e
-	defb $10
-	defb $12
-	defb $14
-	defb $16
-	defb $18
-	defb $1a
-	defb $1c
-	defb $1e
-	defb $20
-	defb $22
-	defb $24
-	defb $26
-	defb $28
-	defb $2a
-	defb $2c
-	defb $2e
-	defs $9300 - $, $ff
+	defs $9400 - $, $ff
 
 ; tiles and sprites
 defs $a000 - $
@@ -372,7 +368,298 @@ bullet_hollow:
 ; pad so enemy sprites are aligned
 defs $b000 - $
 
-fat_enemy:
+weak_enemy:
+defb 60  	;   ####  
+defb 52  	;   ## #  
+defb 24  	;    ##   
+defb 24  	;    ##   
+defb 24  	;    ##   
+defb 24  	;    ##   
+defb 8  	;     #   
+defb 12  	;     ##  
+
+defb 15  	;     ####
+defb 13  	;     ## #
+defb 6  	;      ## 
+defb 15  	;     ####
+defb 22  	;    # ## 
+defb 7  	;      ###
+defb 5  	;      # #
+defb 6  	;      ## 
+
+defb 3  	;       ##
+defb 3  	;       ##
+defb 1  	;        #
+defb 1  	;        #
+defb 1  	;        #
+defb 1  	;        #
+defb 0  	;         
+defb 0  	;         
+
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 1  	;        #
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 128  	; #       
+defb 0  	;         
+defb 128  	; #       
+defb 0  	;         
+
+defb 192  	; ##      
+defb 64  	;  #      
+defb 128  	; #       
+defb 128  	; #       
+defb 128  	; #       
+defb 128  	; #       
+defb 128  	; #       
+defb 192  	; ##      
+
+defb 240  	; ####    
+defb 208  	; ## #    
+defb 96  	;  ##     
+defb 240  	; ####    
+defb 104  	;  ## #   
+defb 112  	;  ###    
+defb 88  	;  # ##   
+defb 96  	;  ##     
+
+defb 60  	;   ####  
+defb 60  	;   ####  
+defb 24  	;    ##   
+defb 60  	;   ####  
+defb 90  	;  # ## # 
+defb 24  	;    ##   
+defb 36  	;   #  #  
+defb 102  	;  ##  ## 
+
+defb 60  	;   ####  
+defb 60  	;   ####  
+defb 24  	;    ##   
+defb 60  	;   ####  
+defb 90  	;  # ## # 
+defb 56  	;   ###   
+defb 100  	;  ##  #  
+defb 6  	;      ## 
+
+defb 60  	;   ####  
+defb 60  	;   ####  
+defb 24  	;    ##   
+defb 60  	;   ####  
+defb 90  	;  # ## # 
+defb 24  	;    ##   
+defb 36  	;   #  #  
+defb 102  	;  ##  ## 
+
+defb 60  	;   ####  
+defb 60  	;   ####  
+defb 24  	;    ##   
+defb 60  	;   ####  
+defb 90  	;  # ## # 
+defb 28  	;    ###  
+defb 38  	;   #  ## 
+defb 96  	;  ##     
+
+defb 60  	;   ####  
+defb 36  	;   #  #  
+defb 24  	;    ##   
+defb 60  	;   ####  
+defb 90  	;  # ## # 
+defb 24  	;    ##   
+defb 36  	;   #  #  
+defb 102  	;  ##  ## 
+
+defb 60  	;   ####  
+defb 36  	;   #  #  
+defb 24  	;    ##   
+defb 60  	;   ####  
+defb 90  	;  # ## # 
+defb 28  	;    ###  
+defb 38  	;   #  ## 
+defb 96  	;  ##     
+
+defb 60  	;   ####  
+defb 36  	;   #  #  
+defb 24  	;    ##   
+defb 60  	;   ####  
+defb 90  	;  # ## # 
+defb 24  	;    ##   
+defb 36  	;   #  #  
+defb 102  	;  ##  ## 
+
+defb 60  	;   ####  
+defb 36  	;   #  #  
+defb 24  	;    ##   
+defb 60  	;   ####  
+defb 90  	;  # ## # 
+defb 56  	;   ###   
+defb 100  	;  ##  #  
+defb 6  	;      ## 
+
+defb 60  	;   ####  
+defb 52  	;   ## #  
+defb 24  	;    ##   
+defb 24  	;    ##   
+defb 24  	;    ##   
+defb 24  	;    ##   
+defb 8  	;     #   
+defb 12  	;     ##  
+
+defb 15  	;     ####
+defb 13  	;     ## #
+defb 6  	;      ## 
+defb 14  	;     ### 
+defb 22  	;    # ## 
+defb 7  	;      ###
+defb 5  	;      # #
+defb 6  	;      ## 
+
+defb 3  	;       ##
+defb 3  	;       ##
+defb 1  	;        #
+defb 1  	;        #
+defb 1  	;        #
+defb 1  	;        #
+defb 0  	;         
+defb 0  	;         
+
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 0  	;         
+defb 128  	; #       
+defb 0  	;         
+
+defb 192  	; ##      
+defb 64  	;  #      
+defb 128  	; #       
+defb 128  	; #       
+defb 128  	; #       
+defb 128  	; #       
+defb 128  	; #       
+defb 192  	; ##      
+
+defb 240  	; ####    
+defb 208  	; ## #    
+defb 96  	;  ##     
+defb 112  	;  ###    
+defb 104  	;  ## #   
+defb 112  	;  ###    
+defb 88  	;  # ##   
+defb 96  	;  ##     
+
+defb 60  	;   ####  
+defb 60  	;   ####  
+defb 24  	;    ##   
+defb 56  	;   ###   
+defb 88  	;  # ##   
+defb 24  	;    ##   
+defb 36  	;   #  #  
+defb 102  	;  ##  ## 
+
+defb 60  	;   ####  
+defb 60  	;   ####  
+defb 24  	;    ##   
+defb 56  	;   ###   
+defb 88  	;  # ##   
+defb 56  	;   ###   
+defb 100  	;  ##  #  
+defb 6  	;      ## 
+
+defb 60  	;   ####  
+defb 60  	;   ####  
+defb 24  	;    ##   
+defb 56  	;   ###   
+defb 88  	;  # ##   
+defb 24  	;    ##   
+defb 36  	;   #  #  
+defb 102  	;  ##  ## 
+
+defb 60  	;   ####  
+defb 60  	;   ####  
+defb 24  	;    ##   
+defb 56  	;   ###   
+defb 88  	;  # ##   
+defb 28  	;    ###  
+defb 38  	;   #  ## 
+defb 96  	;  ##     
+
+defb 60  	;   ####  
+defb 36  	;   #  #  
+defb 24  	;    ##   
+defb 28  	;    ###  
+defb 26  	;    ## # 
+defb 24  	;    ##   
+defb 36  	;   #  #  
+defb 102  	;  ##  ## 
+
+defb 60  	;   ####  
+defb 36  	;   #  #  
+defb 24  	;    ##   
+defb 28  	;    ###  
+defb 26  	;    ## # 
+defb 28  	;    ###  
+defb 38  	;   #  ## 
+defb 96  	;  ##     
+
+defb 60  	;   ####  
+defb 36  	;   #  #  
+defb 24  	;    ##   
+defb 28  	;    ###  
+defb 26  	;    ## # 
+defb 24  	;    ##   
+defb 36  	;   #  #  
+defb 102  	;  ##  ## 
+
+defb 60  	;   ####  
+defb 36  	;   #  #  
+defb 24  	;    ##   
+defb 28  	;    ###  
+defb 26  	;    ## # 
+defb 56  	;   ###   
+defb 100  	;  ##  #  
+defb 6  	;      ##
+
+defs $b100 - $
+
+strong_enemy:
 defb 60  	;   ####  
 defb 122  	;  #### # 
 defb 255  	; ########

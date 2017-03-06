@@ -1,73 +1,93 @@
 enemy_handler_entry_point:
+	ld hl, weak_enemy
+	ld (current_enemy_sprite_page), hl
+	ld hl, weak_enemy_array
+	ld (current_enemy_array), hl
+
+	call enemy_handler_handle_enemy
+
+	ld hl, strong_enemy
+	ld (current_enemy_sprite_page), hl
+	ld hl, strong_enemy_array
+	ld (current_enemy_array), hl
+
+	call enemy_handler_handle_enemy
+
+	ret
+
+
+enemy_handler_handle_enemy:
 	; if the frame counter is modulo 0, then run game logic (move enemies to next cell)
 	ld a, (frame_counter)
 	cp 0
-	call z, enemy_handler_update_fat_enemies
+	call z, enemy_handler_update_enemies
 	; no matter what, animate the enemies
-	call enemy_handler_animate_fat_enemies
+	call enemy_handler_animate_enemies
+
 	ret
+
 	
 
-;;; main enemy update function - enemy_handler_update_fat_enemies
-; calls enemy_handler_update_fat_enemy for every enemy in the fat_enemy_array
+;;; main enemy update function - enemy_handler_update_enemies
+; calls enemy_handler_update_enemy for every enemy in the (current_enemy_array)
 ; takes no inputs
-enemy_handler_update_fat_enemies:
+enemy_handler_update_enemies:
 	; loop over the array of fat enemies
 	ld a, 0
 	ld (current_enemy_index), a
-enemy_handler_update_fat_enemies_loop:
+enemy_handler_update_enemies_loop:
 	; load the position for this enemy to do checks
 	ld a, (current_enemy_index)
 	call enemy_handler_load_position_index
 
 	; check for $fe (skip enemy)
 	cp $fe
-	jp z, enemy_handler_update_fat_enemies_loop_increment
+	jp z, enemy_handler_update_enemies_loop_increment
 
 	; check for $ff (end of array)
 	cp $ff
 	ret z
 
-	call enemy_handler_update_fat_enemy
+	call enemy_handler_update_enemy
 
 	; increment loop counter and jump to beginning of loop
-enemy_handler_update_fat_enemies_loop_increment:
+enemy_handler_update_enemies_loop_increment:
 	ld a, (current_enemy_index)
 	inc a
 	ld (current_enemy_index), a
 
-	jp enemy_handler_update_fat_enemies_loop
+	jp enemy_handler_update_enemies_loop
 
 
-;;; main animation function - enemy_handler_animate_fat_enemies
-; calls enemy_handler_animate_fat_enemy for every enemy in the fat_enemy_array
+;;; main animation function - enemy_handler_animate_enemies
+; calls enemy_handler_animate_enemy for every enemy in the (current_enemy_array)
 ; takes no inputs
-enemy_handler_animate_fat_enemies:
+enemy_handler_animate_enemies:
 	; loop over the array of fat enemies
 	ld a, 0
 	ld (current_enemy_index), a
-enemy_handler_animate_fat_enemies_loop:
+enemy_handler_animate_enemies_loop:
 	; load the enemy position to perform checks
 	ld a, (current_enemy_index)
 	call enemy_handler_load_position_index
 
 	; check for $fe (skip enemy)
 	cp $fe
-	jp z, enemy_handler_animate_fat_enemies_loop_increment
+	jp z, enemy_handler_animate_enemies_loop_increment
 
 	; check for $ff (end of array)
 	cp $ff
 	ret z
 
-	call enemy_handler_animate_fat_enemy
+	call enemy_handler_animate_enemy
 
 	; increment loop counter and jump to beginning of loop
-enemy_handler_animate_fat_enemies_loop_increment:
+enemy_handler_animate_enemies_loop_increment:
 	ld a, (current_enemy_index)
 	inc a
 	ld (current_enemy_index), a
 
-	jp enemy_handler_animate_fat_enemies_loop
+	jp enemy_handler_animate_enemies_loop
 
 
 ; input:
@@ -75,7 +95,7 @@ enemy_handler_animate_fat_enemies_loop_increment:
 ; output:
 ;   a - the enemy's position index
 enemy_handler_load_position_index:
-	ld hl, fat_enemy_array
+	ld hl, (current_enemy_array)
 	ld l, a
 	ld a, (hl)
 	ret
@@ -88,7 +108,7 @@ enemy_handler_load_position_index:
 ; side effect:
 ;   sets the enemy's index to fe, which clears it
 enemy_handler_clear_enemy_index:
-	ld hl, fat_enemy_array
+	ld hl, (current_enemy_array)
 	ld l, a
 	ld (hl), $fe
 	ret
@@ -119,10 +139,10 @@ enemy_handler_load_position_vram:
 	ret
 
 
-; animate_fat_enemy animates a single fat enemy
+; animate_enemy animates a single fat enemy
 ; input:
 ;   none - index stored at (current_enemy_index)
-enemy_handler_animate_fat_enemy:
+enemy_handler_animate_enemy:
 	;; load enemy position index, stash it in b
 	ld a, (current_enemy_index)
 	call enemy_handler_load_position_index
@@ -135,10 +155,10 @@ enemy_handler_animate_fat_enemy:
 	;;; if direction is up, then animate with the next position along
 	;;; else give the current one
 	cp 2
-	jp nz, enemy_handler_animate_fat_enemy_not_up
+	jp nz, enemy_handler_animate_enemy_not_up
 	inc b
 
-enemy_handler_animate_fat_enemy_not_up:
+enemy_handler_animate_enemy_not_up:
 	;; load the vram address to animate from into de
 	ld a, b
 	call enemy_handler_load_position_vram
@@ -153,7 +173,7 @@ enemy_handler_animate_fat_enemy_not_up:
 	; grab the enemy direction from c
 	ld a, c
 	; load the enemy sprite
-	ld hl, fat_enemy
+	ld hl, (current_enemy_sprite_page)
 	; assume healthy for now
     ld      l, $80
     call    enemy_sprite_draw_next_sprite
@@ -167,7 +187,7 @@ enemy_handler_animate_fat_enemy_not_up:
 ;   none - index stored at (current_enemy_index)
 ; side effects:
 ;   updates the position of the enemy at index a
-enemy_handler_update_fat_enemy:
+enemy_handler_update_enemy:
 	ld a, (current_enemy_index)
 	call enemy_handler_load_position_index
 
