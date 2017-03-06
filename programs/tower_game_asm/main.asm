@@ -63,7 +63,7 @@ handle_fat_enemy_loop:
 	; if it's not, then call handle_enemy
 	push bc
 	ld a, b
-	call handle_enemy
+	call enemy_handler_handle_enemy
 	pop bc
 
 skip_handle_enemy:
