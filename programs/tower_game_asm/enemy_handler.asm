@@ -8,73 +8,66 @@ enemy_handler_entry_point:
 	ret
 	
 
+;;; main enemy update function - enemy_handler_update_fat_enemies
+; calls enemy_handler_update_fat_enemy for every enemy in the fat_enemy_array
+; takes no inputs
 enemy_handler_update_fat_enemies:
 	; loop over the array of fat enemies
-	; b is our index into the fat enemy array
-	ld b, 0
-enemy_handler_update_fat_enemy_loop:
+	ld a, 0
+	ld (current_enemy_index), a
+enemy_handler_update_fat_enemies_loop:
 	; load the position for this enemy to do checks
-	ld hl, fat_enemy_array
-	ld l, b
-	ld a, (hl)
+	ld a, (current_enemy_index)
+	call enemy_handler_load_position_index
 
 	; check for $fe (skip enemy)
 	cp $fe
-	jp z, enemy_handler_skip_update_enemy
+	jp z, enemy_handler_update_fat_enemies_loop_increment
 
 	; check for $ff (end of array)
 	cp $ff
 	ret z
 
-	; if it's not, then call handle_enemy
-	push bc
-	ld a, b
-	ld (current_enemy_index), a
 	call enemy_handler_update_fat_enemy
-	;call enemy_handler_handle_enemy_old
-	pop bc
 
-enemy_handler_skip_update_enemy:
-	inc b
-	; repeat
-	jp enemy_handler_update_fat_enemy_loop
+	; increment loop counter and jump to beginning of loop
+enemy_handler_update_fat_enemies_loop_increment:
+	ld a, (current_enemy_index)
+	inc a
+	ld (current_enemy_index), a
 
-	ret
+	jp enemy_handler_update_fat_enemies_loop
 
 
-; animate_fat_enemies animates enemies in the fat_enemies array
+;;; main animation function - enemy_handler_animate_fat_enemies
+; calls enemy_handler_animate_fat_enemy for every enemy in the fat_enemy_array
+; takes no inputs
 enemy_handler_animate_fat_enemies:
 	; loop over the array of fat enemies
-	; b is our index into the fat enemy array
-	ld b, 0
-enemy_handler_handle_fat_enemy_loop:
-	; load the position for this enemy to do checks
-	ld hl, fat_enemy_array
-	ld l, b
-	ld a, (hl)
+	ld a, 0
+	ld (current_enemy_index), a
+enemy_handler_animate_fat_enemies_loop:
+	; load the enemy position to perform checks
+	ld a, (current_enemy_index)
+	call enemy_handler_load_position_index
 
 	; check for $fe (skip enemy)
 	cp $fe
-	jp z, enemy_handler_skip_handle_enemy
+	jp z, enemy_handler_animate_fat_enemies_loop_increment
 
 	; check for $ff (end of array)
 	cp $ff
 	ret z
 
-	; if it's not, then call handle_enemy
-	push bc
-	ld a, b
-	ld (current_enemy_index), a
 	call enemy_handler_animate_fat_enemy
-	;call enemy_handler_handle_enemy_old
-	pop bc
 
-enemy_handler_skip_handle_enemy:
-	inc b
-	; repeat
-	jp enemy_handler_handle_fat_enemy_loop
+	; increment loop counter and jump to beginning of loop
+enemy_handler_animate_fat_enemies_loop_increment:
+	ld a, (current_enemy_index)
+	inc a
+	ld (current_enemy_index), a
 
-	ret
+	jp enemy_handler_animate_fat_enemies_loop
 
 
 ; input:
@@ -181,9 +174,9 @@ enemy_handler_update_fat_enemy:
 	; increment the position index and store it back
 	inc a
 	ld (hl), a
+	dec a
 
 	; clear the previous tile now that the enemy is no longer in it
-	dec a
 	call enemy_handler_load_position_vram
 	ld hl, blank_tile
 	call load_map_old_draw_tile
