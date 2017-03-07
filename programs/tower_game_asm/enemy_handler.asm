@@ -238,7 +238,7 @@ enemy_handler_animate_enemy_not_up:
 	; load the enemy sprite
 	ld hl, (current_enemy_sprite_page)
 	; assume healthy for now
-    ld      l, $80
+    ld      l, $00
     call    enemy_sprite_draw_next_sprite
 
 	ret

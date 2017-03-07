@@ -27,7 +27,7 @@ status_init:
     ld a, 1
     call 5633
     ld de, status_bomb
-    ld bc, status_bo_end-status_bomb
+    ld bc, status_b_end-status_bomb
     call 8252
 
     ld de, status_slow
@@ -197,7 +197,7 @@ status_l_end: equ $
 ; Printed using channel 1, so their y offset is different
 status_bomb:
 	defb 22, 0, 20,'2:Bomb  $300'
-status_bo_end: equ $
+status_b_end: equ $
 
 status_slow:
 	defb 22, 1, 20,'3:Slow  $200'

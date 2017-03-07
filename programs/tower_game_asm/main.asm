@@ -234,13 +234,13 @@ enemy_spawn_script:
 	defb $01
 	defb $fe
 	defb $01
-	defb $02
+	defb $01
 	defb $fe
 	defb $02
 	defb $02
 	defb $fe
-	defb $01
-	defb $01
+	defb $02
+	defb $02
 	defb $02
 	defb $02
 	defb $9500 - $, $ff
@@ -556,8 +556,8 @@ defb 60  	;   ####
 defb 24  	;    ##   
 defb 60  	;   ####  
 defb 90  	;  # ## # 
-defb 56  	;   ###   
-defb 100  	;  ##  #  
+defb 24  	;    ##   
+defb 36  	;   #  #  
 defb 6  	;      ## 
 
 defb 60  	;   ####  
@@ -574,8 +574,8 @@ defb 60  	;   ####
 defb 24  	;    ##   
 defb 60  	;   ####  
 defb 90  	;  # ## # 
-defb 28  	;    ###  
-defb 38  	;   #  ## 
+defb 24  	;    ##   
+defb 36  	;   #  #  
 defb 96  	;  ##     
 
 defb 60  	;   ####  
@@ -592,8 +592,8 @@ defb 36  	;   #  #
 defb 24  	;    ##   
 defb 60  	;   ####  
 defb 90  	;  # ## # 
-defb 28  	;    ###  
-defb 38  	;   #  ## 
+defb 24  	;    ##   
+defb 36  	;   #  #  
 defb 96  	;  ##     
 
 defb 60  	;   ####  
@@ -610,8 +610,8 @@ defb 36  	;   #  #
 defb 24  	;    ##   
 defb 60  	;   ####  
 defb 90  	;  # ## # 
-defb 56  	;   ###   
-defb 100  	;  ##  #  
+defb 24  	;    ##   
+defb 36  	;   #  #  
 defb 6  	;      ## 
 
 defb 60  	;   ####  
@@ -700,8 +700,8 @@ defb 60  	;   ####
 defb 24  	;    ##   
 defb 56  	;   ###   
 defb 88  	;  # ##   
-defb 56  	;   ###   
-defb 100  	;  ##  #  
+defb 24  	;    ##   
+defb 36  	;   #  #  
 defb 6  	;      ## 
 
 defb 60  	;   ####  
@@ -718,8 +718,8 @@ defb 60  	;   ####
 defb 24  	;    ##   
 defb 56  	;   ###   
 defb 88  	;  # ##   
-defb 28  	;    ###  
-defb 38  	;   #  ## 
+defb 24  	;    ##   
+defb 36  	;   #  #  
 defb 96  	;  ##     
 
 defb 60  	;   ####  
@@ -736,8 +736,8 @@ defb 36  	;   #  #
 defb 24  	;    ##   
 defb 28  	;    ###  
 defb 26  	;    ## # 
-defb 28  	;    ###  
-defb 38  	;   #  ## 
+defb 24  	;    ##   
+defb 36  	;   #  #  
 defb 96  	;  ##     
 
 defb 60  	;   ####  
@@ -754,10 +754,9 @@ defb 36  	;   #  #
 defb 24  	;    ##   
 defb 28  	;    ###  
 defb 26  	;    ## # 
-defb 56  	;   ###   
-defb 100  	;  ##  #  
-defb 6  	;      ##
-
+defb 24  	;    ##   
+defb 36  	;   #  #  
+defb 6  	;      ## 
 defs $b100 - $
 
 strong_enemy:
@@ -848,7 +847,7 @@ defb 255  	; ########
 defb 255  	; ########
 defb 255  	; ########
 defb 127  	;  #######
-defb 254  	; ####### 
+defb 110  	;  ## ### 
 defb 7  	;      ###
 
 defb 60  	;   ####  
@@ -866,7 +865,7 @@ defb 255  	; ########
 defb 255  	; ########
 defb 255  	; ########
 defb 254  	; ####### 
-defb 127  	;  #######
+defb 118  	;  ### ## 
 defb 224  	; ###     
 
 defb 60  	;   ####  
@@ -884,7 +883,7 @@ defb 255  	; ########
 defb 219  	; ## ## ##
 defb 231  	; ###  ###
 defb 254  	; ####### 
-defb 127  	;  #######
+defb 118  	;  ### ## 
 defb 224  	; ###     
 
 defb 60  	;   ####  
@@ -902,7 +901,7 @@ defb 255  	; ########
 defb 219  	; ## ## ##
 defb 231  	; ###  ###
 defb 127  	;  #######
-defb 254  	; ####### 
+defb 110  	;  ## ### 
 defb 7  	;      ###
 
 defb 60  	;   ####  
@@ -992,7 +991,7 @@ defb 255  	; ########
 defb 255  	; ########
 defb 255  	; ########
 defb 127  	;  #######
-defb 254  	; ####### 
+defb 110  	;  ## ### 
 defb 7  	;      ###
 
 defb 60  	;   ####  
@@ -1010,7 +1009,7 @@ defb 255  	; ########
 defb 255  	; ########
 defb 255  	; ########
 defb 254  	; ####### 
-defb 127  	;  #######
+defb 118  	;  ### ## 
 defb 224  	; ###     
 
 defb 60  	;   ####  
@@ -1028,7 +1027,7 @@ defb 255  	; ########
 defb 231  	; ###  ###
 defb 219  	; ## ## ##
 defb 254  	; ####### 
-defb 127  	;  #######
+defb 118  	;  ### ## 
 defb 224  	; ###     
 
 defb 60  	;   ####  
@@ -1046,5 +1045,5 @@ defb 255  	; ########
 defb 231  	; ###  ###
 defb 219  	; ## ## ##
 defb 127  	;  #######
-defb 254  	; ####### 
+defb 110  	;  ## ### 
 defb 7  	;      ###
