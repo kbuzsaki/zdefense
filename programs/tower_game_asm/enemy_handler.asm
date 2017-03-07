@@ -1,3 +1,12 @@
+enemy_handler_init:
+	; initialize the enemy spawn script
+	ld hl, enemy_spawn_script
+	ld (enemy_spawn_script_ptr), hl
+
+	ret
+
+
+
 enemy_handler_entry_point_handle_enemies:
 	ld hl, weak_enemy
 	ld (current_enemy_sprite_page), hl

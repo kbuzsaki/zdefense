@@ -1,3 +1,10 @@
+load_map_init:
+	; draw the map from the tile map
+	ld hl, tile_map
+	call load_map_load_map
+	ret
+
+
 ; loads the map pointed to by hl
 load_map_load_map:
 	ld d, $40

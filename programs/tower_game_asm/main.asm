@@ -1,29 +1,16 @@
 org 32768
 
-	; setup interrupt handler, disable interrupts
+	; disable interrupts for the duration of the setup phase
+	di
+
+	; setup the interrupt handler
 	ld hl, interrupt_handler
 	call setup_interrupt_handler
 
-	; set border to green
-	ld a, 4
-	out ($fe), a
-
-	; set pixels to 0, background to white, foreground to black
-	call util_clear_pixels
-	call util_clear_attrs
-
-	; set the screen to black
-	ld d, $ff
-	call util_fill_all_pixels
-
-	; draw the map from the tile map
-	ld hl, tile_map
-	call load_map_load_map
-
-	; initialize the enemy spawn script
-	ld hl, enemy_spawn_script
-	ld (enemy_spawn_script_ptr), hl
-
+	; call various module init functions
+	call main_init
+	call load_map_init
+	call enemy_handler_init
 	call status_init
 
 	; enable interrupts again now that we're set up
@@ -34,7 +21,7 @@ infinite_wait:
 	jp infinite_wait
 
 
-; main game loop
+; main game loop, called by the refresh interrupt handler at 50hz
 interrupt_handler:
 	di
 
@@ -63,6 +50,25 @@ interrupt_handler_end:
 
 	reti
 
+
+; misc init in the main module
+; sets the border color and clears the screen
+main_init:
+	; set border to green
+	ld a, 4
+	out ($fe), a
+
+	; set pixels to 0, background to white, foreground to black
+	call util_clear_pixels
+	call util_clear_attrs
+
+	; set the screen to black
+	ld d, $ff
+	call util_fill_all_pixels
+
+	ret
+
+	
 
 ; increment_frame_counters increments the various frame counters
 ;
@@ -125,7 +131,6 @@ include "util.asm"
 ; http://www.animatez.co.uk/computers/zx-spectrum/interrupts/
 ; Uses the address in hl as the interrupt handler
 setup_interrupt_handler:
-    di                         ; disable interrupts
     ld ix, $FFF0               ; Where to stick this code
     ld (ix + $4), $C3          ; Z80 opcode for JP
     ld (ix + $5), l            ; Where to JP to (in HL)
