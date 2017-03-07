@@ -24,6 +24,8 @@ org 32768
 	ld hl, enemy_spawn_script
 	ld (enemy_spawn_script_ptr), hl
 
+	call status_init
+
 	; enable interrupts again now that we're set up
 	ei
 
@@ -114,6 +116,7 @@ include "enemy_sprite.asm"
 include "input.asm"
 include "load_map.asm"
 include "misc.asm"
+include "status.asm"
 include "util.asm"
 
 
