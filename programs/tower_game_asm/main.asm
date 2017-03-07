@@ -56,7 +56,6 @@ interrupt_handler_end:
 ; misc init in the main module
 ; sets the border color and clears the screen
 main_init:
-	; set border to green
 	ld a, 1
 	out ($fe), a
 
