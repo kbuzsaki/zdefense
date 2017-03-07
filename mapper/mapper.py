@@ -50,7 +50,7 @@ SIMPLE_TILE_MAP = [
 @unique
 class Tiles(Enum):
     blank = 0
-    foo = 1
+    buildable = 1
     bar = 2
     baz = 3
     top_wall = 4
@@ -67,7 +67,7 @@ class Tiles(Enum):
     bottom_right_nub = 15
 
 CHARACTER_MAP = {
-    "#": Tiles.blank,
+    "#": Tiles.buildable,
     " ": Tiles.blank,
     "^": Tiles.bottom_wall,
     "v": Tiles.top_wall,

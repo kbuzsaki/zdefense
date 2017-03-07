@@ -2,7 +2,34 @@ load_map_init:
 	; draw the map from the tile map
 	ld hl, tile_map
 	call load_map_load_map
+
+	call load_map_init_path_attr_bytes
+
 	ret
+
+
+load_map_init_path_attr_bytes:
+	ld hl, enemy_path_attr
+	ld b, $30
+
+load_map_init_path_attr_bytes_loop:
+	; load the next attr byte address
+	ld e, (hl)
+	inc hl
+	ld d, (hl)
+	inc hl
+
+	; if d is ff, then we've hit the end so return
+	ld a, d
+	cp $ff
+	ret z
+
+	; set the attr byte
+	ex de, hl
+	ld (hl), b
+	ex de, hl
+
+	jp load_map_init_path_attr_bytes_loop
 
 
 ; loads the map pointed to by hl

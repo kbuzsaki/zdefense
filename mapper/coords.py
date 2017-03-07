@@ -35,8 +35,22 @@ def pixel_coords_to_pixel_address(x, y):
     return addr_bits
 
 
+def cell_coords_to_attr_address(cell_x, cell_y):
+    x, y = cell_to_pixel(cell_x, cell_y)
+    return pixel_coords_to_attr_byte_address(x, y)
+
 def pixel_coords_to_attr_byte_address(x, y):
-    pass
+    l_x_bits = (0xf8 & x) >> 3
+    l_y_bits = (0x38 & y) << 2
+    l_bits = l_x_bits + l_y_bits
+
+    h_upper_y_bits = (0xc0 & y) >> 6
+    h_upper_bits = 0x58
+    h_bits = h_upper_bits + h_upper_y_bits
+
+    addr_bits = (h_bits << 8) + l_bits
+
+    return addr_bits
 
 def cell_to_pixel(x, y):
     return x << 3, y << 3
@@ -110,13 +124,18 @@ if __name__ == "__main__":
     print(cells)
 
 
-    addrs = [cell_coords_to_pixel_address(cell_x, cell_y) for cell_x, cell_y in cells]
-    print(len(addrs))
+    cell_addrs = [cell_coords_to_pixel_address(cell_x, cell_y) for cell_x, cell_y in cells]
+    print(len(cell_addrs))
     #print("defw " + ", ".join(map(format_address, addrs)))
     print()
     print()
 
-    for a in chunk(addrs, 8):
+    for a in chunk(cell_addrs, 8):
+        print("defw " + ", ".join(map(format_address, a)))
+
+    print()
+    attr_addrs = [cell_coords_to_attr_address(cell_x, cell_y) for cell_x, cell_y in cells]
+    for a in chunk(attr_addrs, 8):
         print("defw " + ", ".join(map(format_address, a)))
 
     print()
