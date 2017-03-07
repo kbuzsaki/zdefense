@@ -1,7 +1,9 @@
 SRCS=$(wildcard *.asm)
 TAPS=$(SRCS:.asm=.tap)
 
-default: main.tap
+default: main.tap 
+
+main.tap: $(SRCS)
 
 new: clean default
 
