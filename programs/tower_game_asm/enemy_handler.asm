@@ -10,15 +10,19 @@ enemy_handler_init:
 enemy_handler_entry_point_handle_enemies:
 	ld hl, weak_enemy
 	ld (current_enemy_sprite_page), hl
-	ld hl, weak_enemy_array
-	ld (current_enemy_array), hl
+	ld hl, weak_enemy_position_array
+	ld (current_enemy_position_array), hl
+	ld hl, weak_enemy_health_array
+	ld (current_enemy_health_array), hl
 
 	call enemy_handler_handle_enemy
 
 	ld hl, strong_enemy
 	ld (current_enemy_sprite_page), hl
-	ld hl, strong_enemy_array
-	ld (current_enemy_array), hl
+	ld hl, strong_enemy_position_array
+	ld (current_enemy_position_array), hl
+	ld hl, strong_enemy_health_array
+	ld (current_enemy_health_array), hl
 
 	call enemy_handler_handle_enemy
 
@@ -49,12 +53,14 @@ enemy_handler_entry_point_handle_spawn_enemies:
 	ld (enemy_spawn_script_ptr), hl
 
 	; if 01, then weak enemy
-	ld hl, weak_enemy_array
+	ld hl, weak_enemy_position_array
+	ld de, weak_enemy_health_array
 	cp $01
 	jp z, enemy_handler_handle_spawn_enemy
 
 	; if 02, then strong enemy
-	ld hl, strong_enemy_array
+	ld hl, strong_enemy_position_array
+	ld de, strong_enemy_health_array
 	cp $02
 	jp z, enemy_handler_handle_spawn_enemy
 
@@ -92,7 +98,7 @@ enemy_handler_handle_spawn_enemy_do_spawn:
 
 
 ;;; main enemy update function - enemy_handler_update_enemies
-; calls enemy_handler_update_enemy for every enemy in the (current_enemy_array)
+; calls enemy_handler_update_enemy for every enemy in the (current_enemy_position_array)
 ; takes no inputs
 enemy_handler_update_enemies:
 	; loop over the array of fat enemies
@@ -123,7 +129,7 @@ enemy_handler_update_enemies_loop_increment:
 
 
 ;;; main animation function - enemy_handler_animate_enemies
-; calls enemy_handler_animate_enemy for every enemy in the (current_enemy_array)
+; calls enemy_handler_animate_enemy for every enemy in the (current_enemy_position_array)
 ; takes no inputs
 enemy_handler_animate_enemies:
 	; loop over the array of fat enemies
@@ -158,7 +164,7 @@ enemy_handler_animate_enemies_loop_increment:
 ; output:
 ;   a - the enemy's position index
 enemy_handler_load_position_index:
-	ld hl, (current_enemy_array)
+	ld hl, (current_enemy_position_array)
 	ld l, a
 	ld a, (hl)
 	ret
@@ -171,7 +177,7 @@ enemy_handler_load_position_index:
 ; side effect:
 ;   sets the enemy's index to fe, which clears it
 enemy_handler_clear_enemy_index:
-	ld hl, (current_enemy_array)
+	ld hl, (current_enemy_position_array)
 	ld l, a
 	ld (hl), $fe
 	ret

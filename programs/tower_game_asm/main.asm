@@ -245,7 +245,9 @@ tile_map:
 	defw $00
 
 ; game state maintained by enemy_handler functions
-current_enemy_array:
+current_enemy_position_array:
+	defw $00
+current_enemy_health_array:
 	defw $00
 current_enemy_index:
 	defb $00
@@ -256,17 +258,18 @@ enemy_spawn_script_ptr:
 
 defs $9200 - $
 
-weak_enemy_array:
+; dynamic arrays of enemy state
+; each array takes up a full memory page
+weak_enemy_position_array:
 	defs $9300 - $, $ff
-
-defs $9300 - $
-
-; enemy positions
-strong_enemy_array:
+weak_enemy_health_array:
 	defs $9400 - $, $ff
+strong_enemy_position_array:
+	defs $9500 - $, $ff
+strong_enemy_health_array:
+	defs $9600 - $, $ff
 
-
-defs $9400 - $
+defs $9600 - $
 
 enemy_spawn_script:
 	defb $01
