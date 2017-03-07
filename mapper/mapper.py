@@ -1,5 +1,7 @@
 from enum import Enum, unique
 
+import coords
+
 
 TILE_MAP = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0],
@@ -28,7 +30,7 @@ SIMPLE_TILE_MAP = [
     "################################",
 ]
 
-SIMPLE_TILE_MAP = [
+SIMPLE_TILE_MAP_A = [
     "################################",
     "################################",
     "##########avvvvvvvvvb###########",
@@ -46,6 +48,46 @@ SIMPLE_TILE_MAP = [
     "################################",
     "################################",
 ]
+
+SIMPLE_TILE_MAP_B = [
+    "################################",
+    "################################",
+    "################################",
+    "################################",
+    "################################",
+    "################################",
+    "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+    "                                ",
+    "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "################################",
+    "################################",
+    "################################",
+    "################################",
+    "################################",
+    "################################",
+    "################################",
+]
+
+SIMPLE_TILE_MAP_C = [
+    "################################",
+    "################################",
+    "################################",
+    "################################",
+    "###########avvvvvvvvb###########",
+    "###########>        <###########",
+    "###########> e^^^^f <###########",
+    "###########> <####> <###########",
+    "###########> <####> <###########",
+    "vvvvvvvvvvvh <####> gvvvvvvvvvvv",
+    "             <####>             ",
+    "^^^^^^^^^^^^^d####c^^^^^^^^^^^^^",
+    "################################",
+    "################################",
+    "################################",
+    "################################",
+]
+
+SIMPLE_TILE_MAP = SIMPLE_TILE_MAP_C
 
 @unique
 class Tiles(Enum):
@@ -233,7 +275,29 @@ def make_hex_vals(row):
 def make_defb(row):
     return "defb " + ", ".join("$" + e for e in make_hex_vals(row))
 
+
+def parse_col_cells(x, col):
+    cells = []
+    for y, row in enumerate(col):
+        if row == " ":
+            cells.append((x, y))
+    return cells
+
+def parse_cell_coords(simple_tile_map):
+    cells = []
+    for x, col in enumerate(zip(*simple_tile_map)):
+        col_cells = parse_col_cells(x, col)
+        if not cells or (col_cells[0][1] == cells[-1][1]):
+            cells.extend(col_cells)
+        else:
+            cells.extend(reversed(col_cells))
+    return cells
+
 if __name__ == "__main__":
-    t = make_simple_tiles(SIMPLE_TILE_MAP)
-    for r in t:
-        print(make_defb([e.value for e in r]))
+    cells = parse_cell_coords(SIMPLE_TILE_MAP)
+    coords.print_cell_data(cells)
+    print()
+    tiles = make_simple_tiles(SIMPLE_TILE_MAP)
+    print("tile_map:")
+    for row in tiles:
+        print("\t" + make_defb([e.value for e in row]))

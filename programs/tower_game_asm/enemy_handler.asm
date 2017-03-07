@@ -182,7 +182,7 @@ enemy_handler_clear_enemy_index:
 ; output:
 ;   a - the enemy's direction index
 enemy_handler_load_enemy_direction:
-	ld hl, enemy_path_direction
+	ld hl, (enemy_path_direction)
 	ld l, a
 	ld a, (hl)
 	ret
@@ -193,7 +193,7 @@ enemy_handler_load_enemy_direction:
 ; output:
 ;  de - the enemy's vram location
 enemy_handler_load_position_vram:
-	ld hl, enemy_path
+	ld hl, (enemy_path)
 	sla a
 	ld l, a
 	ld e, (hl)

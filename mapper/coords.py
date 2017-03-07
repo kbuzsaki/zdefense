@@ -83,15 +83,32 @@ def direction(start, end):
     else:
         return 3
 
+def print_cell_data(cells):
+    print("enemy_path:")
+    cell_addrs = [cell_coords_to_pixel_address(cell_x, cell_y) for cell_x, cell_y in cells]
+    for a in chunk(cell_addrs, 8):
+        print("\tdefw " + ", ".join(map(format_address, a)))
+
+    print()
+    print("enemy_path_attr:")
+    attr_addrs = [cell_coords_to_attr_address(cell_x, cell_y) for cell_x, cell_y in cells]
+    for a in chunk(attr_addrs, 8):
+        print("\tdefw " + ", ".join(map(format_address, a)))
+
+    print()
+    print("enemy_path_direction:")
+    dirs = [direction(cells[i], cells[i+1]) for i in range(len(cells)-1)]
+    for a in chunk(dirs, 8):
+        print("\tdefb " + ", ".join(map(format_byte, a)))
+
+    print()
+    print("enemy_path_xy:")
+    xys = sum(cells, ())
+    for a in chunk(xys, 8):
+        print("\tdefb " + ", ".join(map(format_byte, a)))
+
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("invalid args")
-        sys.exit(1)
-
-    cell_x = int(sys.argv[1])
-    cell_y = int(sys.argv[2])
-
     corners = [
         (0, 5),
         (4, 5),
@@ -118,38 +135,12 @@ if __name__ == "__main__":
         (7, 2),
     ]
     cells = [(b, a) for a in range(24) for b in range(4)]
-    #cells = [(0, a) for a in range(24)]
     cells = expand_corners(corners)
 
-    print(cells)
 
-
-    cell_addrs = [cell_coords_to_pixel_address(cell_x, cell_y) for cell_x, cell_y in cells]
-    print(len(cell_addrs))
-    #print("defw " + ", ".join(map(format_address, addrs)))
-    print()
+    print(len(cells))
     print()
 
-    print("enemy_path:")
-    for a in chunk(cell_addrs, 8):
-        print("\tdefw " + ", ".join(map(format_address, a)))
-
-    print()
-    print("enemy_path_attr:")
-    attr_addrs = [cell_coords_to_attr_address(cell_x, cell_y) for cell_x, cell_y in cells]
-    for a in chunk(attr_addrs, 8):
-        print("\tdefw " + ", ".join(map(format_address, a)))
-
-    print()
-    print("enemy_path_direction:")
-    dirs = [direction(cells[i], cells[i+1]) for i in range(len(cells)-1)]
-    for a in chunk(dirs, 8):
-        print("\tdefb " + ", ".join(map(format_byte, a)))
-
-    print()
-    print("enemy_path_xy:")
-    xys = sum(cells, ())
-    for a in chunk(xys, 8):
-        print("\tdefb " + ", ".join(map(format_byte, a)))
+    print_cell_data(cells)
 
 
