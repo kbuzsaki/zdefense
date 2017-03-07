@@ -12,6 +12,7 @@ org 32768
 	call load_map_init
 	call enemy_handler_init
 	call status_init
+	call cursor_init
 
 	; enable interrupts again now that we're set up
 	ei
@@ -27,6 +28,13 @@ interrupt_handler:
 
 	; increment the counters, skip rendering unless we're on a render frame
 	call increment_frame_counters
+
+	; take cursor input at 25hz
+	ld a, (sub_frame_counter)
+	and 3
+	call z, cursor_entry_point_handle_input
+
+	; only do other updates every 8th screen refresh
 	ld a, (sub_frame_counter)
 	cp 0
 	jp nz, interrupt_handler_end
@@ -119,6 +127,7 @@ increment_frame_counters:
 	ret
 
 
+include "cursor.asm"
 include "enemy_handler.asm"
 include "enemy_sprite.asm"
 include "input.asm"
@@ -157,6 +166,15 @@ frame_counter:
 	defb 0
 
 cell_frame_counter:
+	defb 0
+
+cursor_x:
+	defb 0
+
+cursor_y:
+	defb 0
+
+cursor_old_attr:
 	defb 0
 
 ; pixel address:
