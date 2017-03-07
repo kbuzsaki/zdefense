@@ -38,6 +38,92 @@ status_init:
 
 	ret
 
+
+;; update the "enemies coming up" in the status
+status_entry_point_update_enemy_spawn_preview:
+	; load the upcoming enemy
+	ld hl, (enemy_spawn_script_ptr)
+
+	push hl
+	call status_load_enemy_spawn_preview_lookup_index
+	call status_load_enemy_spawn_preview_tile
+	ld de, $5040
+	call util_draw_tile
+	pop hl
+
+	inc hl
+	push hl
+	call status_load_enemy_spawn_preview_lookup_index
+	call status_load_enemy_spawn_preview_tile
+	ld de, $5060
+	call util_draw_tile
+	pop hl
+
+	inc hl
+	push hl
+	call status_load_enemy_spawn_preview_lookup_index
+	call status_load_enemy_spawn_preview_tile
+	ld de, $5080
+	call util_draw_tile
+	pop hl
+
+	inc hl
+	push hl
+	call status_load_enemy_spawn_preview_lookup_index
+	call status_load_enemy_spawn_preview_tile
+	ld de, $50a0
+	call util_draw_tile
+	pop hl
+
+	inc hl
+	push hl
+	call status_load_enemy_spawn_preview_lookup_index
+	call status_load_enemy_spawn_preview_tile
+	ld de, $50c0
+	call util_draw_tile
+	pop hl
+
+	inc hl
+	push hl
+	call status_load_enemy_spawn_preview_lookup_index
+	call status_load_enemy_spawn_preview_tile
+	ld de, $50e0
+	call util_draw_tile
+	pop hl
+
+	ret
+
+
+status_load_enemy_spawn_preview_lookup_index:
+	ld a, (hl)
+
+    ; if it's fe, then override to 0 (blank)
+	bit 7, a
+	jp z, status_load_enemy_spawn_preview_lookup_index_no_clear
+	ld a, 0
+status_load_enemy_spawn_preview_lookup_index_no_clear:
+
+	ret
+
+; input:
+;   a - the index into the lookup table
+status_load_enemy_spawn_preview_tile:
+	; build the address into the lookup table
+	ld hl, status_enemy_preview_lookup
+	sla a
+	add l
+	ld l, a
+
+	; load the source tile address into de, then swap it into hl
+	ld e, (hl)
+	inc hl
+	ld d, (hl)
+	ex de, hl
+
+	ret
+
+
+
 status_clear_status:
     ld d, 0
 	call status_fill_all_status
@@ -80,6 +166,12 @@ status_set_status_attrs_inner_loop:
 	jp nz, status_set_status_attrs_outer_loop
 	ret
 
+
+	
+status_enemy_preview_lookup:
+	defw blank_tile
+	defw weak_enemy + 96
+	defw strong_enemy + 96
 
 
 status_round:

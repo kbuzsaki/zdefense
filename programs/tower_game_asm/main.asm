@@ -41,6 +41,12 @@ interrupt_handler:
 	cp $18
 	call z, enemy_handler_entry_point_handle_spawn_enemies
 
+	;; also update the enemy status at the same count
+	ld a, (real_frame_counter)
+	and $38
+	cp $18
+	call z, status_entry_point_update_enemy_spawn_preview
+
 interrupt_handler_end:
 	ei
 

@@ -9,6 +9,43 @@ util_wait_dur_inner_loop:
 	jp nz, util_wait_dur_outer_loop
 	ret
 
+; pixel address:
+; [0, 1, 0, y7,  y6, y2, y1, y0] [y5, y4, y3, x7,  x6, x5, x4, x3]
+;
+; attr address
+; [0, 1, 0,  1,  1,  0, y7, y6] [y5, y4, y3, x7, x6, x5, x4, x3]
+
+; draws the tile pointed at by hl to the cell pointed at by de
+; inputs:
+;   hl - the address of the source tile (packed 8 bytes)
+;   de - the start address of the cell in vram
+util_draw_tile:
+	ldi
+	inc d
+	dec de
+	ldi
+	inc d
+	dec de
+	ldi
+	inc d
+	dec de
+	ldi
+	inc d
+	dec de
+	ldi
+	inc d
+	dec de
+	ldi
+	inc d
+	dec de
+	ldi
+	inc d
+	dec de
+	ldi
+	inc d
+	dec de
+	ret
+
 
 ; d = fill byte
 util_clear_pixels:
