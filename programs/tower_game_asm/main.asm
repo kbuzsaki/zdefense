@@ -172,6 +172,7 @@ increment_frame_counters:
 	ret
 
 
+include "build.asm"
 include "cursor.asm"
 include "enemy_handler.asm"
 include "enemy_sprite.asm"
