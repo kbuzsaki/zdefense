@@ -130,18 +130,26 @@ if __name__ == "__main__":
     print()
     print()
 
+    print("enemy_path:")
     for a in chunk(cell_addrs, 8):
-        print("defw " + ", ".join(map(format_address, a)))
+        print("\tdefw " + ", ".join(map(format_address, a)))
 
     print()
+    print("enemy_path_attr:")
     attr_addrs = [cell_coords_to_attr_address(cell_x, cell_y) for cell_x, cell_y in cells]
     for a in chunk(attr_addrs, 8):
-        print("defw " + ", ".join(map(format_address, a)))
+        print("\tdefw " + ", ".join(map(format_address, a)))
 
     print()
-    print()
+    print("enemy_path_direction:")
     dirs = [direction(cells[i], cells[i+1]) for i in range(len(cells)-1)]
     for a in chunk(dirs, 8):
-        print("defb " + ", ".join(map(format_byte, a)))
+        print("\tdefb " + ", ".join(map(format_byte, a)))
+
+    print()
+    print("enemy_path_xy:")
+    xys = sum(cells, ())
+    for a in chunk(xys, 8):
+        print("\tdefb " + ", ".join(map(format_byte, a)))
 
 
