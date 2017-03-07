@@ -35,14 +35,10 @@ interrupt_handler:
 	call enemy_handler_entry_point_handle_enemies
 
 	;; only do enemy spawning every other cell frame when the frame_counter is 0
-	; this part is sketch because it will cause problems for future handlers
-	ld a, (frame_counter)
-	cp 0
-	jp nz, interrupt_handler_end
-	; this part checks if the cell_frame_counter is 1, but we need the above check 
-	; so that it doesn't fire 4 times
-	ld a, (cell_frame_counter)
-	and 1
+	; and the LSB of cell_counter is 0
+	ld a, (real_frame_counter)
+	and $38
+	cp $18
 	call z, enemy_handler_entry_point_handle_spawn_enemies
 
 interrupt_handler_end:
