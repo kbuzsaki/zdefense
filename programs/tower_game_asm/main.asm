@@ -510,7 +510,7 @@ tile_map_c:
 defs $a900 - $
 
 lookup:
-	defw blank_tile, filled_tile, circle_tile, cross_tile
+	defw blank_tile, filled_tile, filled_tile, cross_tile
 	defw top_wall, bottom_wall, left_wall, right_wall
 	defw top_left_corner, top_right_corner, bottom_left_corner, bottom_right_corner
 	defw top_left_nub, top_right_nub, bottom_left_nub, bottom_right_nub
