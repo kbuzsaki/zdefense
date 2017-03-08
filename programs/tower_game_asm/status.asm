@@ -1,6 +1,5 @@
 status_init:
     call status_clear_status
-
     ld a,2              ; upper screen
     call 5633           ; open channel
     
@@ -36,8 +35,63 @@ status_init:
 
     call status_set_status_attrs
 
+    ld e, 3
+    ld d, 0
+    call status_update_money
+
+    ld e, 2
+    ld d, 5
+    call status_update_life
+
 	ret
 
+;; e = hundreds position
+;; d = tens position
+status_update_money:
+
+    ; convert d and e into the corresponding character representation
+    ld a, d
+    add a, $30
+    ld d, a
+
+    ld a, e
+    add a, $30
+    ld e, a
+
+    ;write the new value to memory
+    ld (status_money_life+4), de
+
+    ld a, 2
+    call 5633
+    ld de, status_money_life
+    ld bc, status_ml_end-status_money_life
+    call 8252
+
+    ret
+
+;; e = tens position
+;; d = ones position
+status_update_life:
+    ; convert d into the corresponding character representation
+    ld a, d
+    add a, $30
+    ld d, a
+
+    ld a, e
+    add a, $30
+    ld e, a
+
+    ;write the new value to memory
+    ld (status_money_life+12), de
+
+    ld a, 2
+    call 5633
+    ld de, status_money_life
+    ld bc, status_ml_end-status_money_life
+    call 8252
+
+    ret
+ 
 
 ;; update the "enemies coming up" in the status
 status_entry_point_update_enemy_spawn_preview:
@@ -111,8 +165,9 @@ status_load_enemy_spawn_preview_tile:
 	; build the address into the lookup table
 	ld hl, status_enemy_preview_lookup
 	sla a
-	add l
-	ld l, a
+    ld e, a
+    ld d, 0
+    add hl, de
 
 	; load the source tile address into de, then swap it into hl
 	ld e, (hl)
@@ -153,11 +208,11 @@ status_set_status_attrs:
 ; d = fill byte
 status_do_set_status_attrs:
 	ld hl, $5a00
-	ld c, 3
+	ld c, 4
 status_set_status_attrs_outer_loop:
 	ld (hl), d
 	inc hl
-	ld b, 255
+	ld b, 63
 status_set_status_attrs_inner_loop:
 	ld (hl), d
 	inc hl
@@ -173,7 +228,6 @@ status_enemy_preview_lookup:
 	defw weak_enemy + 96
 	defw strong_enemy + 96
 
-
 status_round:
 	defb 22, 16, 0,'Wave: 1'
 status_r_end: equ $
@@ -183,7 +237,7 @@ status_enemy_count:
 status_ec_end: equ $
 
 status_money_life:
-	defb 22, 16, 20,'$800    *10'
+	defb 22, 16, 20,'$000    *00'
 status_ml_end: equ $
 
 status_tower_title:
