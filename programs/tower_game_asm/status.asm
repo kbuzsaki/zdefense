@@ -34,33 +34,36 @@ status_init:
     call 8252
 
     call status_set_status_attrs
-
-    ld e, 3
-    ld d, 0
+    
+    ld a, 7
+    ld (money_tens), a
+    ld a, 5
+    ld (money_ones), a
     call status_update_money
 
-    ld e, 2
-    ld d, 5
+    ld a, 2
+    ld (health_tens), a
+    ld a, 5
+    ld (health_ones), a
     call status_update_life
 
 	ret
 
-;; e = hundreds position
-;; d = tens position
 status_update_money:
-
-    ; convert d and e into the corresponding character representation
-    ld a, d
-    add a, $30
-    ld d, a
-
-    ld a, e
+    ; load in tens place from memory
+    ld a, (money_tens)
     add a, $30
     ld e, a
 
-    ;write the new value to memory
+    ; load in ones place from memory
+    ld a, (money_ones)
+    add a, $30
+    ld d, a
+
+    ;write the new values to memory
     ld (status_money_life+4), de
 
+    ;paint new value to screen
     ld a, 2
     call 5633
     ld de, status_money_life
@@ -69,21 +72,21 @@ status_update_money:
 
     ret
 
-;; e = tens position
-;; d = ones position
 status_update_life:
-    ; convert d into the corresponding character representation
-    ld a, d
-    add a, $30
-    ld d, a
-
-    ld a, e
+    ; load in tens place from memory
+    ld a, (health_tens)
     add a, $30
     ld e, a
+
+    ; load in ones place from memory
+    ld a, (health_ones)
+    add a, $30
+    ld d, a
 
     ;write the new value to memory
     ld (status_money_life+12), de
 
+    ;paint new value to screen
     ld a, 2
     call 5633
     ld de, status_money_life

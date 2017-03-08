@@ -230,6 +230,18 @@ cursor_y:
 cursor_old_attr:
 	defb 0
 
+health_tens:
+    defb 0
+
+health_ones:
+    defb 0
+
+money_tens:
+    defb 0
+
+money_ones:
+    defb 0
+
 ; pixel address:
 ; [0, 1, 0, y7,  y6, y2, y1, y0] [y5, y4, y3, x7,  x6, x5, x4, x3]
 ;
