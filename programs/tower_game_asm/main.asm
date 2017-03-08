@@ -298,7 +298,7 @@ enemy_spawn_script:
 	defb $02
 	defb $02
 	defb $02
-	defb $9500 - $, $ff
+	defb $9700 - $, $ff
 
 ; map data
 defs $a000 - $
@@ -565,6 +565,16 @@ bottom_left_nub:
 	defb $00, $00, $00, $00, $00, $00, $80, $c0
 bottom_right_nub:
 	defb $00, $00, $00, $00, $00, $00, $01, $03
+
+tree_tile:
+defb 255  	; ########
+defb 231  	; ###  ###
+defb 195  	; ##    ##
+defb 129  	; #      #
+defb 231  	; ###  ###
+defb 195  	; ##    ##
+defb 129  	; #      #
+defb 231  	; ###  ###
 
 
 tower_basic:
