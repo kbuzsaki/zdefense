@@ -244,11 +244,23 @@ enemy_path_xy:
 tile_map:
 	defw $00
 
+; constants for enemy health 
+weak_enemy_default_health:
+	defb $04
+weak_enemy_hurt_threshold:
+	defb $02
+strong_enemy_default_health:
+	defb $08
+strong_enemy_hurt_threshold:
+	defb $04
+
 ; game state maintained by enemy_handler functions
 current_enemy_position_array:
 	defw $00
 current_enemy_health_array:
 	defw $00
+current_enemy_hurt_threshold:
+	defb $05
 current_enemy_index:
 	defb $00
 current_enemy_sprite_page:

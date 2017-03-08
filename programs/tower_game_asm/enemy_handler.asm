@@ -14,6 +14,8 @@ enemy_handler_entry_point_handle_enemies:
 	ld (current_enemy_position_array), hl
 	ld hl, weak_enemy_health_array
 	ld (current_enemy_health_array), hl
+	ld a, (weak_enemy_hurt_threshold)
+	ld (current_enemy_hurt_threshold), a
 
 	call enemy_handler_handle_enemy
 
@@ -23,6 +25,8 @@ enemy_handler_entry_point_handle_enemies:
 	ld (current_enemy_position_array), hl
 	ld hl, strong_enemy_health_array
 	ld (current_enemy_health_array), hl
+	ld a, (strong_enemy_hurt_threshold)
+	ld (current_enemy_hurt_threshold), a
 
 	call enemy_handler_handle_enemy
 
@@ -47,6 +51,10 @@ enemy_handler_entry_point_handle_spawn_enemies:
 	ld a, (hl)
 	cp $ff
 	ret z
+	
+	; store the position value into b so we can reload it later
+	; after clobbering a with the default health value
+	ld b, a
 
 	; we didn't hit the end, so increment and store the pointer
 	inc hl
@@ -56,12 +64,16 @@ enemy_handler_entry_point_handle_spawn_enemies:
 	ld hl, weak_enemy_position_array
 	ld de, weak_enemy_health_array
 	cp $01
+	ld a, (weak_enemy_default_health)
 	jp z, enemy_handler_handle_spawn_enemy
 
+	; reload from b since a was clobbered with the default health value
+	ld a, b
 	; if 02, then strong enemy
 	ld hl, strong_enemy_position_array
 	ld de, strong_enemy_health_array
 	cp $02
+	ld a, (strong_enemy_default_health)
 	jp z, enemy_handler_handle_spawn_enemy
 
 	; else we fell through, so just return
@@ -70,8 +82,13 @@ enemy_handler_entry_point_handle_spawn_enemies:
 
 ;;; enemy_handler_handle_spawn_enemy spawns an enemy into the given array
 ; input:
-;   hl - the enemy array to spawn into
+;   hl - the enemy position array to spawn into
+;   de - the enemy health array to spawn into
+;    a - the enemy health value to initialize with
 enemy_handler_handle_spawn_enemy:
+	; save the enemy health into b
+	ld b, a
+
 enemy_handler_handle_spawn_enemy_loop:
 	ld a, (hl)
 
@@ -85,12 +102,16 @@ enemy_handler_handle_spawn_enemy_loop:
 
 	; this spot is occupied, so increment and try again
 	inc hl
+	inc de
 	jp enemy_handler_handle_spawn_enemy_loop
 
 enemy_handler_handle_spawn_enemy_do_spawn:
 	; we found a viable index, so store 0 at it (the start position)
 	ld a, 0
 	ld (hl), a
+	; load the default health into the health array
+	ld a, b
+	ld (de), a
 
 	ret
 
@@ -171,6 +192,17 @@ enemy_handler_load_position_index:
 
 
 ; input:
+;   a - the enemy's enemy index
+; output:
+;   a - the enemy's health value
+enemy_handler_load_health:
+	ld hl, (current_enemy_health_array)
+	ld l, a
+	ld a, (hl)
+	ret
+
+
+; input:
 ;   a - the enemy's index
 ; output:
 ;   none
@@ -239,16 +271,45 @@ enemy_handler_animate_enemy_not_up:
 	jp z, enemy_handler_handle_enemy_at_end
 
 	;; else, actually animate the enemy
-	; grab the enemy direction from c
-	ld a, c
 	; load the enemy sprite
 	ld hl, (current_enemy_sprite_page)
-	; assume healthy for now
-    ld      l, $00
+	; grab the health and compute the l register
+	call enemy_handler_check_health
+	; grab the enemy direction from c
+	ld a, c
+	; render the sprite
     call    enemy_sprite_draw_next_sprite
 
 	ret
 
+
+; sets the l register to $00 or $80 depending on the health
+; inputs:
+;   a - the enemy health
+enemy_handler_check_health:
+	push hl
+
+	; load current health into h
+	ld a, (current_enemy_index)
+	call enemy_handler_load_health
+	ld h, a
+
+	; load hurt threshold into a
+	ld a, (current_enemy_hurt_threshold)
+
+	; if h (health) is less than a (threshold), c will be reset
+	cp h
+	pop hl
+	jp nc, enemy_handler_check_health_unhealthy
+
+	; healthy case
+	ld l, $00
+	ret
+
+	; unhealthy case
+enemy_handler_check_health_unhealthy:
+	ld l, $80
+	ret
 
 
 
