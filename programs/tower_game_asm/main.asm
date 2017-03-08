@@ -60,6 +60,11 @@ interrupt_handler:
 	cp $18
 	call z, status_entry_point_update_enemy_spawn_preview
 
+	; update the life status on the 2nd visual frame
+	ld a, (frame_counter)
+	cp 2
+    call z, status_update_life
+
 interrupt_handler_end:
 	ei
 
@@ -82,7 +87,7 @@ main_init:
 	ld d, $ff
 	call util_fill_all_pixels
 
-	call init_level_a
+	call init_level_b
 
 	ret
 
@@ -310,6 +315,20 @@ strong_enemy_health_array:
 defs $9600 - $
 
 enemy_spawn_script:
+	defb $01
+	defb $01
+	defb $fe
+	defb $01
+	defb $01
+	defb $fe
+	defb $02
+	defb $02
+	defb $fe
+	defb $02
+	defb $02
+	defb $02
+	defb $02
+	defb $fe
 	defb $01
 	defb $01
 	defb $fe

@@ -344,8 +344,52 @@ enemy_handler_handle_enemy_at_end:
 	; set position to fe so this enemy is skipped
 	ld a, (current_enemy_index)
 	call enemy_handler_clear_enemy_index
+	call enemy_handler_decrement_health
+
+	ret
+
+
+enemy_handler_decrement_health:
+	; load the current health value
+	ld a, (health_ones)
+
+	; decrement and maybe handle carry
+	dec a
+	jp m, enemy_handler_decrement_health_handle_tens_carry
+
+	; if not handling carry, just store the new health_ones back
+	ld (health_ones), a
+
+	; check if we're dead now
+	jp z, enemy_handler_decrement_health_handle_dead
+
+	ret
+
+	; case where health_ones has overflowed and we have to borrow from health_tens
+enemy_handler_decrement_health_handle_tens_carry:
+	ld a, (health_tens)
+	; check if we're dead
+	cp 0
+	jp z, enemy_handler_decrement_health_handle_dead
+
+	dec a
+	ld (health_tens), a
+
+	ld a, 9
+	ld (health_ones), a
+
+	ret
+
+enemy_handler_decrement_health_handle_dead:
+	ld a, 0
+	ld (health_ones), a
+	ld (health_tens), a
+
+
 	; set border to red, and abort
 	ld a, 2
 	out ($fe), a
 	ld ($fdcc), a
+
 	ret
+

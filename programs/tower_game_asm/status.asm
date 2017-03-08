@@ -49,9 +49,9 @@ status_init:
     ld (money_ones), a
     call status_update_money
 
-    ld a, 2
+    ld a, 1
     ld (health_tens), a
-    ld a, 5
+    ld a, 0
     ld (health_ones), a
     call status_update_life
 
