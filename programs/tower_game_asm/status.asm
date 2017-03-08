@@ -1,20 +1,16 @@
 status_init:
     call status_clear_status
-    ld a,2              ; upper screen
-    call 5633           ; open channel
-    
-    ld de, status_round       ; address of string
-    ld bc, status_r_end-status_round  ; length of string to print
-    call 8252           ; print our string
-    
-    ld de, status_enemy_count 
-    ld bc, status_ec_end-status_enemy_count
-    call 8252
+    call status_set_status_attrs
 
-    ld de, status_money_life
-    ld bc, status_ml_end-status_money_life
-    call 8252
+    call status_update_tower_costs
+    call status_update_money_life
+    call status_update_wave_count
+    call status_update_enemy_count 
 
+	ret
+
+
+status_update_tower_costs:
     ld de, status_tower_title
     ld bc, status_tt_end-status_tower_title
     call 8252
@@ -33,17 +29,33 @@ status_init:
     ld bc, status_s_end-status_slow
     call 8252
 
-    call status_set_status_attrs
+	; color the input characters magenta
+	ld e, 21
+	ld d, 20
+	call cursor_get_cell_attr
+	ld (hl), $43
+	ld e, 22
+	ld d, 20
+	call cursor_get_cell_attr
+	ld (hl), $43
+	ld e, 23
+	ld d, 20
+	call cursor_get_cell_attr
+	ld (hl), $43
 
-    call status_update_money_life
-
-    ld a, 1
-    ld (wave_count), a
-    call status_update_wave_count
-    
-    ld a, 5
-    ld (enemy_count), a
-    call status_update_enemy_count 
+	; color the dollar signs green
+	ld e, 21
+	ld d, 28
+	call cursor_get_cell_attr
+	ld (hl), $44
+	ld e, 22
+	ld d, 28
+	call cursor_get_cell_attr
+	ld (hl), $44
+	ld e, 23
+	ld d, 28
+	call cursor_get_cell_attr
+	ld (hl), $44
 
 	ret
 
