@@ -63,7 +63,7 @@ interrupt_handler:
 	; update the life status on the 2nd visual frame
 	ld a, (frame_counter)
 	cp 2
-    call z, status_update_life
+    call z, status_update_money_life
 
 interrupt_handler_end:
 	ei
@@ -236,13 +236,13 @@ cursor_old_attr:
 	defb 0
 
 health_tens:
-    defb 0
+    defb 1
 
 health_ones:
     defb 0
 
 money_tens:
-    defb 0
+    defb 5
 
 money_ones:
     defb 0
@@ -722,14 +722,14 @@ dollar:
     defb 36     ;      #  #
 
 heart:
-    defb 102    ;     ##  ##
-    defb 255    ;    ########
-    defb 255    ;    ########
-    defb 255    ;    ########
-    defb 126    ;     ######
-    defb 60     ;      ####
-    defb 24     ;       ##
-    defb 0      ;
+defb 0  	;         
+defb 102  	;  ##  ## 
+defb 255  	; ########
+defb 255  	; ########
+defb 255  	; ########
+defb 126  	;  ###### 
+defb 60  	;   ####  
+defb 24  	;    ##   
 
 heart_hollow:
     defb 102    ;     ##  ##

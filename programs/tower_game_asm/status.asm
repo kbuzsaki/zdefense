@@ -35,6 +35,8 @@ status_init:
 
     call status_set_status_attrs
 
+    call status_update_money_life
+
     ld a, 1
     ld (wave_count), a
     call status_update_wave_count
@@ -43,64 +45,76 @@ status_init:
     ld (enemy_count), a
     call status_update_enemy_count 
 
-    ld a, 7
-    ld (money_tens), a
-    ld a, 5
-    ld (money_ones), a
-    call status_update_money
-
-    ld a, 1
-    ld (health_tens), a
-    ld a, 0
-    ld (health_ones), a
-    call status_update_life
-
 	ret
 
-status_update_money:
-    ; load in tens place from memory
+
+status_update_money_life:
     ld a, (money_tens)
     add a, $30
     ld e, a
-
-    ; load in ones place from memory
     ld a, (money_ones)
     add a, $30
     ld d, a
 
-    ;write the new values to memory
     ld (status_money_life+4), de
 
-    ;paint new value to screen
-    ld a, 2
-    call 5633
-    ld de, status_money_life
-    ld bc, status_ml_end-status_money_life
-    call 8252
-
-    ret
-
-status_update_life:
-    ; load in tens place from memory
     ld a, (health_tens)
     add a, $30
     ld e, a
-
-    ; load in ones place from memory
     ld a, (health_ones)
     add a, $30
     ld d, a
 
-    ;write the new value to memory
     ld (status_money_life+12), de
 
-    ;paint new value to screen
+    ;paint new values to screen
     ld a, 2
     call 5633
     ld de, status_money_life
     ld bc, status_ml_end-status_money_life
     call 8252
 
+    ;draw green dollar sign
+    ld e, 16
+    ld d, 20
+
+    call cursor_get_cell_attr
+    ld (hl), $44
+
+    ;draw red heart
+    ld e, 16
+    ld d, 28
+
+    call cursor_get_cell_attr
+    ld (hl), $42
+
+    call cursor_get_cell_addr
+    ld d, h
+    ld e, l
+    ld hl, heart
+    call util_draw_tile
+
+    ;draw red life text if no life
+    ld a, (health_ones)
+    ld b, a
+
+    ld a, (health_tens)
+    or b
+    jp nz, status_update_money_life_end
+
+    ld e, 16
+    ld d, 29
+
+    call cursor_get_cell_attr
+    ld (hl), $02
+
+    ld e, 16
+    ld d, 30
+
+    call cursor_get_cell_attr
+    ld (hl), $02
+
+status_update_money_life_end:
     ret
 
 status_update_wave_count:
