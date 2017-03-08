@@ -25,7 +25,7 @@ cursor_entry_point_handle_input:
 	ld (hl), a
 
 	; get and save the new cursor position
-	call cursor_check_inputs
+	call cursor_check_wasd_inputs
 	call cursor_check_bounds
 	ld a, d
 	ld (cursor_x), a
@@ -39,11 +39,13 @@ cursor_entry_point_handle_input:
 
 	; set to highlight
 	ld (hl), 199
+
+    call cursor_check_tower_inputs
 	
 	ret
 
 
-cursor_check_inputs:
+cursor_check_wasd_inputs:
 	call input_is_w_down
 	ld c, a
 	ld a, e
@@ -63,6 +65,21 @@ cursor_check_inputs:
 	call input_is_d_down
 	add a, d
 	ld d, a
+    ret
+
+cursor_check_tower_inputs:
+
+    call input_is_1_down
+    call z, build_laser_tower
+
+    call input_is_2_down
+    call z, build_bomb_tower
+
+    call input_is_3_down
+    call z, build_slow_tower
+
+    call input_is_4_down
+    call z, build_basic_tower
 
 	ret
 
@@ -120,4 +137,50 @@ cursor_get_cell_attr:
 	srl a
 	add a, $58
 	ld h, a
-	ret      
+	ret
+
+; read coordinates from d = x, e = y
+; set address to hl
+cursor_get_cell_addr:
+	ld a, e
+	sla a
+	sla a
+	sla a
+	ld e, a
+	ld a, d
+	sla a
+	sla a
+	sla a
+	ld d, a
+	call cursor_get_pixel_addr
+	ret
+
+; read coordinates from d = x, e = y
+; set address to hl
+cursor_get_pixel_addr:
+	ld a, d
+	and $f8
+	srl a
+	srl a
+	srl a
+	ld l, a
+	ld a, e
+	and $38
+	sla a
+	sla a
+	or l
+	ld l, a
+	ld a, e
+	and $7
+	ld h, a
+	ld a, e
+	and $c0
+	srl a
+	srl a
+	srl a
+	add a, $40
+	or h
+	ld h, a
+	ret
+
+ 

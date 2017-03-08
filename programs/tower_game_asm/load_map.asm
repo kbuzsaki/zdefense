@@ -1,6 +1,6 @@
 load_map_init:
 	; draw the map from the tile map
-	ld hl, tile_map
+	ld hl, (tile_map)
 	call load_map_load_map
 
 	call load_map_init_path_attr_bytes
@@ -9,7 +9,7 @@ load_map_init:
 
 
 load_map_init_path_attr_bytes:
-	ld hl, enemy_path_attr
+	ld hl, (enemy_path_attr)
 	ld b, $30
 
 load_map_init_path_attr_bytes_loop:
