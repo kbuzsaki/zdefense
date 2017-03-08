@@ -34,7 +34,15 @@ status_init:
     call 8252
 
     call status_set_status_attrs
+
+    ld a, 1
+    ld (wave_count), a
+    call status_update_wave_count
     
+    ld a, 5
+    ld (enemy_count), a
+    call status_update_enemy_count 
+
     ld a, 7
     ld (money_tens), a
     ld a, 5
@@ -94,7 +102,36 @@ status_update_life:
     call 8252
 
     ret
- 
+
+status_update_wave_count:
+    ld a, (wave_count)
+    add a, $30
+
+    ld (status_round+9), a
+
+    ld a, 2
+    call 5633
+
+    ld de, status_round
+    ld bc, status_r_end-status_round
+    call 8252
+
+    ret
+
+status_update_enemy_count:
+    ld a, (enemy_count)
+    add a, $30
+
+    ld (status_enemy_count+12), a
+
+    ld a, 2
+    call 5633
+
+    ld de, status_enemy_count 
+    ld bc, status_ec_end-status_enemy_count
+    call 8252
+
+    ret
 
 ;; update the "enemies coming up" in the status
 status_entry_point_update_enemy_spawn_preview:
@@ -232,11 +269,11 @@ status_enemy_preview_lookup:
 	defw strong_enemy + 96
 
 status_round:
-	defb 22, 16, 0,'Wave: 1'
+	defb 22, 16, 0,'Wave: 0'
 status_r_end: equ $
 
 status_enemy_count:
-	defb 22, 17, 0,'Enemies: 5'
+	defb 22, 17, 0,'Enemies: 0'
 status_ec_end: equ $
 
 status_money_life:
