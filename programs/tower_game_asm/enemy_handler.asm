@@ -280,4 +280,5 @@ enemy_handler_handle_enemy_at_end:
 	; set border to red, and abort
 	ld a, 2
 	out ($fe), a
+	ld ($fdcc), a
 	ret

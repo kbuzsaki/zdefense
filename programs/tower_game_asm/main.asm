@@ -34,6 +34,11 @@ interrupt_handler:
 	and 3
 	call z, cursor_entry_point_handle_input
 
+	; play music note on odd frames
+	ld a, (sub_frame_counter)
+	and 1
+	call nz, music_entry_point
+
 	; only do other updates every 8th screen refresh
 	ld a, (sub_frame_counter)
 	cp 0
@@ -66,6 +71,7 @@ interrupt_handler_end:
 main_init:
 	ld a, 1
 	out ($fe), a
+	ld ($fdcc), a
 
 	; set pixels to 0, background to white, foreground to black
 	call util_clear_pixels
@@ -135,6 +141,7 @@ include "load_map.asm"
 include "misc.asm"
 include "status.asm"
 include "util.asm"
+include "music.asm"
 
 
 ; Address space wrap-around interrupt handler discussed in class
