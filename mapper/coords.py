@@ -107,6 +107,10 @@ def print_cell_data(cells):
     for a in chunk(xys, 8):
         print("\tdefb " + ", ".join(map(format_byte, a)))
 
+def print_coords(coords):
+    for a in chunk(coords, 8):
+        print("\tdefb " + ", ".join(map(format_byte, a)))
+
 
 if __name__ == "__main__":
     corners = [

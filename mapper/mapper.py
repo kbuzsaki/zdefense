@@ -88,22 +88,22 @@ SIMPLE_TILE_MAP_C = [
 ]
 
 SIMPLE_TILE_MAP_D = [
-    "########.> <.###################",
-    "########.> <.###################",
-    "########.> <.###################",
-    "########.> <.#...........#######",
-    "########.> <.#.avvvvvvvb.#######",
-    "########.> <.#.>       <.#######",
-    "########.> <.#.> e^^^f <.#######",
-    "########.> <.#.> <...> <.#######",
-    "########.> <...> <.#.> <.#######",
-    "########.> gvvvh <.#.> <.#######",
-    "########.>       <.#.> <.#######",
-    "########.c^^^^^^^d.#.> <.#######",
-    "########...........#.> <.#######",
-    "####################.> <.#######",
-    "####################.> <.#######",
-    "####################.> <.#######",
+    "#######> <######################",
+    "#######> <######################",
+    "#######> <######################",
+    "#######> <#######.#.#.#.########",
+    "#######> <#####avvvvvvvvvb######",
+    "######.> <#####>         <######",
+    "#######> <.###.> e^^^^^f <.#####",
+    "######.> <#####> <.#.#.> <######",
+    "#######> <.#.#.> <#####> <.#####",
+    "######.> gvvvvvh <.###.> <######",
+    "#######>         <#####> <.#####",
+    "#######c^^^^^^^^^d#####> <######",
+    "#########.#.#.#.#######> <######",
+    "#######################> <######",
+    "#######################> <######",
+    "#######################> <######",
 ]
 
 SIMPLE_TILE_MAP = SIMPLE_TILE_MAP_D
@@ -315,10 +315,24 @@ def parse_cell_coords(simple_tile_map):
             cells.extend(reversed(col_cells))
     return cells
 
+def filter_coords(simple_tile_map, pred):
+    cells = []
+    for y, row in enumerate(simple_tile_map):
+        for x, col in enumerate(row):
+            if pred(col):
+                cells.append((x, y))
+    return cells
+
+def filter_build_cells(simple_tile_map):
+    return filter_coords(simple_tile_map, lambda c: c == ".")
+
+
 if __name__ == "__main__":
     cells = parse_cell_coords(SIMPLE_TILE_MAP)
     coords.print_cell_data(cells)
     print()
+    print("build_tile_xys:")
+    coords.print_coords(sum(filter_build_cells(SIMPLE_TILE_MAP), ()))
     tiles = make_simple_tiles(SIMPLE_TILE_MAP)
     print("tile_map:")
     for row in tiles:
