@@ -1,5 +1,4 @@
 org 32768
-
 	; disable interrupts for the duration of the setup phase
 	di
 
@@ -370,6 +369,38 @@ build_tile_xys_d:
 	defb $0a, $08, $0c, $08, $0e, $08, $1a, $08
 	defb $06, $09, $12, $09, $16, $09, $1a, $0a
 	defb $09, $0c, $0b, $0c, $0d, $0c, $0f, $0c
+	defb $ff
+
+; dynamic array to store towers in. new towers are added here when they are created
+; very first byte is array size in bytes (points to next avail slot, not last elem)
+; dont think a terminator needed for this array
+; Array elements stored as so:
+;		3 bytes total for a single tower
+;		x coord, y coord, rank
+; Can replace x,y with VRAM if necsesary, or just add more items
+; Rank determines where to find that tower's info sheet (refer to tower_type_1_default immediately below for example)
+defs $9700 - $
+tower_array:
+	defb $00
+	defb $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff
+	defb $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff
+	defb $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff
+	defb $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff
+	defb $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff
+
+
+; Example of where a rank would vector to. Ranks are 1 byte so high byte would be 98 and rank determines low byte
+; would have one of these structures for each tower and each corresponding upgrade
+defs $9860 - $
+tower_type_1_default:
+	defw tower_basic			; normal sprite sheet addr
+	defw $FFFF					; attack animation sprite sheet addr
+	defb $FF					; damage info
+	defb $FF					; attack speed
+	defb $23					; attr byte for normal sprite bckgnd
+	defb $FF					; unused
+
+; would have tower_type_1_up_1, tower_type_1_up_2, etc... for upgrades
 
 ; map data
 defs $a000 - $

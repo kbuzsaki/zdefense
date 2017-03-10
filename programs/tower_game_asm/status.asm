@@ -112,7 +112,7 @@ status_update_money_life:
 
     ld a, (health_tens)
     or b
-    jp nz, status_update_money_life_end
+    jp nz, status_money_life_repaint_money_red_check
 
     ld e, 16
     ld d, 29
@@ -125,6 +125,28 @@ status_update_money_life:
 
     call cursor_get_cell_attr
     ld (hl), $02
+
+status_money_life_repaint_money_red_check:
+	; draw red attr byte for money if u broke af
+	ld	a, (money_ones)
+	ld	b, a
+	ld	a, (money_tens)
+	or	b
+	ld	c, $07
+	jp	nz, status_update_money_life_repaint_money_red_start
+	; jp	nz, status_update_money_life_end
+	ld	c, $82
+
+status_update_money_life_repaint_money_red_start:
+	ld	b, 3
+	ld	e, 16
+	ld	d, 21
+	call cursor_get_cell_attr
+status_update_money_life_repaint_money_red:
+	ld	(hl), c ; 82
+	inc	l
+	djnz status_update_money_life_repaint_money_red
+	
 
 status_update_money_life_end:
     ret

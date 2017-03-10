@@ -20,6 +20,7 @@ util_wait_dur_inner_loop:
 ;   hl - the address of the source tile (packed 8 bytes)
 ;   de - the start address of the cell in vram
 util_draw_tile:
+	push bc
 	ldi
 	inc d
 	dec de
@@ -44,6 +45,7 @@ util_draw_tile:
 	ldi
 	inc d
 	dec de
+	pop bc
 	ret
 
 
