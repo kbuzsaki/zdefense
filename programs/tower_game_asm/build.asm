@@ -98,16 +98,6 @@ build_basic_tower_end:
 build_calculate_tower_rank:
     push    de
     push    bc
-    ; Load index offset and address of base and calc final addr
-    ; NOTE: Would do bounds checking here.
-    ld      de, tower_array
-    ld      a, (de)
-    add     a, 3
-    ld      (de), a
-    dec     a
-    dec     a
-    add     a, e
-    ld      e, a
 
     ; de now stores address to put our new tower info
     ; x and y should be in hl
@@ -144,6 +134,18 @@ build_register_new_tower:
 
     ; Move rank byte to c for now
     ld      c, a
+
+    ; Load index offset and address of base and calc final addr
+    ; NOTE: Would do bounds checking here.
+    ld      de, tower_array
+    ld      a, (de)
+    add     a, 3
+    ld      (de), a
+    dec     a
+    dec     a
+    add     a, e
+    ld      e, a
+
 
     ; Now actually write data to array bytes
     ; x,y,rank
