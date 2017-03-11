@@ -857,35 +857,65 @@ tower_obelisk_upgrade:
     defb 195    ;    ##    ##
     defb 255    ;    ########
 
+up_arrow:    
+    defb 24  	;    ##   
+    defb 60  	;   ####  
+    defb 126  	;  ###### 
+    defb 255  	; ########
+    defb 60  	;   ####  
+    defb 60  	;   ####  
+    defb 60  	;   ####  
+    defb 60  	;   ####  
+
 lightning:
-    defb 3      ;          ##
-    defb 14     ;        ###
-    defb 56     ;      ###
-    defb 254    ;    #######
-    defb 127    ;     #######
-    defb 28     ;       ###
-    defb 122    ;     ###
-    defb 192    ;    ##
+    defb 3  	;       ##
+    defb 14  	;     ### 
+    defb 56  	;   ###   
+    defb 254  	; ####### 
+    defb 127  	;  #######
+    defb 28  	;    ###  
+    defb 112  	;  ###    
+    defb 192  	; ##      
+
+snowflake:
+    defb 20  	;    # #  
+    defb 8  	;     #   
+    defb 93  	;  # ### #
+    defb 54  	;   ## ## 
+    defb 93  	;  # ### #
+    defb 8  	;     #   
+    defb 20  	;    # #  
+    defb 0  	;         
+
+bomb:
+    defb 14  	;     ### 
+    defb 17  	;    #   #
+    defb 60  	;   ####  
+    defb 126  	;  ###### 
+    defb 126  	;  ###### 
+    defb 126  	;  ###### 
+    defb 126  	;  ###### 
+    defb 60  	;   ####  
 
 dollar:
-    defb 36     ;      #  #
-    defb 126    ;     ######
-    defb 165    ;    # #  # #
-    defb 116    ;     ### #
-    defb 46     ;      # ###
-    defb 165    ;    # #  # #
-    defb 126    ;     ######
-    defb 36     ;      #  #
+    defb 8  	;     #   
+    defb 62  	;   ##### 
+    defb 40  	;   # #   
+    defb 62  	;   ##### 
+    defb 10  	;     # # 
+    defb 62  	;   ##### 
+    defb 8  	;     #   
+    defb 0  	;         
 
 heart:
-defb 0  	;         
-defb 102  	;  ##  ## 
-defb 255  	; ########
-defb 255  	; ########
-defb 255  	; ########
-defb 126  	;  ###### 
-defb 60  	;   ####  
-defb 24  	;    ##   
+    defb 0  	;         
+    defb 102  	;  ##  ## 
+    defb 255  	; ########
+    defb 255  	; ########
+    defb 255  	; ########
+    defb 126  	;  ###### 
+    defb 60  	;   ####  
+    defb 24  	;    ##   
 
 heart_hollow:
     defb 102    ;     ##  ##
