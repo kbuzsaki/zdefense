@@ -41,6 +41,7 @@ cursor_entry_point_handle_input:
 	ld (hl), 199
 
     call cursor_check_tower_inputs
+    call cursor_check_powerups
 	
 	ret
 
@@ -83,6 +84,50 @@ cursor_check_tower_inputs:
 
 	ret
 
+cursor_check_powerups:
+
+    ; check if powerup_one exists
+    ld b, 0
+    ld a, (powerup_one)
+    cp b
+    jp z, cursor_after_powerup_one_check
+
+    ; check if x coord matches powerup_one
+    ld a, (powerup_one_x)
+    cp d
+    jp nz, cursor_after_powerup_one_check
+
+    ; check if y coord matches powerup_one
+    ld a, (powerup_one_y)
+    cp e
+    jp nz, cursor_after_powerup_one_check
+
+    ; if passed all checks, get powerup_one
+    ld bc, powerup_one
+    call powerups_get_powerup
+
+  cursor_after_powerup_one_check:
+
+    ld b, 0
+    ld a, (powerup_two)
+    cp b
+    jp z, cursor_after_powerup_two_check
+
+
+    ld a, (powerup_two_x)
+    cp d
+    jp nz, cursor_after_powerup_two_check
+
+    ld a, (powerup_two_y)
+    cp e
+    jp nz, cursor_after_powerup_two_check
+
+    ld bc, powerup_two
+    call powerups_get_powerup
+
+  cursor_after_powerup_two_check:
+
+    ret
 
 cursor_check_bounds:
 	; check x left wrap around

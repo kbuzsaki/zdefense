@@ -181,6 +181,46 @@ status_update_enemy_count:
 
     ret
 
+status_inc_health:
+    ;increment health by one
+    ld a, (health_ones)
+    inc a
+
+    ; if health_ones is not 10, jump
+    cp 10
+    jp nz, status_inc_health_end
+
+    ; else inc health_tens and reset health_ones to 0
+    ld a, (health_tens)
+    inc a
+    ld (health_tens), a
+    ld a, 0
+
+status_inc_health_end:
+    ld (health_ones), a
+    ret
+
+
+
+status_inc_money:
+    ;increment money by one
+    ld a, (money_ones)
+    inc a
+
+    ; if money_ones is not 10, jump
+    cp 10
+    jp nz, status_inc_money_end
+
+    ; else inc money_tens and reset money_ones to 0
+    ld a, (money_tens)
+    inc a
+    ld (money_tens), a
+    ld a, 0
+
+status_inc_money_end:
+    ld (money_ones), a
+    ret
+
 ;; update the "enemies coming up" in the status
 status_entry_point_update_enemy_spawn_preview:
 	; load the upcoming enemy

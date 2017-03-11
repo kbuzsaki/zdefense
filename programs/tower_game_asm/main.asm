@@ -9,6 +9,7 @@ org 32768
 	; call various module init functions
 	call main_init
 	call load_map_init
+    call powerups_init
 	call enemy_handler_init
 	call status_init
 	call cursor_init
@@ -44,6 +45,11 @@ interrupt_handler:
 	cp 2
     call z, status_update_money_life
 
+    ; spawn powerups randomly on the 2nd visual frame
+    ld a, (sub_frame_counter)
+    and 3
+    cp 2
+    call z, powerups_spawn_randomly
 
 	; only do other updates every 8th screen refresh
 	ld a, (sub_frame_counter)
@@ -65,6 +71,15 @@ interrupt_handler:
 	and $38
 	cp $18
 	call z, status_entry_point_update_enemy_spawn_preview
+
+	; update the life and money status on the 2nd visual frame
+	ld a, (frame_counter)
+	cp 2
+    call z, status_update_money_life
+
+    ld a, (frame_counter)
+    cp 2
+    call z, powerups_spawn_randomly
 
 interrupt_handler_end:
 	ei
@@ -208,6 +223,7 @@ include "misc.asm"
 include "status.asm"
 include "util.asm"
 include "music.asm"
+include "powerups.asm"
 
 
 ; Address space wrap-around interrupt handler discussed in class
@@ -251,10 +267,10 @@ cursor_old_attr:
 	defb 0
 
 health_tens:
-    defb 1
+    defb 0
 
 health_ones:
-    defb 0
+    defb 1
 
 money_tens:
     defb 5
@@ -267,6 +283,24 @@ wave_count:
 
 enemy_count:
     defb 5
+
+powerup_one:
+    defb 0
+
+powerup_one_x:
+    defb 0
+
+powerup_one_y:
+    defb 0
+
+powerup_two:
+    defb 0
+
+powerup_two_x:
+    defb 0
+
+powerup_two_y:
+    defb 0
 
 ; pixel address:
 ; [0, 1, 0, y7,  y6, y2, y1, y0] [y5, y4, y3, x7,  x6, x5, x4, x3]
