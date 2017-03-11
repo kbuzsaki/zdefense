@@ -21,7 +21,7 @@ all_pixels = [[0] * width for _ in range(height)]
 for y in range(height):
     for x in range(width):
         cpixel = pixels[x, y]
-        if round(sum(cpixel)) / float(len(cpixel)) > 127:
+        if round(sum(cpixel)) / float(len(cpixel)) > 191:
             all_pixels[y][x] = '0'
         else:
             all_pixels[y][x] = '1'
