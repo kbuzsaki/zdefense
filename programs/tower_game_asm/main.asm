@@ -737,13 +737,13 @@ bottom_right_nub:
 	defb $00, $00, $00, $00, $00, $00, $01, $03
 
 tree_tile:
-defb 255  	; ########
-defb 231  	; ###  ###
-defb 195  	; ##    ##
-defb 129  	; #      #
-defb 231  	; ###  ###
-defb 195  	; ##    ##
-defb 129  	; #      #
+    defb 255  	; ########
+    defb 231  	; ###  ###
+    defb 195  	; ##    ##
+    defb 129  	; #      #
+    defb 231  	; ###  ###
+    defb 195  	; ##    ##
+    defb 129  	; #      #
 defb 231  	; ###  ###
 
 buildable_tile:
@@ -776,6 +776,87 @@ build_tile_b:
 	defb $c3    ; ##    ##
 	defb $ff    ; ########
 
+small_lake:
+    defb 255  	; ########
+    defb 255  	; ########
+    defb 254  	; ####### 
+    defb 254  	; ####### 
+    defb 236  	; ### ##  
+    defb 227  	; ###   ##
+    defb 224  	; ###     
+    defb 192  	; ##      
+
+    defb 255  	; ########
+    defb 239  	; ### ####
+    defb 113  	;  ###   #
+    defb 0  	;         
+    defb 0  	;         
+    defb 0  	;         
+    defb 0  	;         
+    defb 0  	;         
+
+    defb 255  	; ########
+    defb 255  	; ########
+    defb 255  	; ########
+    defb 255  	; ########
+    defb 63  	;   ######
+    defb 63  	;   ######
+    defb 47  	;   # ####
+    defb 31  	;    #####
+
+    defb 192  	; ##      
+    defb 192  	; ##      
+    defb 192  	; ##      
+    defb 224  	; ###     
+    defb 128  	; #       
+    defb 0  	;         
+    defb 128  	; #       
+    defb 128  	; #       
+
+    defb 0  	;         
+    defb 0  	;         
+    defb 0  	;         
+    defb 0  	;         
+    defb 0  	;         
+    defb 0  	;         
+    defb 0  	;         
+    defb 0  	;         
+
+    defb 15  	;     ####
+    defb 15  	;     ####
+    defb 15  	;     ####
+    defb 31  	;    #####
+    defb 7  	;      ###
+    defb 7  	;      ###
+    defb 15  	;     ####
+    defb 15  	;     ####
+
+    defb 0  	;         
+    defb 192  	; ##      
+    defb 240  	; ####    
+    defb 248  	; #####   
+    defb 244  	; #### #  
+    defb 254  	; ####### 
+    defb 255  	; ########
+    defb 255  	; ########
+
+    defb 1  	;        #
+    defb 14  	;     ### 
+    defb 15  	;     ####
+    defb 63  	;   ######
+    defb 127  	;  #######
+    defb 255  	; ########
+    defb 255  	; ########
+    defb 255  	; ########
+
+    defb 15  	;     ####
+    defb 223  	; ## #####
+    defb 255  	; ########
+    defb 255  	; ########
+    defb 255  	; ########
+    defb 255  	; ########
+    defb 255  	; ########
+    defb 255  	; ########
 
 tower_basic:
     defb 90     ;     # ## #
