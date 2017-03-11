@@ -744,7 +744,7 @@ tree_tile:
     defb 231  	; ###  ###
     defb 195  	; ##    ##
     defb 129  	; #      #
-defb 231  	; ###  ###
+    defb 231  	; ###  ###
 
 buildable_tile:
 	defb $ff    ; ########
@@ -859,84 +859,84 @@ small_lake:
     defb 255  	; ########
 
 tower_basic:
-    defb 90     ;     # ## #
-    defb 255    ;    ########
-    defb 126    ;     ######
-    defb 60     ;      ####
-    defb 60     ;      ####
-    defb 60     ;      ####
-    defb 60     ;      ####
-    defb 60     ;      ####
+    defb 90     ;  # ## #
+    defb 255    ; ########
+    defb 126    ;  ######
+    defb 60     ;   ####
+    defb 60     ;   ####
+    defb 60     ;   ####
+    defb 60     ;   ####
+    defb 60     ;   ####
 
 tower_basic_upgrade:
-    defb 165    ;    # #  # #
-    defb 255    ;    ########
-    defb 219    ;    ## ## ##
-    defb 255    ;    ########
-    defb 126    ;     ######
-    defb 60     ;      ####
-    defb 60     ;      ####
-    defb 60     ;      ####
+    defb 165    ; # #  # #
+    defb 255    ; ########
+    defb 219    ; ## ## ##
+    defb 255    ; ########
+    defb 126    ;  ######
+    defb 60     ;   ####
+    defb 60     ;   ####
+    defb 60     ;   ####
 
 tower_bomb:
-    defb 255    ;    ########
-    defb 129    ;    #      #
-    defb 153    ;    #  ##  #
-    defb 165    ;    # #  # #
-    defb 165    ;    # #  # #
-    defb 153    ;    #  ##  #
-    defb 129    ;    #      #
-    defb 255    ;    ########
+    defb 255    ; ########
+    defb 129    ; #      #
+    defb 153    ; #  ##  #
+    defb 165    ; # #  # #
+    defb 165    ; # #  # #
+    defb 153    ; #  ##  #
+    defb 129    ; #      #
+    defb 255    ; ########
 
 tower_bomb_upgrade:
-    defb 60     ;      ####
-    defb 36     ;      #  #
-    defb 219    ;    ## ## ##
-    defb 165    ;    # #  # #
-    defb 165    ;    # #  # #
-    defb 219    ;    ## ## ##
-    defb 36     ;      #  #
-    defb 60     ;      ####
+    defb 60     ;   ####
+    defb 36     ;   #  #
+    defb 219    ; ## ## ##
+    defb 165    ; # #  # #
+    defb 165    ; # #  # #
+    defb 219    ; ## ## ##
+    defb 36     ;   #  #
+    defb 60     ;   ####
 
 tower_zap:
-    defb 60     ;      ####
-    defb 66     ;     #    #
-    defb 66     ;     #    #
-    defb 60     ;      ####
-    defb 24     ;       ##
-    defb 24     ;       ##
-    defb 24     ;       ##
-    defb 24     ;       ##
+    defb 60     ;   ####
+    defb 66     ;  #    #
+    defb 66     ;  #    #
+    defb 60     ;   ####
+    defb 24     ;    ##
+    defb 24     ;    ##
+    defb 24     ;    ##
+    defb 24     ;    ##
 
 tower_zap_upgrade:
-    defb 126    ;     ######
-    defb 129    ;    #      #
-    defb 129    ;    #      #
-    defb 129    ;    #      #
-    defb 126    ;     ######
-    defb 60     ;      ####
-    defb 24     ;       ##
-    defb 24     ;       ##
+    defb 126    ;  ######
+    defb 129    ; #      #
+    defb 129    ; #      #
+    defb 129    ; #      #
+    defb 126    ;   ######
+    defb 60     ;   ####
+    defb 24     ;    ##
+    defb 24     ;    ##
 
 tower_obelisk:
-    defb 24     ;       ##   
-    defb 60     ;      ####  
-    defb 60     ;      ####  
-    defb 60     ;      ####  
-    defb 60     ;      ####  
-    defb 126    ;     ###### 
-    defb 255    ;    ########
-    defb 255    ;    ########
+    defb 24     ;    ##   
+    defb 60     ;   ####  
+    defb 60     ;   ####  
+    defb 60     ;   ####  
+    defb 60     ;   ####  
+    defb 126    ;  ###### 
+    defb 255    ; ########
+    defb 255    ; ########
 
 tower_obelisk_upgrade:
-    defb 60     ;      #### 
-    defb 36     ;      #  #  
-    defb 102    ;     ##  ## 
-    defb 66     ;     #    # 
-    defb 66     ;     #    # 
-    defb 66     ;     #    # 
-    defb 195    ;    ##    ##
-    defb 255    ;    ########
+    defb 60     ;   #### 
+    defb 36     ;   #  #  
+    defb 102    ;  ##  ## 
+    defb 66     ;  #    # 
+    defb 66     ;  #    # 
+    defb 66     ;  #    # 
+    defb 195    ; ##    ##
+    defb 255    ; ########
 
 up_arrow:    
     defb 24  	;    ##   
@@ -997,36 +997,6 @@ heart:
     defb 126  	;  ###### 
     defb 60  	;   ####  
     defb 24  	;    ##   
-
-heart_hollow:
-    defb 102    ;     ##  ##
-    defb 154    ;    #  ##  #
-    defb 129    ;    #      #
-    defb 129    ;    #      #
-    defb 66     ;     #    #
-    defb 36     ;      #  #
-    defb 24     ;       ##
-    defb 0      ;
-
-bullet:
-    defb 24     ;       ##
-    defb 60     ;      ####
-    defb 126    ;     ######
-    defb 126    ;     ######
-    defb 126    ;     ######
-    defb 126    ;     ######
-    defb 0      ;
-    defb 126    ;     ######
-
-bullet_hollow:
-    defb 24     ;       ##
-    defb 36     ;      #  #
-    defb 66     ;     #    #
-    defb 66     ;     #    #
-    defb 66     ;     #    #
-    defb 126    ;     ######
-    defb 0      ;
-    defb 126    ;     ######
 
 ; pad so enemy sprites are aligned
 defs $b000 - $
