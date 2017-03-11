@@ -393,3 +393,69 @@ enemy_handler_decrement_health_handle_dead:
 
 	ret
 
+
+enemy_handler_entry_point_compute_position_to_index_array:
+	; first clear the array
+	call enemy_handler_clear_position_to_index_array
+
+	; then fill in for weak
+	ld de, weak_enemy_position_array
+	ld hl, enemy_position_to_index_array
+	ld c, $00
+	call enemy_handler_compute_position_to_index_array
+
+	; and fill in for strong
+	ld de, strong_enemy_position_array
+	ld hl, enemy_position_to_index_array
+	ld c, $80
+	call enemy_handler_compute_position_to_index_array
+
+	ret
+
+; inputs:
+;   c - base byte to or into the index
+;  de - enemy array
+;  hl - position to index array
+enemy_handler_compute_position_to_index_array:
+
+	; b is the enemy array index
+	ld b, 0
+enemy_handler_compute_position_to_index_array_loop:
+	; load the position
+	ld a, (de)
+
+	; empty spot
+	cp $fe
+	jp z, enemy_handler_compute_position_to_index_array_loop_increment
+
+	; end of enemy array
+	cp $ff
+	ret z
+
+	; not empty, not end: valid position
+	; offset into the position_to_index array with our position
+	ld l, a
+
+	; or the position with the base byte
+	ld a, b
+	or c
+	; store the result in the position_to_index_array
+	ld (hl), a
+
+enemy_handler_compute_position_to_index_array_loop_increment:
+	; increment and jump back
+	inc b
+	inc de
+
+	jp enemy_handler_compute_position_to_index_array_loop
+
+
+enemy_handler_clear_position_to_index_array:
+	; read from section of rom with $ff for 256 bytes
+	ld hl, $3900
+	; write to the array we want to clear
+	ld de, enemy_position_to_index_array
+	; write 256 times
+	ld bc, $0100
+	ldir
+	ret

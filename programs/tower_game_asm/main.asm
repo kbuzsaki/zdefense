@@ -35,9 +35,9 @@ interrupt_handler:
 	call z, cursor_entry_point_handle_input
 
 	; play music note on odd frames
-	ld a, (sub_frame_counter)
-	and 1
-	call nz, music_entry_point
+	;ld a, (sub_frame_counter)
+	;and 1
+	;call nz, music_entry_point
 
 	; update the life and money status on the 2nd visual frame
 	ld a, (sub_frame_counter)
@@ -51,27 +51,34 @@ interrupt_handler:
     cp 2
     call z, powerups_spawn_randomly
 
-	; only do other updates every 8th screen refresh
+	; do enemy updates every 8th frame
 	ld a, (sub_frame_counter)
 	cp 0
-	jp nz, interrupt_handler_end
+	call z, enemy_handler_entry_point_handle_enemies
 
-	; call handle enemies every frame
-	call enemy_handler_entry_point_handle_enemies
+	; precompute helper array
+	ld a, (sub_frame_counter)
+	cp $03
+	call z, enemy_handler_entry_point_compute_position_to_index_array
+
+	; handle tower attacks
+	ld a, (sub_frame_counter)
+	cp $04
+	call z, tower_handler_entry_point_handle_attacks
 
 	;; only do enemy spawning every other cell frame when the frame_counter is 0
 	; and the LSB of cell_counter is 0
 	ld a, (real_frame_counter)
-	and $38
+	and $3f
 	cp $18
 	call z, enemy_handler_entry_point_handle_spawn_enemies
 
 	;; also update the enemy status at the same count
 	ld a, (real_frame_counter)
-	and $38
+	and $3f
 	cp $18
 	call z, status_entry_point_update_enemy_spawn_preview
-
+	
 interrupt_handler_end:
 	ei
 
@@ -212,6 +219,7 @@ include "input.asm"
 include "load_map.asm"
 include "misc.asm"
 include "status.asm"
+include "tower.asm"
 include "util.asm"
 include "music.asm"
 include "powerups.asm"
@@ -341,12 +349,22 @@ current_enemy_sprite_page:
 enemy_spawn_script_ptr:
 	defw $00
 
-defs $9200 - $
+; game state maintained by tower functions
+current_tower_index:
+	defb $00
+
+defs $9100 - $
+
+; position -> index
+enemy_position_to_index_array:
+	defs $9200 - $, $ff
 
 ; dynamic arrays of enemy state
 ; each array takes up a full memory page
+; id / index -> position
 weak_enemy_position_array:
 	defs $9300 - $, $ff
+; id / index -> health
 weak_enemy_health_array:
 	defs $9400 - $, $ff
 strong_enemy_position_array:
@@ -396,6 +414,19 @@ build_tile_xys_d:
 	defb $09, $0c, $0b, $0c, $0d, $0c, $0f, $0c
 	defb $ff
 
+defs $9800 - $
+; array of attackable tiles for each build tile
+; 4 byte elements, indices correspond to build_tile_xys
+build_tile_attackables_d:
+	defb $08, $fe, $fe, $fe
+	defb $ff, $ff, $ff, $ff
+
+defs $9900 - $
+; array of towers built at build tiles
+build_tile_towers:
+	defb $01
+	defb $ff
+
 ; dynamic array to store towers in. new towers are added here when they are created
 ; very first byte is array size in bytes (points to next avail slot, not last elem)
 ; dont think a terminator needed for this array
@@ -404,7 +435,6 @@ build_tile_xys_d:
 ;		x coord, y coord, rank
 ; Can replace x,y with VRAM if necsesary, or just add more items
 ; Rank determines where to find that tower's info sheet (refer to tower_type_1_default immediately below for example)
-defs $9700 - $
 tower_array:
 	defb $00
 	defb $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff
@@ -416,7 +446,7 @@ tower_array:
 
 ; Example of where a rank would vector to. Ranks are 1 byte so high byte would be 98 and rank determines low byte
 ; would have one of these structures for each tower and each corresponding upgrade
-defs $9860 - $
+defs $9a00 - $
 tower_type_1_default:
 	defw tower_basic			; normal sprite sheet addr
 	defw $FFFF					; attack animation sprite sheet addr
