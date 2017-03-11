@@ -39,7 +39,7 @@ interrupt_handler:
 	and 1
 	call nz, music_entry_point
 
-	; update the life status on the 2nd visual frame
+	; update the life and money status on the 2nd visual frame
 	ld a, (sub_frame_counter)
 	and 3
 	cp 2
@@ -71,15 +71,6 @@ interrupt_handler:
 	and $38
 	cp $18
 	call z, status_entry_point_update_enemy_spawn_preview
-
-	; update the life and money status on the 2nd visual frame
-	ld a, (frame_counter)
-	cp 2
-    call z, status_update_money_life
-
-    ld a, (frame_counter)
-    cp 2
-    call z, powerups_spawn_randomly
 
 interrupt_handler_end:
 	ei
