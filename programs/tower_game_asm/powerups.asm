@@ -1,7 +1,51 @@
 powerups_init:
-    call powerups_prepare_powerups_map_b
+    call powerups_prepare_map_d
 
     ret
+
+
+powerups_prepare_map_b:
+    ld d, 2
+    ld e, 2
+    call powerups_draw_small_lake
+
+    ld a, 3
+    ld (powerup_one_x), a
+    ld a, 3
+    ld (powerup_one_y), a
+
+    ld d, 10
+    ld e, 10
+    call powerups_draw_small_lake
+
+    ld a, 11
+    ld (powerup_two_x), a
+    ld a, 11
+    ld (powerup_two_y), a
+
+    ret
+
+powerups_prepare_map_d:
+    ld d, 2
+    ld e, 2
+    call powerups_draw_small_lake
+
+    ld a, 3
+    ld (powerup_one_x), a
+    ld a, 3
+    ld (powerup_one_y), a
+
+    ld d, 19
+    ld e, 12
+    call powerups_draw_small_lake
+
+    ld a, 20
+    ld (powerup_two_x), a
+    ld a, 13
+    ld (powerup_two_y), a
+
+    ret
+
 
 powerups_spawn_randomly:
 
@@ -26,7 +70,7 @@ powerups_spawn_randomly:
   powerups_spawn_randomly_spawn_one:
 
     ld a, r
-    and $11
+    and $aa
     call z, powerups_spawn_powerup_one
 
   powerups_spawn_randomly_skip_one:
@@ -53,30 +97,10 @@ powerups_spawn_randomly:
 
 
     ld a, r
-    and $22
+    and $bb
     call z, powerups_spawn_powerup_two
 
   powerups_spawn_randomly_skip_two:
-
-    ret
-
-
-powerups_prepare_powerups_map_b:
-    ld d, 2
-    ld e, 2
-    call powerups_draw_small_lake
-
-    ld a, 3
-    ld (powerup_one_x), a
-    ld (powerup_one_y), a
-
-    ld d, 10
-    ld e, 10
-    call powerups_draw_small_lake
-
-    ld a, 11
-    ld (powerup_two_x), a
-    ld (powerup_two_y), a
 
     ret
 
