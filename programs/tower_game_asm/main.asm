@@ -14,6 +14,10 @@ org 32768
 	call status_init
 	call cursor_init
 
+	ld a, $10
+	ld ($58e8), a
+	ld ($594d), a
+
 	; enable interrupts again now that we're set up
 	ei
 
@@ -56,14 +60,16 @@ interrupt_handler:
 	cp 0
 	call z, enemy_handler_entry_point_handle_enemies
 
-	; precompute helper array
-	ld a, (sub_frame_counter)
-	cp $03
+	; precompute helper array on the first subframe 1 of every cell frame
+	ld a, (real_frame_counter)
+	and $1f
+	cp $01
 	call z, enemy_handler_entry_point_compute_position_to_index_array
 
-	; handle tower attacks
-	ld a, (sub_frame_counter)
-	cp $04
+	; handle tower attacks on the first subframe 3 of every cell frame
+	ld a, (real_frame_counter)
+	and $1f
+	cp $03
 	call z, tower_handler_entry_point_handle_attacks
 
 	;; only do enemy spawning every other cell frame when the frame_counter is 0
@@ -352,6 +358,8 @@ enemy_spawn_script_ptr:
 ; game state maintained by tower functions
 current_tower_index:
 	defb $00
+current_attacked_enemy_index:
+	defb $00
 
 defs $9100 - $
 
@@ -376,32 +384,15 @@ defs $9600 - $
 
 enemy_spawn_script:
 	defb $01
-	defb $01
+	defb $fe
 	defb $fe
 	defb $01
-	defb $01
 	defb $fe
-	defb $02
-	defb $02
 	defb $fe
-	defb $02
-	defb $02
-	defb $02
-	defb $02
-	defb $fe
-	defb $01
-	defb $01
-	defb $fe
-	defb $01
-	defb $01
-	defb $fe
-	defb $02
 	defb $02
 	defb $fe
 	defb $02
-	defb $02
-	defb $02
-	defb $02
+	defb $fe
 	defb $9700 - $, $ff
 
 ; x, y pairs of the build tile coordinates for map d
@@ -418,7 +409,7 @@ defs $9800 - $
 ; array of attackable tiles for each build tile
 ; 4 byte elements, indices correspond to build_tile_xys
 build_tile_attackables_d:
-	defb $08, $fe, $fe, $fe
+	defb $08, $10, $ff, $ff
 	defb $ff, $ff, $ff, $ff
 
 defs $9900 - $

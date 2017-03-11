@@ -57,23 +57,147 @@ tower_handler_get_attackable_ptr:
 	ret
 
 
-border_color:
-	defb $00
 
+
+; todo: check if this tower has attacked already
 ; handles the attack for a laser tower
 tower_handler_handle_laser_attack:
 	; get the attackables pointer
 	ld a, (current_tower_index)
+
+	; get the attackable ptr in hl
+	; the attackable position bytes are the 4 bytes at this address
 	call tower_handler_get_attackable_ptr
 
-	; load the first attackables
+	; check the first attackable, do attack if we find a position
 	ld a, (hl)
-	; check if there's an enemy that we can attack
-	push hl
-	call tower_handler_find_enemy_at
-	; if there is, then "attack" it
+	call tower_handler_handle_laser_attack_check_attackable
 	cp $ff
-	call nz, tower_handler_toggle_border_color
+	jp nz, tower_handler_handle_laser_attack_do_attack
+
+	; check the second attackable, do attack if we find a position
+	inc hl
+	ld a, (hl)
+	call tower_handler_handle_laser_attack_check_attackable
+	cp $ff
+	jp nz, tower_handler_handle_laser_attack_do_attack
+
+	; check the third attackable, do attack if we find a position
+	inc hl
+	ld a, (hl)
+	call tower_handler_handle_laser_attack_check_attackable
+	cp $ff
+	jp nz, tower_handler_handle_laser_attack_do_attack
+
+	; check the fourth attackable, do attack if we find a position
+	inc hl
+	ld a, (hl)
+	call tower_handler_handle_laser_attack_check_attackable
+	cp $ff
+	jp nz, tower_handler_handle_laser_attack_do_attack
+
+	; if we get here then none of the attackables had an enemy
+	; so just do nothing
+	ret
+
+	; jump here when we attack an enemy so that we only attack one enemy
+tower_handler_handle_laser_attack_do_attack:
+
+	; attack the enemy at the position in a
+	call tower_handler_handle_laser_attack_enemy
+
+	ret
+
+
+; input:
+;   a - the first position of this attackable
+; output:
+;   a - the first position of this attackable that has an enemy, or $ff
+tower_handler_handle_laser_attack_check_attackable:
+	; if it's ff, then there's nothing to check so skip it
+	cp $ff
+	ret z
+
+	; else, check the 3 tiles in this attackable range
+	; (this position and the following 2)
+
+	ld b, a
+	; check first position, return if we find something
+	call tower_handler_find_enemy_at
+	cp $ff
+	ret nz
+
+	ld a, b
+	inc a
+	ld b, a
+	; check second position, return if we find something
+	call tower_handler_find_enemy_at
+	cp $ff
+	ret nz
+
+	ld a, b
+	inc a
+	; check third position, always return
+	call tower_handler_find_enemy_at
+	ret
+
+
+; input:
+;  a - the packed type / index of the enemy to attack
+tower_handler_handle_laser_attack_enemy:
+	call tower_handler_init_enemy_arrays
+	call tower_handler_damage_enemy
+	call tower_handler_toggle_border_color
+	ret
+
+tower_handler_init_enemy_arrays:
+	; save the packed index into b
+	ld b, a
+
+	; store the real index
+	and $7f
+	ld (current_attacked_enemy_index), a
+
+	; reload the packed index from b, check the type
+	ld a, b
+	and $80
+	jp nz, tower_handler_init_enemy_arrays_strong_enemy
+
+	; weak enemy
+	ld hl, weak_enemy_position_array
+	ld (current_enemy_position_array), hl
+	ld hl, weak_enemy_health_array
+	ld (current_enemy_health_array), hl
+
+	ret
+
+	; strong enemy
+tower_handler_init_enemy_arrays_strong_enemy:
+
+	ld hl, strong_enemy_position_array
+	ld (current_enemy_position_array), hl
+	ld hl, strong_enemy_health_array
+	ld (current_enemy_health_array), hl
+
+	ret
+
+
+tower_handler_damage_enemy:
+	; find and decrement the enemy's health
+	ld a, (current_attacked_enemy_index)
+	ld hl, (current_enemy_health_array)
+	ld l, a
+	dec (hl)
+
+	; if we hit 0, remove the enemy
+	call z, tower_handler_kill_enemy
+	ret
+
+
+; todo: blood splatter, clean up enemy
+tower_handler_kill_enemy:
+	ld a, (current_attacked_enemy_index)
+	call enemy_handler_clear_enemy_at_index
 	ret
 
 
@@ -82,37 +206,19 @@ tower_handler_handle_laser_attack:
 ; output:
 ;  a - the enemy index for that position
 tower_handler_find_enemy_at:
-	; stuff the position we're searching for into c
-	ld c, a
-	ld hl, weak_enemy_position_array
-	ld b, 0
-tower_handler_find_enemy_at_loop:
-	; load and compare the position
-	ld a, (hl)
-	cp c
-	jp z, tower_handler_find_enemy_at_found
-
-	; check if at end of array
-	cp $ff
-	jp z, tower_handler_find_enemy_at_not_found
-
-	; increment and loop
-	inc b
-	inc hl
-	jp tower_handler_find_enemy_at_loop
-
-tower_handler_find_enemy_at_found:
-	ld a, b
+	ld de, enemy_position_to_index_array
+	ld e, a
+	ld a, (de)
 	ret
 
-tower_handler_find_enemy_at_not_found:
-	ld a, $ff
-	ret
 
+border_color:
+	defb $00
 
 tower_handler_toggle_border_color:
 	ld a, (border_color)
 	inc a
+	and $07
 	ld (border_color), a
 	out ($fe), a
 	ret

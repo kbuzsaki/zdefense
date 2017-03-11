@@ -214,6 +214,35 @@ enemy_handler_clear_enemy_index:
 	ld (hl), $fe
 	ret
 
+; input
+;  a - the enemy's index
+; side effect:
+;  sets the enemy's index to fe, which clears it
+;  clears the enemy's tiles in vram
+enemy_handler_clear_enemy_at_index:
+	push af
+	; load the position index
+    call enemy_handler_load_position_index
+
+	; clear the first tile
+	push af
+	call enemy_handler_load_position_vram
+	ld hl, blank_tile
+	call util_draw_tile
+	pop af
+
+	; clear the second tile
+	inc a
+	call enemy_handler_load_position_vram
+	ld hl, blank_tile
+	call util_draw_tile
+
+	; clear the enemy array entry
+	pop af
+	call enemy_handler_clear_enemy_index
+
+	ret
+
 
 ; input:
 ;   a - the enemy's position index
