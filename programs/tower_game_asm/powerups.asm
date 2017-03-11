@@ -56,13 +56,13 @@ powerups_spawn_randomly:
 
     ; skip chance to spawn if cursor is on powerup_one spot
     ld a, (cursor_x)
-    ld a, b
+    ld b, a
     ld a, (powerup_one_x)
     cp b
     jp nz, powerups_spawn_randomly_spawn_one 
 
     ld a, (cursor_y)
-    ld a, b
+    ld b, a
     ld a, (powerup_one_y)
     cp b
     jp z, powerups_spawn_randomly_skip_one 
@@ -82,13 +82,13 @@ powerups_spawn_randomly:
 
     ;skip chance to spawn if cursor is on powerup_two spot
     ld a, (cursor_x)
-    ld a, b
+    ld b, a
     ld a, (powerup_two_x)
     cp b
     jp nz, powerups_spawn_randomly_spawn_two 
 
     ld a, (cursor_y)
-    ld a, b
+    ld b, a
     ld a, (powerup_two_y)
     cp b
     jp z, powerups_spawn_randomly_skip_two 
