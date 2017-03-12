@@ -260,6 +260,8 @@ tower_handler_handle_flame_attack_enemies:
 
 	; check and maybe attack the first position
 	ld (current_attacked_enemy_position), a
+	;call tower_handler_highlight_position
+	;ld a, (current_attacked_enemy_position)
 	call tower_handler_find_enemy_at
 	cp $ff
 	jp z, tower_handler_handle_flame_attack_enemies_two
@@ -271,6 +273,8 @@ tower_handler_handle_flame_attack_enemies_two:
 	ld a, (current_attacked_enemy_position)
 	dec a
 	ld (current_attacked_enemy_position), a
+	;call tower_handler_highlight_position
+	;ld a, (current_attacked_enemy_position)
 	call tower_handler_find_enemy_at
 	cp $ff
 	jp z, tower_handler_handle_flame_attack_enemies_three
@@ -282,6 +286,8 @@ tower_handler_handle_flame_attack_enemies_three:
 	ld a, (current_attacked_enemy_position)
 	dec a
 	ld (current_attacked_enemy_position), a
+	;call tower_handler_highlight_position
+	;ld a, (current_attacked_enemy_position)
 	call tower_handler_find_enemy_at
 	cp $ff
 	jp z, tower_handler_handle_flame_attack_enemies_done
@@ -312,6 +318,9 @@ tower_handler_init_enemy_arrays:
 	ld (current_enemy_position_array), hl
 	ld hl, weak_enemy_health_array
 	ld (current_enemy_health_array), hl
+	; money value
+	ld a, 1
+	ld (current_attacked_enemy_value), a
 
 	ret
 
@@ -322,6 +331,9 @@ tower_handler_init_enemy_arrays_strong_enemy:
 	ld (current_enemy_position_array), hl
 	ld hl, strong_enemy_health_array
 	ld (current_enemy_health_array), hl
+	; money value
+	ld a, 2
+	ld (current_attacked_enemy_value), a
 
 	ret
 
@@ -347,9 +359,14 @@ tower_handler_damage_enemy:
 
 tower_handler_highlight_enemy:
 	; compute the offset into the attr byte address array
-	ld d, 0
 	ld a, (current_attacked_enemy_index)
 	call enemy_handler_load_position_index
+	jp tower_handler_highlight_position
+
+; input:
+;  a - the position to highlight
+tower_handler_highlight_position:
+	ld d, 0
 	sla a
 	ld e, a
 	; get attr byte address array and offset into it
@@ -395,6 +412,18 @@ tower_handler_highlight_tower:
 tower_handler_kill_enemy:
 	ld a, (current_attacked_enemy_index)
 	call enemy_handler_clear_enemy_at_index
+
+	ld a, (current_attacked_enemy_value)
+	call tower_handler_add_money
+	ret
+
+; input:
+;  a - the value of the enemy
+tower_handler_add_money:
+	ld b, a
+tower_handler_add_money_loop:
+	call status_inc_money
+	djnz tower_handler_add_money_loop
 	ret
 
 

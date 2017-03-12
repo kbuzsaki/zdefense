@@ -88,8 +88,7 @@ build_check_money:
 	; check if we need to borrow from tens
 	ld a, (money_ones)
 	sub c
-	jp m, build_check_money_no_borrow
-	jp z, build_check_money_no_borrow
+	jp nc, build_check_money_no_borrow
 
 	; if we do have to borrow from tens, increment the effective tens cost
 	inc b

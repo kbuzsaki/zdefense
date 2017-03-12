@@ -386,6 +386,8 @@ current_attacked_enemy_index:
 	defb $00
 current_attacked_enemy_position:
 	defb $00
+current_attacked_enemy_value:
+	defb $00
 
 
 defs $9100 - $
