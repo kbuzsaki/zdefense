@@ -474,6 +474,34 @@ tower_type_1_default:
 	defb $23					; attr byte for normal sprite bckgnd
 	defb $FF					; unused
 
+defs $9c00 - $
+
+; format:
+;   2 - tile address
+;   1 - attribute byte
+;   1 - x
+tower_type_data:
+	; filler
+	defw $ffff
+	defb $ff
+	defb $ff
+	; laser tower
+	defw tower_zap
+	defb $27
+	defb $ff
+	; flame tower
+	defw tower_bomb_upgrade
+	defb $22
+	defb $ff
+	; tesla tower
+	defw tower_obelisk
+	defb $21
+	defb $ff
+	; basic tower
+	defw tower_basic
+	defb $23
+	defb $ff
+
 ; would have tower_type_1_up_1, tower_type_1_up_2, etc... for upgrades
 
 ; map data

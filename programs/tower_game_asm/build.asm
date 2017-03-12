@@ -43,195 +43,198 @@ build_find_build_tile_index_not_found:
 	ret
 
 
+; input:
+;  b - tens cost to check for
+;  c - ones cost to check for
+; output:
+;  a - 1 if successful, 0 if unsuccessful
+; side effect:
+;  decrement the player's money by bc
+build_try_decrement_money:
+	; return if we don't have enough money
+	call build_check_money
+	cp $00
+	ret z
 
+	; if we do have enough money, perform the deduction
+	; b was already incremented if we need carry, so don't worry about that
+	ld a, (money_tens)
+	sub b
+	ld (money_tens), a
+
+	; if we did a carry, increment our effective ones by 10
+	ld a, (money_ones)
+	cp c
+	jp p, build_try_decrement_money_no_carry
+	add 10
+
+	; actually do the subtraction
+build_try_decrement_money_no_carry:
+	sub c
+	ld (money_ones), a
+
+	; load 1 into a to signal success
+	ld a, 1
+	ret
+
+; input:
+;  b - tens cost to check for
+;  c - ones cost to check for
+; output:
+;  a - 1 if player can afford it, 0 if they cannot
+; trashes:
+;  b - increments by 1 if needed a carry
+build_check_money:
+	; check if we need to borrow from tens
+	ld a, (money_ones)
+	sub c
+	jp m, build_check_money_no_borrow
+	jp z, build_check_money_no_borrow
+
+	; if we do have to borrow from tens, increment the effective tens cost
+	inc b
+
+	; compare the tens
+build_check_money_no_borrow:
+	; check if we have enough tens
+	ld a, (money_tens)
+	sub b
+	ld a, 0
+	; if we do not, return 0
+	ret m
+
+	; else, return 1
+	ld a, 1
+	ret
+
+; inputs:
+;  de - the xy coordinates to build at
+build_laser_tower:
+	ld a, $01
+	ld bc, $0100
+	call build_build_tower
+	ret
+
+; inputs:
+;  de - the xy coordinates to build at
+build_bomb_tower:
+	ld a, $02
+	ld bc, $0100
+	call build_build_tower
+	ret
+
+; inputs:
+;  de - the xy coordinates to build at
+build_slow_tower:
+	ld a, $03
+	ld bc, $0100
+	call build_build_tower
+	ret
+
+; inputs:
+;  de - the xy coordinates to build at
 build_basic_tower:
-    push de
-    push hl
-    push bc
-
-    ; Check if the cursor is within a valid build spot
-    ld      hl, (build_tile_xys)
-    
-    
-build_basic_tower_xy_check:
-
-    ld      a, (hl)             ; Load x coord
-    ; Check if we've reached the end of array
-    cp      $FF
-    jr      z, build_basic_tower_end
-
-    ; Check if x coords match
-    inc     l                   ; Increment now in case we jump out, addr still valid
-    cp      d
-    jr      nz, build_basic_tower_xy_check_conditional
-
-    ld      a, (hl)             ; Load y coord
-    ; Check if y coords match
-    cp      e
-    jr      nz, build_basic_tower_xy_check_conditional
-
-    ; If we've reached this far we've won. Go ahead and draw. You deserve it.
-    ;
-    ; Just kidding dude. Did you really think I'd just let you go man?
-    ; How much dolla u got
-    ld      a, (money_tens)
-    cp      0
-    jr      z, build_basic_tower_end
-
-    sub     1
-    ld      (money_tens), a
-
-    ; Register the tower with our structure
-
-    ; First, calculate ranking address for further data
-    ld      b, 3        ; tower type 4
-    ld      c, 0        ; level 0 (default level)
-    call    build_calculate_tower_rank
-    ld      c, a        ; temp store for later when we re-use it again
-    call    build_register_new_tower
-    jr      build_basic_tower_draw
-
-; every day we stray further from gods light with labels as long as this
-build_basic_tower_xy_check_conditional:
-    inc     l
-    jr      build_basic_tower_xy_check
+	ld a, $04
+	ld bc, $0100
+	call build_build_tower
+	ret
 
 
-build_basic_tower_draw:
-    ; Get info from the tower data sheet like attr byte and sprite sheet addr
-    ld b, $9b   ; high byte of addr is 98, i.e. 98xx
-                ; c already contains low byte (i.e. rank)
-	ld c, 0
-    ; ld c, $60
-    
-    ;Set the pixel bytes
+; inputs:
+;   a - the tower type byte
+;  bc - the cost of the tower
+;  de - the xy coordinates to build at
+build_build_tower:
+	; put the tower type byte in a' until we need it
+	ex af, af'
+
+	push bc
+
+	; ensure that this is a valid spot, give up if it isn't
+	call build_find_build_tile_index
+	cp $ff
+	ret z
+
+	pop bc
+
+	; make sure there isn't a tile here already
+	; also stash the build tile index in l
+	ld hl, build_tile_towers
+	ld l, a
+	ld a, (hl)
+	cp $fe
+	ret nz
+
+	; subtract the cost of the tower from our money, give up if we don't have enough
+	call build_try_decrement_money
+	cp $00
+	ret z
+
+	;; now that we've subtracted the money, actually store the tower
+	; grab the tile index again and tower type byte again
+	ld b, l
+	ex af, af'
+	; register the new tower in the array
+	call build_register_new_tower
+
+	; draw the new tower on the screen
+	call build_draw_tower
+
+	ret
+
+
+; input
+;   a - the tower type byte
+;  de - the xy coordinate
+build_draw_tower:
+	; stash the tower type in b
+	ld b, a
+
+	; compute the cell address to draw to 
     call cursor_get_cell_addr
+	ex de, hl
 
-    ld d, h
-    ld e, l
-    
-    ; note: endianness in storage is weird.
-    ; TODO: Maybe using IX for this nonsense may make things cleaner and less CT
-    ld a, (bc)
-    ld l, a
-    inc c
-    ld a, (bc)
-    ld h, a
-    
-    ; ld hl, tower_basic
+	; grab the tower type byte
+	ld a, b
+
+	; compute the tower type data address
+	ld bc, tower_type_data
+	sla a
+	sla a
+	ld c, a
+
+	; load the tower tile
+	ld a, (bc)
+	ld l, a
+	inc bc
+	ld a, (bc)
+	ld h, a
+
+	; draw the tower tile
     call util_draw_tile
 
-    ;Set the attribute byte
+	; load the tower attribute byte
+	inc bc
+	ld a, (bc)
 
-    ; Add to tower data address to get to attr byte loc
-    ld a, 5
-    add a, c
-    ld c, a
-    ld a, (bc)
-    ; ld a, $23
+	; store the tower attribute byte
     ld (cursor_old_attr), a
 
-build_basic_tower_end:
-    pop bc
-    pop hl
-    pop de
     ret
 
-; b - tower type (0..3)
-; c - tower level (0..3)
-; Final constructed rank byte stored in a 
-build_calculate_tower_rank:
-    push    de
-    push    bc
-
-    ; de now stores address to put our new tower info
-    ; x and y should be in hl
-    ; need to build 1byte for rank
-    ; STRUCTURE:
-    ;           0 | tower type (2bits) | tower level (2bits) | 000
-    ;   - Tower types 1,2,3,4
-    ;   - Levels 1,2,3 (could add a fourth)
-    
-    xor     a
-    ; Shift b into position
-    rrc     b
-    rrc     b
-    rrc     b
-    or      b
-
-    ; Shift c
-    sla     c
-    sla     c
-    or      c
-
-    pop     bc
-    pop     de
-    ret
 
 ; Add new tower of certain type at default rank
 ; to be recorded in the global towers array
-; a - constructed rank byte
-; hl - xy coords of new tower
-;      can pass VRAM addr into hl instead to store that.
+; input:
+;  a - the tower type byte
+;  b - the tile index
 build_register_new_tower:
-    push    de
-    push    bc
-
-	; find the build tile index of the tower
-	call build_find_build_tile_index
 	; find the point in the array to build at
 	ld hl, build_tile_towers
-	ld l, a
+	ld l, b
+
 	; build the tower
-	ld (hl), 1
+	ld (hl), a
 
-
-    pop     bc
-    pop     de
-    ret
-
-build_laser_tower:
-    push de
-    ;Set the attribute byte first
-    ld a, $27
-    ld (cursor_old_attr), a
-
-    ;Set the pixel bytes
-    call cursor_get_cell_addr
-    ld d, h
-    ld e, l
-    ld hl, tower_zap
-    call util_draw_tile
-    pop de
-    ret
-
-build_bomb_tower:
-    push de
-    ;Set the attribute byte first
-    ld a, $22
-    ld (cursor_old_attr), a
-
-    ;Set the pixel bytes
-    call cursor_get_cell_addr
-    ld d, h
-    ld e, l
-    ld hl, tower_bomb_upgrade
-    call util_draw_tile
-    pop de
-    ret
-
-build_slow_tower:
-    push de
-    ;Set the attribute byte first
-    ld a, $21
-    ld (cursor_old_attr), a
-
-    ;Set the pixel bytes
-    call cursor_get_cell_addr
-    ld d, h
-    ld e, l
-    ld hl, tower_obelisk
-    call util_draw_tile
-    pop de
     ret
 
