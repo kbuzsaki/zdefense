@@ -119,7 +119,7 @@ build_laser_tower:
 ;  de - the xy coordinates to build at
 build_bomb_tower:
 	ld a, $02
-	ld bc, $0100
+	ld bc, $0300
 	call build_build_tower
 	ret
 
@@ -127,7 +127,7 @@ build_bomb_tower:
 ;  de - the xy coordinates to build at
 build_slow_tower:
 	ld a, $03
-	ld bc, $0100
+	ld bc, $0500
 	call build_build_tower
 	ret
 

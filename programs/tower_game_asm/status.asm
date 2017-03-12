@@ -378,9 +378,9 @@ status_l_end: equ $
 
 ; Printed using channel 1, so their y offset is different
 status_bomb:
-	defb 22, 0, 20,'2:Bomb  $300'
+	defb 22, 0, 20,'2:Flame $300'
 status_b_end: equ $
 
 status_slow:
-	defb 22, 1, 20,'3:Slow  $200'
+	defb 22, 1, 20,'3:Tesla $500'
 status_s_end: equ $

@@ -25,6 +25,10 @@ tower_handler_handle_attacks_loop:
 	cp $01
 	call z, tower_handler_handle_laser_attack
 
+	; check for $02 (flame tower)
+	cp $02
+	call z, tower_handler_handle_flame_attack
+
 	; increment loop counter and jump to beginning of loop
 tower_handler_handle_attacks_loop_increment:
 	ld a, (current_tower_index)
@@ -149,6 +153,146 @@ tower_handler_handle_laser_attack_enemy:
 	call tower_handler_init_enemy_arrays
 	call tower_handler_damage_enemy
 	ret
+
+
+; todo: check if this tower has attacked already
+; handles the attack for a laser tower
+tower_handler_handle_flame_attack:
+	; get the attackables pointer
+	ld a, (current_tower_index)
+
+	; get the attackable ptr in hl
+	; the attackable position bytes are the 4 bytes at this address
+	call tower_handler_get_attackable_ptr
+
+	; check the first attackable, do attack if we find a position
+	ld a, (hl)
+	call tower_handler_handle_flame_attack_check_attackable
+	cp $ff
+	jp nz, tower_handler_handle_flame_attack_do_attack
+
+	; check the second attackable, do attack if we find a position
+	inc hl
+	ld a, (hl)
+	call tower_handler_handle_flame_attack_check_attackable
+	cp $ff
+	jp nz, tower_handler_handle_flame_attack_do_attack
+
+	; check the third attackable, do attack if we find a position
+	inc hl
+	ld a, (hl)
+	call tower_handler_handle_flame_attack_check_attackable
+	cp $ff
+	jp nz, tower_handler_handle_flame_attack_do_attack
+
+	; check the fourth attackable, do attack if we find a position
+	inc hl
+	ld a, (hl)
+	call tower_handler_handle_flame_attack_check_attackable
+	cp $ff
+	jp nz, tower_handler_handle_flame_attack_do_attack
+
+	; if we get here then none of the attackables had an enemy
+	; so just do nothing
+	ret
+
+	; jump here when we attack an enemy so that we only attack one enemy
+tower_handler_handle_flame_attack_do_attack:
+
+	ld a, (hl)
+
+	; attack the enemy at the position in a
+	call tower_handler_handle_flame_attack_enemies
+
+	ret
+
+; input:
+;   a - the first position of this attackable
+; output:
+;   a - $ff if not attackable, else attackable
+tower_handler_handle_flame_attack_check_attackable:
+	; if it's ff, then there's nothing to check so skip it
+	cp $ff
+	ret z
+
+	; else, check the 3 tiles in this attackable range
+	; (this position and the preceding 2)
+	; we iterate "backwards" so that we always check the furthest tile along the path first
+
+	; stash the attackable in c
+	ld c, a
+
+	ld b, a
+	; check first position, return the attackable if we find something
+	call tower_handler_find_enemy_at
+	cp $ff
+	jp nz, tower_handler_handle_flame_attack_check_attackable_return_attackable
+
+	ld a, b
+	dec a
+	ld b, a
+	; check second position, return the attackable if we find something
+	call tower_handler_find_enemy_at
+	cp $ff
+	jp nz, tower_handler_handle_flame_attack_check_attackable_return_attackable
+
+	ld a, b
+	dec a
+	; check third position, return the attackable if we find something
+	call tower_handler_find_enemy_at
+	cp $ff
+	jp nz, tower_handler_handle_flame_attack_check_attackable_return_attackable
+
+	; if we get this far, return $ff because nothing is here
+	ld a, $ff
+	ret
+
+	; grab the attackable from c 
+tower_handler_handle_flame_attack_check_attackable_return_attackable:
+	ld a, c
+	ret
+
+
+; input:
+;  a - the attackable position to attack
+tower_handler_handle_flame_attack_enemies:
+	; flame towers attack all 3 positions, so attack them in sequence
+
+	; check and maybe attack the first position
+	ld (current_attacked_enemy_position), a
+	call tower_handler_find_enemy_at
+	cp $ff
+	jp z, tower_handler_handle_flame_attack_enemies_two
+
+	call tower_handler_init_enemy_arrays
+	call tower_handler_damage_enemy
+
+tower_handler_handle_flame_attack_enemies_two:
+	ld a, (current_attacked_enemy_position)
+	dec a
+	ld (current_attacked_enemy_position), a
+	call tower_handler_find_enemy_at
+	cp $ff
+	jp z, tower_handler_handle_flame_attack_enemies_three
+
+	call tower_handler_init_enemy_arrays
+	call tower_handler_damage_enemy
+
+tower_handler_handle_flame_attack_enemies_three:
+	ld a, (current_attacked_enemy_position)
+	dec a
+	ld (current_attacked_enemy_position), a
+	call tower_handler_find_enemy_at
+	cp $ff
+	jp z, tower_handler_handle_flame_attack_enemies_done
+
+	call tower_handler_init_enemy_arrays
+	call tower_handler_damage_enemy
+
+	; todo: make flame tower always flash its attacks
+tower_handler_handle_flame_attack_enemies_done:
+	ret
+
 
 tower_handler_init_enemy_arrays:
 	; save the packed index into b
