@@ -119,7 +119,8 @@ tower_handler_handle_laser_attack_check_attackable:
 	ret z
 
 	; else, check the 3 tiles in this attackable range
-	; (this position and the following 2)
+	; (this position and the preceding 2)
+	; we iterate "backwards" so that we always check the furthest tile along the path first
 
 	ld b, a
 	; check first position, return if we find something
@@ -128,7 +129,7 @@ tower_handler_handle_laser_attack_check_attackable:
 	ret nz
 
 	ld a, b
-	inc a
+	dec a
 	ld b, a
 	; check second position, return if we find something
 	call tower_handler_find_enemy_at
@@ -136,7 +137,7 @@ tower_handler_handle_laser_attack_check_attackable:
 	ret nz
 
 	ld a, b
-	inc a
+	dec a
 	; check third position, always return
 	call tower_handler_find_enemy_at
 	ret
@@ -147,7 +148,6 @@ tower_handler_handle_laser_attack_check_attackable:
 tower_handler_handle_laser_attack_enemy:
 	call tower_handler_init_enemy_arrays
 	call tower_handler_damage_enemy
-	call tower_handler_toggle_border_color
 	ret
 
 tower_handler_init_enemy_arrays:
@@ -182,7 +182,14 @@ tower_handler_init_enemy_arrays_strong_enemy:
 	ret
 
 
+; input
 tower_handler_damage_enemy:
+	;; flash the tile being attacked
+	call tower_handler_highlight_enemy
+
+	; flash the tower's tile
+	call tower_handler_highlight_tower
+
 	; find and decrement the enemy's health
 	ld a, (current_attacked_enemy_index)
 	ld hl, (current_enemy_health_array)
@@ -191,6 +198,52 @@ tower_handler_damage_enemy:
 
 	; if we hit 0, remove the enemy
 	call z, tower_handler_kill_enemy
+	
+	ret
+
+tower_handler_highlight_enemy:
+	; compute the offset into the attr byte address array
+	ld d, 0
+	ld a, (current_attacked_enemy_index)
+	call enemy_handler_load_position_index
+	sla a
+	ld e, a
+	; get attr byte address array and offset into it
+	ld hl, (enemy_path_attr)
+	add hl, de
+	; load the attr byte address into de
+	ld e, (hl)
+	inc hl
+	ld d, (hl)
+	; set and store the highlight bit
+	ld a, (de)
+	or $40
+	ld (de), a
+
+	ret
+
+tower_handler_highlight_tower:
+	; compute offset into xy array
+	ld d, 0
+	ld a, (current_tower_index)
+	sla a
+	ld e, a
+	ld hl, (build_tile_xys)
+	add hl, de
+
+	; load x y coords
+	ld d, (hl)
+	inc hl
+	ld e, (hl)
+
+	; compute the attr address
+	call cursor_get_cell_attr
+
+	; set and store the highlight bit
+	ld a, (hl)
+	or $40
+	ld (hl), a
+
 	ret
 
 
@@ -222,3 +275,35 @@ tower_handler_toggle_border_color:
 	ld (border_color), a
 	out ($fe), a
 	ret
+
+
+; todo: what if cursor is on it
+tower_clear_attack_highlights:
+	; clear enemy highlights
+	call load_map_init_path_attr_bytes
+
+	; clear build tile highlights
+	ld hl, (build_tile_xys)
+	ld b, h
+	ld c, l
+tower_clear_attack_highlights_loop:
+	; check if we've hit the end
+	ld a, (bc)
+	cp $ff
+	ret z
+
+	; get the xy coords
+	ld d, a
+	inc bc
+	ld a, (bc)
+	ld e, a
+
+	; calculate the attr address
+	call cursor_get_cell_attr
+	; unset it
+	ld a, (hl)
+	and $3f
+	ld (hl), a
+
+	jp tower_clear_attack_highlights_loop
+

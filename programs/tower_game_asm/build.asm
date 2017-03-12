@@ -1,5 +1,49 @@
 
 
+; input:
+;  de - the xy coordinates to scan through build_tile_xys for
+; output:
+;   a - the build_tile number, or $ff if not found
+build_find_build_tile_index:
+	; the pointer
+	ld hl, (build_tile_xys)
+	; the counter
+	ld b, 0
+
+build_find_build_tile_index_loop:
+	; first check if we hit the end
+	ld a, (hl)
+	cp $ff
+	jp z, build_find_build_tile_index_not_found
+	
+	; increment hl for y coordinate even if we don't jump
+	inc hl
+
+	; then check the x coordinate
+	cp d
+	jp nz, build_find_build_tile_index_loop_increment
+
+	; then check the y coordinate
+	ld a, (hl)
+	cp e
+	jp nz, build_find_build_tile_index_loop_increment
+
+	; if we get this far, we found the index!
+	ld a, b
+	ret
+
+build_find_build_tile_index_loop_increment:
+	inc hl
+	inc b
+	jp build_find_build_tile_index_loop
+
+	; if we hit the end, then 
+build_find_build_tile_index_not_found:
+	ld a, $ff
+	ret
+
+
+
 build_basic_tower:
     push de
     push hl
@@ -55,8 +99,9 @@ build_basic_tower_xy_check_conditional:
 
 build_basic_tower_draw:
     ; Get info from the tower data sheet like attr byte and sprite sheet addr
-    ld b, $98   ; high byte of addr is 98, i.e. 98xx
+    ld b, $9b   ; high byte of addr is 98, i.e. 98xx
                 ; c already contains low byte (i.e. rank)
+	ld c, 0
     ; ld c, $60
     
     ;Set the pixel bytes
@@ -132,31 +177,14 @@ build_register_new_tower:
     push    de
     push    bc
 
-    ; Move rank byte to c for now
-    ld      c, a
+	; find the build tile index of the tower
+	call build_find_build_tile_index
+	; find the point in the array to build at
+	ld hl, build_tile_towers
+	ld l, a
+	; build the tower
+	ld (hl), 1
 
-    ; Load index offset and address of base and calc final addr
-    ; NOTE: Would do bounds checking here.
-    ld      de, tower_array
-    ld      a, (de)
-    add     a, 3
-    ld      (de), a
-    dec     a
-    dec     a
-    add     a, e
-    ld      e, a
-
-
-    ; Now actually write data to array bytes
-    ; x,y,rank
-    ld      a, h
-    ld      (de), a
-    inc     e
-    ld      a, l
-    ld      (de), a
-    inc     e
-    ld      a, c
-    ld      (de), a
 
     pop     bc
     pop     de

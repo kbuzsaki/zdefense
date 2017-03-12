@@ -14,10 +14,6 @@ org 32768
 	call status_init
 	call cursor_init
 
-	ld a, $10
-	ld ($58e8), a
-	ld ($594d), a
-
 	; enable interrupts again now that we're set up
 	ei
 
@@ -72,6 +68,12 @@ interrupt_handler:
 	cp $03
 	call z, tower_handler_entry_point_handle_attacks
 
+	; clear highlights from tower attacks on the second subframe 3 of every cell frame
+	ld a, (real_frame_counter)
+	and $1f
+	cp $0b
+	call z, tower_clear_attack_highlights
+
 	;; only do enemy spawning every other cell frame when the frame_counter is 0
 	; and the LSB of cell_counter is 0
 	ld a, (real_frame_counter)
@@ -114,56 +116,76 @@ main_init:
 
 ; sets up level data to use level a
 init_level_a:
+	; path data
 	ld hl, enemy_path_a
 	ld (enemy_path), hl
 	ld hl, enemy_path_attr_a
 	ld (enemy_path_attr), hl
 	ld hl, enemy_path_direction_a
 	ld (enemy_path_direction), hl
-	ld hl, enemy_path_xy_a
-	ld (enemy_path_xy), hl
+	; build tile data
+	ld hl, build_tile_xys_a
+	ld (build_tile_xys), hl
+	ld hl, build_tile_attackables_a
+	ld (build_tile_attackables), hl
+	; map tiles
 	ld hl, tile_map_a
 	ld (tile_map), hl
 	ret             
 
 ; sets up level data to use level b
 init_level_b:
+	; path data
 	ld hl, enemy_path_b
 	ld (enemy_path), hl
 	ld hl, enemy_path_attr_b
 	ld (enemy_path_attr), hl
 	ld hl, enemy_path_direction_b
 	ld (enemy_path_direction), hl
-	ld hl, enemy_path_xy_b
-	ld (enemy_path_xy), hl
+	; build tile data
+	ld hl, build_tile_xys_b
+	ld (build_tile_xys), hl
+	ld hl, build_tile_attackables_b
+	ld (build_tile_attackables), hl
+	; map tiles
 	ld hl, tile_map_b
 	ld (tile_map), hl
 	ret             
 
 ; sets up level data to use level c
 init_level_c:
+	; path data
 	ld hl, enemy_path_c
 	ld (enemy_path), hl
 	ld hl, enemy_path_attr_c
 	ld (enemy_path_attr), hl
 	ld hl, enemy_path_direction_c
 	ld (enemy_path_direction), hl
-	ld hl, enemy_path_xy_c
-	ld (enemy_path_xy), hl
+	; build tile data
+	ld hl, build_tile_xys_c
+	ld (build_tile_xys), hl
+	ld hl, build_tile_attackables_c
+	ld (build_tile_attackables), hl
+	; map tiles
 	ld hl, tile_map_c
 	ld (tile_map), hl
 	ret             
 
 ; sets up level data to use level d
 init_level_d:
+	; path data
 	ld hl, enemy_path_d
 	ld (enemy_path), hl
 	ld hl, enemy_path_attr_d
 	ld (enemy_path_attr), hl
 	ld hl, enemy_path_direction_d
 	ld (enemy_path_direction), hl
-	ld hl, enemy_path_xy_d
-	ld (enemy_path_xy), hl
+	; build tile data
+	ld hl, build_tile_xys_d
+	ld (build_tile_xys), hl
+	ld hl, build_tile_attackables_d
+	ld (build_tile_attackables), hl
+	; map tiles
 	ld hl, tile_map_d
 	ld (tile_map), hl
 	ret             
@@ -329,7 +351,9 @@ enemy_path_xy:
 tile_map:
 	defw $00
 build_tile_xys:
-	defw build_tile_xys_d
+	defw $00
+build_tile_attackables:
+	defw $00
 
 ; constants for enemy health 
 weak_enemy_default_health:
@@ -361,6 +385,7 @@ current_tower_index:
 current_attacked_enemy_index:
 	defb $00
 
+
 defs $9100 - $
 
 ; position -> index
@@ -384,39 +409,42 @@ defs $9600 - $
 
 enemy_spawn_script:
 	defb $01
-	defb $fe
-	defb $fe
 	defb $01
 	defb $fe
+	defb $01
+	defb $01
 	defb $fe
+	defb $02
 	defb $02
 	defb $fe
 	defb $02
+	defb $02
+	defb $02
+	defb $02
 	defb $fe
+	defb $01
+	defb $01
+	defb $fe
+	defb $01
+	defb $01
+	defb $fe
+	defb $02
+	defb $02
+	defb $fe
+	defb $02
+	defb $02
+	defb $02
+	defb $02
 	defb $9700 - $, $ff
 
-; x, y pairs of the build tile coordinates for map d
-build_tile_xys_d:
-	defb $11, $03, $13, $03, $15, $03, $17, $03
-	defb $06, $05, $0a, $06, $0e, $06, $1a, $06
-	defb $06, $07, $12, $07, $14, $07, $16, $07
-	defb $0a, $08, $0c, $08, $0e, $08, $1a, $08
-	defb $06, $09, $12, $09, $16, $09, $1a, $0a
-	defb $09, $0c, $0b, $0c, $0d, $0c, $0f, $0c
-	defb $ff
-
-defs $9800 - $
-; array of attackable tiles for each build tile
-; 4 byte elements, indices correspond to build_tile_xys
-build_tile_attackables_d:
-	defb $08, $10, $ff, $ff
-	defb $ff, $ff, $ff, $ff
-
 defs $9900 - $
+
 ; array of towers built at build tiles
 build_tile_towers:
-	defb $01
+	defs $9980 - $, $fe
 	defb $ff
+
+defs $9a00 - $
 
 ; dynamic array to store towers in. new towers are added here when they are created
 ; very first byte is array size in bytes (points to next avail slot, not last elem)
@@ -437,7 +465,7 @@ tower_array:
 
 ; Example of where a rank would vector to. Ranks are 1 byte so high byte would be 98 and rank determines low byte
 ; would have one of these structures for each tower and each corresponding upgrade
-defs $9a00 - $
+defs $9b00 - $
 tower_type_1_default:
 	defw tower_basic			; normal sprite sheet addr
 	defw $FFFF					; attack animation sprite sheet addr
@@ -451,81 +479,141 @@ tower_type_1_default:
 ; map data
 defs $a000 - $
 
+; 116 bytes
+; must be aligned
 enemy_path_a:
 	defw $0000
 	defw $40a0, $40a1, $40a2, $40a3, $40a4, $40c4, $40e4, $4804
 	defw $4824, $4825, $4826, $4827, $4828, $4829, $482a, $482b
-	defw $480b, $40eb, $40cb, $40ab, $408b, $406b, $406c, $406d
-	defw $406e, $406f, $4070, $4071, $4072, $4073, $4093, $40b3
-	defw $40d3, $40f3, $4813, $4833, $4853, $4873, $4893, $4894
-	defw $4895, $4896, $4897, $4898, $4899, $489a, $489b, $487b
-	defw $485b, $483b, $481b, $40fb, $40fc, $40fd, $40fe, $40ff
+	defw $482c, $480c, $40ec, $40cc, $40ac, $408c, $406c, $406d
+	defw $406e, $406f, $4070, $4071, $4072, $4073, $4074, $4094
+	defw $40b4, $40d4, $40f4, $4814, $4834, $4854, $4874, $4894
+	defw $4895, $4896, $4897, $4898, $4899, $489a, $489b, $489c
+	defw $487c, $485c, $483c, $481c, $40fc, $40fd, $40fe, $40ff
 	defw $ffff
 
+; 116 bytes
+; unaligned
 enemy_path_attr_a:
 	defw $0000
 	defw $58a0, $58a1, $58a2, $58a3, $58a4, $58c4, $58e4, $5904
 	defw $5924, $5925, $5926, $5927, $5928, $5929, $592a, $592b
-	defw $590b, $58eb, $58cb, $58ab, $588b, $586b, $586c, $586d
-	defw $586e, $586f, $5870, $5871, $5872, $5873, $5893, $58b3
-	defw $58d3, $58f3, $5913, $5933, $5953, $5973, $5993, $5994
-	defw $5995, $5996, $5997, $5998, $5999, $599a, $599b, $597b
-	defw $595b, $593b, $591b, $58fb, $58fc, $58fd, $58fe, $58ff
+	defw $592c, $590c, $58ec, $58cc, $58ac, $588c, $586c, $586d
+	defw $586e, $586f, $5870, $5871, $5872, $5873, $5874, $5894
+	defw $58b4, $58d4, $58f4, $5914, $5934, $5954, $5974, $5994
+	defw $5995, $5996, $5997, $5998, $5999, $599a, $599b, $599c
+	defw $597c, $595c, $593c, $591c, $58fc, $58fd, $58fe, $58ff
 	defw $ffff
 
 defs $a100 - $
 
+; 58 bytes
+; must be aligned
 enemy_path_direction_a:
 	defb $00
 	defb $00, $00, $00, $00, $03, $03, $03, $03
+	defb $00, $00, $00, $00, $00, $00, $00, $00
+	defb $02, $02, $02, $02, $02, $02, $00, $00
+	defb $00, $00, $00, $00, $00, $00, $03, $03
+	defb $03, $03, $03, $03, $03, $03, $03, $00
 	defb $00, $00, $00, $00, $00, $00, $00, $02
-	defb $02, $02, $02, $02, $02, $00, $00, $00
-	defb $00, $00, $00, $00, $00, $03, $03, $03
-	defb $03, $03, $03, $03, $03, $03, $00, $00
-	defb $00, $00, $00, $00, $00, $00, $02, $02
-	defb $02, $02, $02, $00, $00, $00, $00, $00
+	defb $02, $02, $02, $02, $00, $00, $00, $00
 	defb $ff
 
-enemy_path_xy_a:
-	defb $00, $00
-	defb $00, $05, $01, $05, $02, $05, $03, $05
-	defb $04, $05, $04, $06, $04, $07, $04, $08
-	defb $04, $09, $05, $09, $06, $09, $07, $09
-	defb $08, $09, $09, $09, $0a, $09, $0b, $09
-	defb $0b, $08, $0b, $07, $0b, $06, $0b, $05
-	defb $0b, $04, $0b, $03, $0c, $03, $0d, $03
-	defb $0e, $03, $0f, $03, $10, $03, $11, $03
-	defb $12, $03, $13, $03, $13, $04, $13, $05
-	defb $13, $06, $13, $07, $13, $08, $13, $09
-	defb $13, $0a, $13, $0b, $13, $0c, $14, $0c
-	defb $15, $0c, $16, $0c, $17, $0c, $18, $0c
-	defb $19, $0c, $1a, $0c, $1b, $0c, $1b, $0b
-	defb $1b, $0a, $1b, $09, $1b, $08, $1b, $07
-	defb $1c, $07, $1d, $07, $1e, $07, $1f, $07
+; 58 bytes
+; unaligned
+build_tile_xys_a:
+	defb $0f, $01
+	defb $11, $01
+	defb $16, $04
+	defb $0a, $05
+	defb $0e, $05
+	defb $10, $05
+	defb $12, $05
+	defb $16, $05
+	defb $1d, $05
+	defb $16, $06
+	defb $02, $07
+	defb $06, $07
+	defb $08, $07
+	defb $0a, $07
+	defb $0e, $07
+	defb $12, $07
+	defb $16, $08
+	defb $1a, $08
+	defb $12, $09
+	defb $1e, $09
+	defb $16, $0a
+	defb $18, $0a
+	defb $1a, $0a
+	defb $07, $0b
+	defb $09, $0b
+	defb $1e, $0b
+	defb $17, $0e
+	defb $19, $0e
 	defb $ff, $ff
 
 defs $a200 - $
 
-tile_map_a:
-	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
-	defb $22, $22, $22, $22, $21, $11, $11, $11, $11, $11, $11, $22, $22, $22, $22, $22
-	defb $22, $22, $22, $22, $21, $84, $44, $44, $44, $44, $91, $22, $22, $22, $22, $22
-	defb $11, $11, $11, $12, $21, $60, $00, $00, $00, $00, $71, $22, $22, $22, $22, $22
-	defb $44, $44, $49, $12, $21, $60, $f5, $55, $55, $e0, $71, $22, $22, $22, $22, $22
-	defb $00, $00, $07, $12, $21, $60, $71, $11, $11, $60, $71, $22, $21, $11, $11, $11
-	defb $55, $5e, $07, $12, $21, $60, $71, $22, $21, $60, $71, $22, $21, $84, $44, $44
-	defb $11, $16, $07, $11, $11, $60, $71, $22, $21, $60, $71, $22, $21, $60, $00, $00
-	defb $22, $16, $0d, $44, $44, $c0, $71, $22, $21, $60, $71, $22, $21, $60, $f5, $55
-	defb $22, $16, $00, $00, $00, $00, $71, $22, $21, $60, $71, $22, $21, $60, $71, $11
-	defb $22, $1a, $55, $55, $55, $55, $b1, $22, $21, $60, $71, $11, $11, $60, $71, $22
-	defb $22, $11, $11, $11, $11, $11, $11, $22, $21, $60, $d4, $44, $44, $c0, $71, $22
-	defb $22, $22, $22, $22, $22, $22, $22, $22, $21, $60, $00, $00, $00, $00, $71, $22
-	defb $22, $22, $22, $22, $22, $22, $22, $22, $21, $a5, $55, $55, $55, $55, $b1, $22
-	defb $22, $22, $22, $22, $22, $22, $22, $22, $21, $11, $11, $11, $11, $11, $11, $22
-	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
+; 112 bytes
+; must be aligned
+build_tile_attackables_a:
+	defb $1b, $ff, $ff, $ff
+	defb $1d, $ff, $ff, $ff
+	defb $21, $ff, $ff, $ff
+	defb $16, $ff, $ff, $ff
+	defb $1a, $16, $ff, $ff
+	defb $1c, $ff, $ff, $ff
+	defb $22, $1e, $ff, $ff
+	defb $22, $ff, $ff, $ff
+	defb $37, $ff, $ff, $ff
+	defb $23, $ff, $ff, $ff
+	defb $08, $04, $ff, $ff
+	defb $0c, $08, $ff, $ff
+	defb $0e, $ff, $ff, $ff
+	defb $14, $10, $ff, $ff
+	defb $14, $ff, $ff, $ff
+	defb $24, $ff, $ff, $ff
+	defb $25, $ff, $ff, $ff
+	defb $35, $ff, $ff, $ff
+	defb $26, $ff, $ff, $ff
+	defb $38, $34, $ff, $ff
+	defb $2b, $27, $ff, $ff
+	defb $2d, $ff, $ff, $ff
+	defb $33, $2f, $ff, $ff
+	defb $0d, $ff, $ff, $ff
+	defb $0f, $ff, $ff, $ff
+	defb $32, $ff, $ff, $ff
+	defb $2c, $ff, $ff, $ff
+	defb $2e, $ff, $ff, $ff
 
 defs $a300 - $
 
+; 256 bytes
+; must be aligned
+tile_map_a:
+	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
+	defb $22, $22, $22, $22, $22, $22, $22, $21, $21, $22, $22, $22, $22, $22, $22, $22
+	defb $22, $22, $22, $22, $22, $28, $44, $44, $44, $44, $49, $22, $22, $22, $22, $22
+	defb $22, $22, $22, $22, $22, $26, $00, $00, $00, $00, $07, $22, $22, $22, $22, $22
+	defb $44, $44, $49, $22, $22, $26, $0f, $55, $55, $5e, $07, $12, $22, $22, $22, $22
+	defb $00, $00, $07, $22, $22, $16, $07, $12, $12, $16, $07, $12, $22, $22, $21, $22
+	defb $55, $5e, $07, $22, $22, $26, $07, $22, $22, $26, $07, $12, $22, $28, $44, $44
+	defb $22, $16, $07, $12, $12, $16, $07, $12, $22, $16, $07, $22, $22, $26, $00, $00
+	defb $22, $26, $0d, $44, $44, $4c, $07, $22, $22, $26, $07, $12, $22, $16, $0f, $55
+	defb $22, $26, $00, $00, $00, $00, $07, $22, $22, $16, $07, $22, $22, $26, $07, $12
+	defb $22, $2a, $55, $55, $55, $55, $5b, $22, $22, $26, $07, $12, $12, $16, $07, $22
+	defb $22, $22, $22, $21, $21, $22, $22, $22, $22, $26, $0d, $44, $44, $4c, $07, $12
+	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $26, $00, $00, $00, $00, $07, $22
+	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $2a, $55, $55, $55, $55, $5b, $22
+	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $21, $21, $22, $22, $22
+	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
+
+
+defs $a400 - $
+
+; 68 bytes
+; must be aligned
 enemy_path_b:
 	defw $0000
 	defw $40e0, $40e1, $40e2, $40e3, $40e4, $40e5, $40e6, $40e7
@@ -534,6 +622,8 @@ enemy_path_b:
 	defw $40f8, $40f9, $40fa, $40fb, $40fc, $40fd, $40fe, $40ff
 	defw $ffff
 
+; 68 bytes
+; unaligned
 enemy_path_attr_b:
 	defw $0000
 	defw $58e0, $58e1, $58e2, $58e3, $58e4, $58e5, $58e6, $58e7
@@ -542,8 +632,10 @@ enemy_path_attr_b:
 	defw $58f8, $58f9, $58fa, $58fb, $58fc, $58fd, $58fe, $58ff
 	defw $ffff
 
-defs $a400 - $
+defs $a500 - $
 
+; 34 bytes
+; must be aligned
 enemy_path_direction_b:
 	defb $00
 	defb $00, $00, $00, $00, $00, $00, $00, $00
@@ -552,31 +644,64 @@ enemy_path_direction_b:
 	defb $00, $00, $00, $00, $00, $00, $00, $00
 	defb $ff
 
-enemy_path_xy_b:
-	defb $00, $00
-	defb $00, $07, $01, $07, $02, $07, $03, $07
-	defb $04, $07, $05, $07, $06, $07, $07, $07
-	defb $08, $07, $09, $07, $0a, $07, $0b, $07
-	defb $0c, $07, $0d, $07, $0e, $07, $0f, $07
-	defb $10, $07, $11, $07, $12, $07, $13, $07
-	defb $14, $07, $15, $07, $16, $07, $17, $07
-	defb $18, $07, $19, $07, $1a, $07, $1b, $07
-	defb $1c, $07, $1d, $07, $1e, $07, $1f, $07
+; 34 bytes
+; unaligned
+build_tile_xys_b:
+	defb $02, $05
+	defb $08, $05
+	defb $0c, $05
+	defb $0e, $05
+	defb $10, $05
+	defb $12, $05
+	defb $14, $05
+	defb $1a, $05
+	defb $05, $09
+	defb $0b, $09
+	defb $0d, $09
+	defb $0f, $09
+	defb $11, $09
+	defb $13, $09
+	defb $17, $09
+	defb $1d, $09
 	defb $ff, $ff
 
-defs $a500 - $
+defs $a600 - $
 
+; 64 bytes
+; must be aligned
+build_tile_attackables_b:
+	defb $04, $ff, $ff, $ff
+	defb $0a, $ff, $ff, $ff
+	defb $0e, $ff, $ff, $ff
+	defb $10, $ff, $ff, $ff
+	defb $12, $ff, $ff, $ff
+	defb $14, $ff, $ff, $ff
+	defb $16, $ff, $ff, $ff
+	defb $1c, $ff, $ff, $ff
+	defb $07, $ff, $ff, $ff
+	defb $0d, $ff, $ff, $ff
+	defb $0f, $ff, $ff, $ff
+	defb $11, $ff, $ff, $ff
+	defb $13, $ff, $ff, $ff
+	defb $15, $ff, $ff, $ff
+	defb $19, $ff, $ff, $ff
+	defb $1f, $ff, $ff, $ff
+
+defs $a700 - $
+
+; 256 bytes
+; must be aligned
 tile_map_b:
 	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
 	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
 	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
 	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
 	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
-	defb $11, $11, $11, $11, $11, $11, $11, $11, $11, $11, $11, $11, $11, $11, $11, $11
+	defb $22, $12, $22, $22, $12, $22, $12, $12, $12, $12, $12, $22, $22, $12, $22, $22
 	defb $44, $44, $44, $44, $44, $44, $44, $44, $44, $44, $44, $44, $44, $44, $44, $44
 	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 	defb $55, $55, $55, $55, $55, $55, $55, $55, $55, $55, $55, $55, $55, $55, $55, $55
-	defb $11, $11, $11, $11, $11, $11, $11, $11, $11, $11, $11, $11, $11, $11, $11, $11
+	defb $22, $22, $21, $22, $22, $21, $21, $21, $21, $21, $22, $21, $22, $22, $21, $22
 	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
 	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
 	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
@@ -584,77 +709,129 @@ tile_map_b:
 	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
 	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
 
-defs $a600 - $
+defs $a800 - $
 
+; 88 bytes
+; must be aligned
 enemy_path_c:
 	defw $0000
 	defw $4840, $4841, $4842, $4843, $4844, $4845, $4846, $4847
 	defw $4848, $4849, $484a, $484b, $484c, $482c, $480c, $40ec
 	defw $40cc, $40ac, $40ad, $40ae, $40af, $40b0, $40b1, $40b2
-	defw $40b3, $40d3, $40f3, $4813, $4833, $4853, $4854, $4855
+	defw $40b3, $40b4, $40d4, $40f4, $4814, $4834, $4854, $4855
 	defw $4856, $4857, $4858, $4859, $485a, $485b, $485c, $485d
 	defw $485e, $485f
 	defw $ffff
 
+; 88 bytes
+; unaligned
 enemy_path_attr_c:
 	defw $0000
 	defw $5940, $5941, $5942, $5943, $5944, $5945, $5946, $5947
 	defw $5948, $5949, $594a, $594b, $594c, $592c, $590c, $58ec
 	defw $58cc, $58ac, $58ad, $58ae, $58af, $58b0, $58b1, $58b2
-	defw $58b3, $58d3, $58f3, $5913, $5933, $5953, $5954, $5955
+	defw $58b3, $58b4, $58d4, $58f4, $5914, $5934, $5954, $5955
 	defw $5956, $5957, $5958, $5959, $595a, $595b, $595c, $595d
 	defw $595e, $595f
 	defw $ffff
 
-defs $a700 - $
+defs $a900 - $
 
+; 44 bytes
+; must be aligned
 enemy_path_direction_c:
 	defb $00
 	defb $00, $00, $00, $00, $00, $00, $00, $00
 	defb $00, $00, $00, $00, $02, $02, $02, $02
 	defb $02, $00, $00, $00, $00, $00, $00, $00
-	defb $03, $03, $03, $03, $03, $00, $00, $00
+	defb $00, $03, $03, $03, $03, $03, $00, $00
 	defb $00, $00, $00, $00, $00, $00, $00, $00
 	defb $00, $00
 	defb $ff
 
-enemy_path_xy_c:
-	defw $00, $00
-	defb $00, $0a, $01, $0a, $02, $0a, $03, $0a
-	defb $04, $0a, $05, $0a, $06, $0a, $07, $0a
-	defb $08, $0a, $09, $0a, $0a, $0a, $0b, $0a
-	defb $0c, $0a, $0c, $09, $0c, $08, $0c, $07
-	defb $0c, $06, $0c, $05, $0d, $05, $0e, $05
-	defb $0f, $05, $10, $05, $11, $05, $12, $05
-	defb $13, $05, $13, $06, $13, $07, $13, $08
-	defb $13, $09, $13, $0a, $14, $0a, $15, $0a
-	defb $16, $0a, $17, $0a, $18, $0a, $19, $0a
-	defb $1a, $0a, $1b, $0a, $1c, $0a, $1d, $0a
-	defb $1e, $0a, $1f, $0a
+; 48 bytes
+; unaligned
+build_tile_xys_c:
+	defb $0d, $03
+	defb $0f, $03
+	defb $11, $03
+	defb $13, $03
+	defb $0a, $06
+	defb $16, $06
+	defb $0e, $07
+	defb $10, $07
+	defb $12, $07
+	defb $06, $08
+	defb $08, $08
+	defb $0a, $08
+	defb $16, $08
+	defb $18, $08
+	defb $1a, $08
+	defb $0e, $09
+	defb $12, $09
+	defb $05, $0c
+	defb $07, $0c
+	defb $09, $0c
+	defb $17, $0c
+	defb $19, $0c
+	defb $1b, $0c
 	defb $ff, $ff
 
-defs $a800 - $
+defs $aa00 - $
 
+; 92 bytes
+; must be aligned
+build_tile_attackables_c:
+	defb $14, $ff, $ff, $ff
+	defb $16, $ff, $ff, $ff
+	defb $18, $ff, $ff, $ff
+	defb $1a, $ff, $ff, $ff
+	defb $12, $ff, $ff, $ff
+	defb $1c, $ff, $ff, $ff
+	defb $15, $11, $ff, $ff
+	defb $17, $ff, $ff, $ff
+	defb $1d, $19, $ff, $ff
+	defb $08, $ff, $ff, $ff
+	defb $0a, $ff, $ff, $ff
+	defb $10, $0c, $ff, $ff
+	defb $22, $1e, $ff, $ff
+	defb $24, $ff, $ff, $ff
+	defb $26, $ff, $ff, $ff
+	defb $0f, $ff, $ff, $ff
+	defb $1f, $ff, $ff, $ff
+	defb $07, $ff, $ff, $ff
+	defb $09, $ff, $ff, $ff
+	defb $0b, $ff, $ff, $ff
+	defb $23, $ff, $ff, $ff
+	defb $25, $ff, $ff, $ff
+	defb $27, $ff, $ff, $ff
+
+defs $ab00 - $
+
+; 256 bytes
+; must be aligned
 tile_map_c:
 	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
 	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
 	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
-	defb $22, $22, $22, $22, $22, $11, $11, $11, $11, $11, $11, $22, $22, $22, $22, $22
-	defb $22, $22, $22, $22, $22, $18, $44, $44, $44, $44, $91, $22, $22, $22, $22, $22
-	defb $22, $22, $22, $22, $22, $16, $00, $00, $00, $00, $71, $22, $22, $22, $22, $22
-	defb $22, $22, $22, $22, $22, $16, $0f, $55, $55, $e0, $71, $22, $22, $22, $22, $22
-	defb $22, $22, $22, $22, $22, $16, $07, $11, $11, $60, $71, $22, $22, $22, $22, $22
-	defb $11, $11, $11, $11, $11, $16, $07, $12, $21, $60, $71, $11, $11, $11, $11, $11
-	defb $44, $44, $44, $44, $44, $4c, $07, $12, $21, $60, $d4, $44, $44, $44, $44, $44
-	defb $00, $00, $00, $00, $00, $00, $07, $12, $21, $60, $00, $00, $00, $00, $00, $00
-	defb $55, $55, $55, $55, $55, $55, $5b, $12, $21, $a5, $55, $55, $55, $55, $55, $55
-	defb $11, $11, $11, $11, $11, $11, $11, $12, $21, $11, $11, $11, $11, $11, $11, $11
+	defb $22, $22, $22, $22, $22, $22, $21, $21, $21, $21, $22, $22, $22, $22, $22, $22
+	defb $22, $22, $22, $22, $22, $28, $44, $44, $44, $44, $49, $22, $22, $22, $22, $22
+	defb $22, $22, $22, $22, $22, $26, $00, $00, $00, $00, $07, $22, $22, $22, $22, $22
+	defb $22, $22, $22, $22, $22, $16, $0f, $55, $55, $5e, $07, $12, $22, $22, $22, $22
+	defb $22, $22, $22, $22, $22, $26, $07, $12, $12, $16, $07, $22, $22, $22, $22, $22
+	defb $22, $22, $22, $12, $12, $16, $07, $22, $22, $26, $07, $12, $12, $12, $22, $22
+	defb $44, $44, $44, $44, $44, $4c, $07, $12, $22, $16, $0d, $44, $44, $44, $44, $44
+	defb $00, $00, $00, $00, $00, $00, $07, $22, $22, $26, $00, $00, $00, $00, $00, $00
+	defb $55, $55, $55, $55, $55, $55, $5b, $22, $22, $2a, $55, $55, $55, $55, $55, $55
+	defb $22, $22, $21, $21, $21, $22, $22, $22, $22, $22, $22, $21, $21, $21, $22, $22
 	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
 	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
 	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
 
-defs $a900 - $
+defs $ac00 - $
 
+; 88 bytes
+; must be aligned
 enemy_path_d:
 	defw $0000
 	defw $4008, $4028, $4048, $4068, $4088, $40a8, $40c8, $40e8
@@ -665,6 +842,8 @@ enemy_path_d:
 	defw $48d8, $48f8
 	defw $ffff
 
+; 88 bytes
+; unaligned
 enemy_path_attr_d:
 	defw $0000
 	defw $5808, $5828, $5848, $5868, $5888, $58a8, $58c8, $58e8
@@ -675,8 +854,10 @@ enemy_path_attr_d:
 	defw $59d8, $59f8
 	defw $ffff
 
-defs $aa00 - $
+defs $ad00 - $
 
+; 44 bytes
+; must be aligned
 enemy_path_direction_d:
 	defb $03
 	defb $03, $03, $03, $03, $03, $03, $03, $03
@@ -687,23 +868,69 @@ enemy_path_direction_d:
 	defb $03, $03
 	defb $ff
 
-enemy_path_xy_d:
-	defb $00, $00
-	defb $08, $00, $08, $01, $08, $02, $08, $03
-	defb $08, $04, $08, $05, $08, $06, $08, $07
-	defb $08, $08, $08, $09, $08, $0a, $09, $0a
-	defb $0a, $0a, $0b, $0a, $0c, $0a, $0d, $0a
-	defb $0e, $0a, $0f, $0a, $10, $0a, $10, $09
-	defb $10, $08, $10, $07, $10, $06, $10, $05
-	defb $11, $05, $12, $05, $13, $05, $14, $05
-	defb $15, $05, $16, $05, $17, $05, $18, $05
-	defb $18, $06, $18, $07, $18, $08, $18, $09
-	defb $18, $0a, $18, $0b, $18, $0c, $18, $0d
-	defb $18, $0e, $18, $0f
+; 50 bytes
+; unaligned
+build_tile_xys_d:
+	defb $11, $03
+	defb $13, $03
+	defb $15, $03
+	defb $17, $03
+	defb $06, $05
+	defb $0a, $06
+	defb $0e, $06
+	defb $1a, $06
+	defb $06, $07
+	defb $12, $07
+	defb $14, $07
+	defb $16, $07
+	defb $0a, $08
+	defb $0c, $08
+	defb $0e, $08
+	defb $1a, $08
+	defb $06, $09
+	defb $12, $09
+	defb $16, $09
+	defb $1a, $0a
+	defb $09, $0c
+	defb $0b, $0c
+	defb $0d, $0c
+	defb $0f, $0c
 	defb $ff, $ff
 
-defs $ab00 - $
+defs $ae00 - $
 
+; 96 bytes
+; must be aligned
+build_tile_attackables_d:
+	defb $1a, $ff, $ff, $ff
+	defb $1c, $ff, $ff, $ff
+	defb $1e, $ff, $ff, $ff
+	defb $20, $ff, $ff, $ff
+	defb $07, $ff, $ff, $ff
+	defb $08, $ff, $ff, $ff
+	defb $18, $ff, $ff, $ff
+	defb $22, $ff, $ff, $ff
+	defb $09, $ff, $ff, $ff
+	defb $1b, $17, $ff, $ff
+	defb $1d, $ff, $ff, $ff
+	defb $23, $1f, $ff, $ff
+	defb $0e, $0a, $ff, $ff
+	defb $10, $ff, $ff, $ff
+	defb $16, $12, $ff, $ff
+	defb $24, $ff, $ff, $ff
+	defb $0b, $ff, $ff, $ff
+	defb $15, $ff, $ff, $ff
+	defb $25, $ff, $ff, $ff
+	defb $26, $ff, $ff, $ff
+	defb $0d, $ff, $ff, $ff
+	defb $0f, $ff, $ff, $ff
+	defb $11, $ff, $ff, $ff
+	defb $13, $ff, $ff, $ff
+
+defs $af00 - $
+
+; 256 bytes
+; must be aligned
 tile_map_d:
 	defb $22, $22, $22, $26, $07, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
 	defb $22, $22, $22, $26, $07, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
@@ -723,7 +950,7 @@ tile_map_d:
 	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $26, $07, $22, $22, $22
 
 ; tile lookup data
-defs $ac00 - $
+defs $b000 - $
 
 lookup:
 	defw blank_tile, build_tile_b, filled_tile, cross_tile
@@ -1045,7 +1272,7 @@ heart:
     defb 24  	;    ##   
 
 ; pad so enemy sprites are aligned
-defs $b000 - $
+defs $b400 - $
 
 weak_enemy:
 defb 60  	;   ####  
@@ -1335,7 +1562,7 @@ defb 26  	;    ## #
 defb 24  	;    ##   
 defb 36  	;   #  #  
 defb 6  	;      ## 
-defs $b100 - $
+defs $b500 - $
 
 strong_enemy:
 defb 60  	;   ####  

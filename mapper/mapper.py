@@ -32,20 +32,20 @@ SIMPLE_TILE_MAP = [
 
 SIMPLE_TILE_MAP_A = [
     "################################",
-    "#########.............##########",
-    "#########.avvvvvvvvvb.##########",
-    ".......##.>         <.##########",
-    "vvvvvb.##.> e^^^^^f <.##########",
-    "     <.##.> <.....> <.###.......",
-    "^^^f <.##.> <.###.> <.###.avvvvv",
-    "...> <....> <.###.> <.###.>     ",
-    "##.> gvvvvh <.###.> <.###.> e^^^",
-    "##.>        <.###.> <.###.> <...",
-    "##.c^^^^^^^^d.###.> <.....> <.##",
-    "##............###.> gvvvvvh <.##",
-    "#################.>         <.##",
-    "#################.c^^^^^^^^^d.##",
-    "#################.............##",
+    "###############.#.##############",
+    "###########avvvvvvvvvb##########",
+    "###########>         <##########",
+    "vvvvvb#####> e^^^^^f <.#########",
+    "     <####.> <.#.#.> <.######.##",
+    "^^^f <#####> <#####> <.####avvvv",
+    "##.> <.#.#.> <.###.> <#####>    ",
+    "###> gvvvvvh <#####> <.###.> e^^",
+    "###>         <####.> <#####> <.#",
+    "###c^^^^^^^^^d#####> <.#.#.> <##",
+    "#######.#.#########> gvvvvvh <.#",
+    "###################>         <##",
+    "###################c^^^^^^^^^d##",
+    "#######################.#.######",
     "################################",
 ]
 
@@ -55,11 +55,11 @@ SIMPLE_TILE_MAP_B = [
     "################################",
     "################################",
     "################################",
-    "................................",
+    "##.#%#%#.#%#.#.#.#.#.#%#%#.#%#%#",
     "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
     "                                ",
     "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
-    "................................",
+    "#%#%#.#%#%#.#.#.#.#.#%#.#%#%#.##",
     "################################",
     "################################",
     "################################",
@@ -72,16 +72,16 @@ SIMPLE_TILE_MAP_C = [
     "################################",
     "################################",
     "################################",
-    "##########............##########",
-    "##########.avvvvvvvvb.##########",
-    "##########.>        <.##########",
-    "##########.> e^^^^f <.##########",
-    "##########.> <....> <.##########",
-    "...........> <.##.> <...........",
-    "vvvvvvvvvvvh <.##.> gvvvvvvvvvvv",
-    "             <.##.>             ",
-    "^^^^^^^^^^^^^d.##.c^^^^^^^^^^^^^",
-    "...............##...............",
+    "#############.#.#.#.############",
+    "###########avvvvvvvvvb##########",
+    "###########>         <##########",
+    "##########.> e^^^^^f <.#########",
+    "###########> <.#.#.> <##########",
+    "##%#%#.#.#.> <#####> <.#.#.#####",
+    "vvvvvvvvvvvh <.###.> gvvvvvvvvvv",
+    "             <#####>            ",
+    "^^^^^^^^^^^^^d#####c^^^^^^^^^^^^",
+    "#####.#.#.#############.#.#.####",
     "################################",
     "################################",
     "################################",
@@ -106,7 +106,12 @@ SIMPLE_TILE_MAP_D = [
     "#######################> <######",
 ]
 
-SIMPLE_TILE_MAP = SIMPLE_TILE_MAP_D
+MAP_SUFFIXES = [
+    (SIMPLE_TILE_MAP_A, "_a"),
+    (SIMPLE_TILE_MAP_B, "_b"),
+    (SIMPLE_TILE_MAP_C, "_c"),
+    (SIMPLE_TILE_MAP_D, "_d"),
+]
 
 @unique
 class Tiles(Enum):
@@ -130,6 +135,8 @@ class Tiles(Enum):
 CHARACTER_MAP = {
     ".": Tiles.buildable,
     "#": Tiles.impassable,
+    "%": Tiles.impassable,
+
     " ": Tiles.blank,
     "^": Tiles.bottom_wall,
     "v": Tiles.top_wall,
@@ -326,14 +333,102 @@ def filter_coords(simple_tile_map, pred):
 def filter_build_cells(simple_tile_map):
     return filter_coords(simple_tile_map, lambda c: c == ".")
 
+def get_attackable_tiles(position):
+    x, y = position
+    return [
+        (x+2, y-1),
+        (x+2, y),
+        (x+2, y+1),
 
-if __name__ == "__main__":
-    cells = parse_cell_coords(SIMPLE_TILE_MAP)
-    coords.print_cell_data(cells)
+        (x-2, y-1),
+        (x-2, y),
+        (x-2, y+1),
+
+        (x+1, y+2),
+        (x,   y+2),
+        (x-1, y+2),
+
+        (x+1, y-2),
+        (x,   y-2),
+        (x-1, y-2),
+    ]
+
+def get_build_tile_attackables(simple_tile_map):
+    build_tiles = filter_build_cells(simple_tile_map)
+    position_cells = parse_cell_coords(simple_tile_map)
+
+    build_tile_attackables = []
+    for build_tile in build_tiles:
+        # all of the cells that this build tile could attack
+        attackable_tiles = get_attackable_tiles(build_tile)
+        # all of the position indices that the build tile can attack
+        attackables = []
+
+        for position, position_cell in reversed(list(enumerate(position_cells))):
+            if position_cell in attackable_tiles:
+                # +1 because of filler start position
+                attackables.append(position + 1)
+                # then remove the positions this covers so that we don't include them
+                attackable_tiles.remove(position_cells[position])
+                attackable_tiles.remove(position_cells[position-1])
+                attackable_tiles.remove(position_cells[position-2])
+
+        # pad with 255
+        attackables = tuple((attackables + [255, 255, 255, 255])[:4])
+        build_tile_attackables.append(attackables)
+
+    return build_tile_attackables
+
+
+def print_build_tile_data(simple_tile_map, suffix):
+    build_cells = filter_build_cells(simple_tile_map)
+    attackables = get_build_tile_attackables(simple_tile_map)
+
     print()
-    print("build_tile_xys:")
-    coords.print_coords(sum(filter_build_cells(SIMPLE_TILE_MAP), ()))
-    tiles = make_simple_tiles(SIMPLE_TILE_MAP)
-    print("tile_map:")
+    print(";", len(build_cells) * 2 + 2, "bytes")
+    print("; unaligned")
+    print("build_tile_xys" + suffix + ":")
+    coords.print_coords(sum(build_cells, ()), 2)
+    print("\tdefb $ff, $ff")
+
+    print()
+    print(";", len(attackables) * 4, "bytes")
+    print("; must be aligned")
+    print("build_tile_attackables" + suffix + ":")
+    coords.print_coords(sum(attackables, ()), 4)
+
+def print_tile_map_data(simple_tile_map, suffix):
+    tiles = make_simple_tiles(simple_tile_map)
+    print()
+    print(";", len(tiles) * 16, "bytes")
+    print("; must be aligned")
+    print("tile_map" + suffix + ":")
     for row in tiles:
         print("\t" + make_defb([e.value for e in row]))
+
+
+def print_map_data(simple_tile_map, suffix):
+    cells = parse_cell_coords(simple_tile_map)
+    coords.print_cell_data(cells, suffix)
+    print_build_tile_data(simple_tile_map, suffix)
+    print_tile_map_data(simple_tile_map, suffix)
+
+def do_stuff(simple_tile_map):
+    cells = parse_cell_coords(simple_tile_map)
+    for i, cell in enumerate(cells):
+        print(i, cell)
+    print()
+    build_cells = filter_build_cells(simple_tile_map)
+    attackables = get_build_tile_attackables(simple_tile_map)
+    for build_cell, attackable in zip(build_cells, attackables):
+        print(build_cell, "\t", attackable)
+    pass
+
+
+if __name__ == "__main__":
+    for m, s in MAP_SUFFIXES:
+        print_map_data(m, s)
+        print()
+        print()
+        print()
+
