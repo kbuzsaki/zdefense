@@ -93,3 +93,97 @@ util_fill_attrs_inner_loop:
 	dec c
 	jp nz, util_fill_attrs_outer_loop
 	ret
+
+; Draws a rectangular set of tiles
+;
+; hl = address of first image tile
+; b = width of the image
+; c = height of the image
+; d  = x for upper left cell 
+; e  = y for upper left cell
+;
+; lord help me if I need to read this again
+image_tile_offset:
+    defb 0
+
+image_width:
+    defb 0
+
+util_draw_image:
+    ; setup hl' with the address of the first image tile
+    push hl
+    exx
+    pop hl
+    exx
+
+    ; save image width value since it is the innerloop counter
+    ld a, b
+    ld (image_width), a
+
+    ; reset tile offset to 0
+    ld a, 0
+    ld (image_tile_offset), a
+
+    ; height of the image is outerloop counter
+    push bc
+  util_draw_image_outer_loop:
+    ;load width into b for innerloop
+    ld a, (image_width)
+    ld b, a
+
+    push de; save x coord value
+  util_draw_image_inner_loop:
+    ; set attr byte
+    call cursor_get_cell_attr
+    ld a, $0c
+    ld (hl), a
+
+    ; setup pixel byte
+    push de
+    ; setup first pixel vram address
+    call cursor_get_cell_addr
+    ex de, hl
+
+    ; setup tile_location
+    push de ; save pixel vram address
+
+    ; get the address of the first image tile into de
+    exx
+    push hl
+    exx
+    pop hl
+    ex de, hl
+
+    ; hl = image__offset + first image tile address
+    ld a, (image_tile_offset)
+    ld l, a
+    ld h, 0
+    add hl, de
+
+    pop de ; recover pixel vram address
+
+    ; actually draw tile
+    call util_draw_tile
+    pop de 
+
+    ;inc tile_offset
+    ld a, (image_tile_offset)
+    add a, 8
+    ld (image_tile_offset), a
+
+    ;inc x coord
+    inc d
+    djnz util_draw_image_inner_loop
+    ; reset the x coord, and increment y coord before jumping to outerloop
+    pop de
+    inc e
+
+    pop bc
+    dec c
+    push bc
+
+    jp nz, util_draw_image_outer_loop
+    pop bc
+
+    ret
+
