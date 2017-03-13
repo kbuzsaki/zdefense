@@ -308,4 +308,15 @@ powerups_get_slow:
     call powerups_clear_powerup
     ret
 
+powerups_use_zap:
+    call status_dec_zap
+    ret
+
+powerups_use_bomb:
+    call status_dec_bomb
+    ret
+
+powerups_use_slow:
+    call status_dec_slow
+    ret
 

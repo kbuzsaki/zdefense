@@ -41,7 +41,8 @@ cursor_entry_point_handle_input:
 	ld (hl), 199
 
     call cursor_check_tower_inputs
-    call cursor_check_powerups
+    call cursor_check_powerups_collect
+    call cursor_check_powerups_usage
 	
 	ret
 
@@ -84,7 +85,20 @@ cursor_check_tower_inputs:
 
 	ret
 
-cursor_check_powerups:
+cursor_check_powerups_usage:
+
+    call input_is_6_down
+    call z, powerups_use_bomb
+
+    call input_is_7_down
+    call z, powerups_use_zap
+
+    call input_is_8_down
+    call z, powerups_use_slow
+
+    ret
+
+cursor_check_powerups_collect:
 
     ld a, (powerup_one)
 
