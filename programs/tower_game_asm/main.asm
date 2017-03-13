@@ -1091,86 +1091,86 @@ build_tile_b:
 	defb $ff    ; ########
 
 lake_3x3:
-    defb 255  	; ########
-    defb 255  	; ########
-    defb 254  	; ####### 
-    defb 254  	; ####### 
-    defb 236  	; ### ##  
-    defb 227  	; ###   ##
-    defb 224  	; ###     
-    defb 192  	; ##      
+    defb $ff    ; ########
+    defb $ff    ; ########
+    defb $fe    ; ####### 
+    defb $fe    ; ####### 
+    defb $ec    ; ### ##  
+    defb $e3    ; ###   ##
+    defb $e0    ; ###     
+    defb $c0    ; ##      
 
-    defb 255  	; ########
-    defb 239  	; ### ####
-    defb 113  	;  ###   #
-    defb 0  	;         
-    defb 0  	;         
-    defb 0  	;         
-    defb 0  	;         
-    defb 0  	;         
+    defb $ff    ; ########
+    defb $ef    ; ### ####
+    defb $71    ;  ###   #
+    defb $00    ;         
+    defb $00    ;         
+    defb $00    ;         
+    defb $00    ;         
+    defb $00    ;         
 
-    defb 255  	; ########
-    defb 255  	; ########
-    defb 255  	; ########
-    defb 255  	; ########
-    defb 63  	;   ######
-    defb 63  	;   ######
-    defb 47  	;   # ####
-    defb 31  	;    #####
+    defb $ff    ; ########
+    defb $ff    ; ########
+    defb $ff    ; ########
+    defb $ff    ; ########
+    defb $3f    ;   ######
+    defb $3f    ;   ######
+    defb $2f    ;   # ####
+    defb $1f    ;    #####
 
-    defb 192  	; ##      
-    defb 192  	; ##      
-    defb 192  	; ##      
-    defb 224  	; ###     
-    defb 128  	; #       
-    defb 0  	;         
-    defb 128  	; #       
-    defb 128  	; #       
+    defb $c0    ; ##      
+    defb $c0    ; ##      
+    defb $c0    ; ##      
+    defb $e0    ; ###     
+    defb $80    ; #       
+    defb $00    ;         
+    defb $80    ; #       
+    defb $80    ; #       
 
-    defb 0  	;         
-    defb 0  	;         
-    defb 0  	;         
-    defb 0  	;         
-    defb 0  	;         
-    defb 0  	;         
-    defb 0  	;         
-    defb 0  	;         
+    defb $00    ;         
+    defb $00    ;         
+    defb $00    ;         
+    defb $00    ;         
+    defb $00    ;         
+    defb $00    ;         
+    defb $00    ;         
+    defb $00    ;         
 
-    defb 15  	;     ####
-    defb 15  	;     ####
-    defb 15  	;     ####
-    defb 31  	;    #####
-    defb 7  	;      ###
-    defb 7  	;      ###
-    defb 15  	;     ####
-    defb 15  	;     ####
+    defb $0f    ;     ####
+    defb $0f    ;     ####
+    defb $0f    ;     ####
+    defb $1f    ;    #####
+    defb $07    ;      ###
+    defb $07    ;      ###
+    defb $0f    ;     ####
+    defb $0f    ;     ####
 
-    defb 0  	;         
-    defb 192  	; ##      
-    defb 240  	; ####    
-    defb 248  	; #####   
-    defb 244  	; #### #  
-    defb 254  	; ####### 
-    defb 255  	; ########
-    defb 255  	; ########
+    defb $00    ;         
+    defb $c0    ; ##      
+    defb $f0    ; ####    
+    defb $f8    ; #####   
+    defb $f4    ; #### #  
+    defb $fe    ; ####### 
+    defb $ff    ; ########
+    defb $ff    ; ########
 
-    defb 1  	;        #
-    defb 14  	;     ### 
-    defb 15  	;     ####
-    defb 63  	;   ######
-    defb 127  	;  #######
-    defb 255  	; ########
-    defb 255  	; ########
-    defb 255  	; ########
+    defb $00    ;         
+    defb $00    ;         
+    defb $00    ;         
+    defb $21    ;   #    #
+    defb $7e    ;  ###### 
+    defb $ff    ; ########
+    defb $ff    ; ########
+    defb $ff    ; ########
 
-    defb 15  	;     ####
-    defb 223  	; ## #####
-    defb 255  	; ########
-    defb 255  	; ########
-    defb 255  	; ########
-    defb 255  	; ########
-    defb 255  	; ########
-    defb 255  	; ########
+    defb $0f    ;     ####
+    defb $5f    ;  # #####
+    defb $3f    ;   ######
+    defb $ff    ; ########
+    defb $ff    ; ########
+    defb $ff    ; ########
+    defb $ff    ; ########
+    defb $ff    ; ########
 
 lake_5x3:
     defb $ff    ; ########
@@ -1309,18 +1309,18 @@ lake_5x3:
     defb $ff    ; ########
 
 lake_3x5:
-    defb $bf    ; # ######
-    defb $0d    ;     ## #
-    defb $82    ; #     # 
-    defb $80    ; #       
-    defb $c0    ; ##      
-    defb $e0    ; ###     
-    defb $c0    ; ##      
-    defb $80    ; #       
+    defb $ff    ; ########
+    defb $ff    ; ########
+    defb $fe    ; ####### 
+    defb $ff    ; ########
+    defb $fd    ; ###### #
+    defb $fe    ; ####### 
+    defb $f4    ; #### #  
+    defb $d0    ; ## #    
 
     defb $ff    ; ########
     defb $ff    ; ########
-    defb $0d    ;     ## #
+    defb $8d    ; #   ## #
     defb $03    ;       ##
     defb $00    ;         
     defb $00    ;         
@@ -1336,14 +1336,14 @@ lake_3x5:
     defb $33    ;   ##  ##
     defb $1b    ;    ## ##
 
-    defb $40    ;  #      
-    defb $80    ; #       
-    defb $80    ; #       
-    defb $80    ; #       
+    defb $a0    ; # #     
+    defb $a0    ; # #     
     defb $c0    ; ##      
-    defb $f0    ; ####    
-    defb $f8    ; #####   
-    defb $f8    ; #####   
+    defb $e0    ; ###     
+    defb $e0    ; ###     
+    defb $e0    ; ###     
+    defb $c0    ; ##      
+    defb $c0    ; ##      
 
     defb $00    ;         
     defb $00    ;         
@@ -1363,12 +1363,12 @@ lake_3x5:
     defb $3f    ;   ######
     defb $3f    ;   ######
 
-    defb $f8    ; #####   
-    defb $e8    ; ### #   
-    defb $d0    ; ## #    
+    defb $c0    ; ##      
     defb $e0    ; ###     
+    defb $c0    ; ##      
     defb $e0    ; ###     
-    defb $e0    ; ###     
+    defb $f0    ; ####    
+    defb $f0    ; ####    
     defb $f8    ; #####   
     defb $f8    ; #####   
 
@@ -1437,11 +1437,11 @@ lake_3x5:
 
     defb $07    ;      ###
     defb $07    ;      ###
-    defb $0b    ;     # ##
     defb $0f    ;     ####
     defb $0f    ;     ####
-    defb $8f    ; #   ####
-    defb $d7    ; ## # ###
+    defb $3f    ;   ######
+    defb $ff    ; ########
+    defb $ff    ; ########
     defb $ff    ; ########
 
 tower_basic:

@@ -179,18 +179,17 @@ powerups_spawn_powerup:
     rr a
     rr a
     rr a
-    rr a
 
-    sub 40
+    sub 30
     jp pe, powerups_spawn_slow
     
-    sub 40
+    sub 30
     jp pe, powerups_spawn_bomb
 
-    sub 40
+    sub 30
     jp pe, powerups_spawn_zap 
     
-    sub 40
+    sub 30
     jp pe, powerups_spawn_money
 
   powerups_spawn_life:
