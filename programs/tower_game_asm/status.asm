@@ -77,6 +77,11 @@ status_update_tower_costs:
     ld bc, status_upgrade_end-status_upgrade
     call 8252
 
+    ld de, status_sell
+    ld bc, status_sell_end-status_sell
+    call 8252
+
+
 	; color the input characters magenta
 	ld e, 19
 	ld d, 20 
@@ -90,6 +95,10 @@ status_update_tower_costs:
 	ld d, 20
 	call cursor_get_cell_attr
 	ld (hl), $43
+    ld e, 22
+	ld d, 20
+	call cursor_get_cell_attr
+	ld (hl), $43    
     ld e, 23
 	ld d, 20
 	call cursor_get_cell_attr
@@ -583,12 +592,16 @@ status_flame:
 status_flame_end: equ $
 
 status_tesla:
-	defb 22, 21, 20,'3:Tesla $500'
+	defb 22, 21, 20,'3:Boost $200'
 status_tesla_end: equ $
 
 
 ; Printed using channel 1, so y offset is different
 
 status_upgrade:
-	defb 22, 1, 20,'4:Upgrade'
+	defb 22, 0, 20,'R:Upgrade'
 status_upgrade_end: equ $
+
+status_sell:
+	defb 22, 1, 20,'G:Sell'
+status_sell_end: equ $

@@ -126,7 +126,7 @@ build_bomb_tower:
 ;  de - the xy coordinates to build at
 build_slow_tower:
 	ld a, $03
-	ld bc, $0500
+	ld bc, $0200
 	call build_build_tower
 	ret
 
