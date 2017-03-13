@@ -1,51 +1,48 @@
 powerups_init:
-    call powerups_prepare_map_d
 
+    ; do not init a powerup if its value is $ff
+    ld a, (powerup_one)
+    cp $ff
+    jp z, powerups_init_skip_one
+
+    ld a, (powerup_one_x)
+    sub 1
+    ld d, a
+    ld a, (powerup_one_y)
+    sub 1
+    ld e, a
+    call powerups_draw_small_lake
+
+  powerups_init_skip_one:
+    
+    ld a, (powerup_two)
+    cp $ff
+    jp z, powerups_init_skip_two
+
+    ld a, (powerup_two_x)
+    sub 1
+    ld d, a
+    ld a, (powerup_two_y)
+    sub 1
+    ld e, a
+    call powerups_draw_small_lake
+
+  powerups_init_skip_two:
+
+    ld a, (powerup_three)
+    cp $ff
+    jp z, powerups_init_skip_three
+
+    ld a, (powerup_three_x)
+    sub 1
+    ld d, a
+    ld a, (powerup_three_y)
+    sub 1
+    ld e, a
+    call powerups_draw_small_lake
+
+  powerups_init_skip_three:
     ret
-
-
-powerups_prepare_map_b:
-    ld d, 2
-    ld e, 2
-    call powerups_draw_small_lake
-
-    ld a, 3
-    ld (powerup_one_x), a
-    ld a, 3
-    ld (powerup_one_y), a
-
-    ld d, 10
-    ld e, 10
-    call powerups_draw_small_lake
-
-    ld a, 11
-    ld (powerup_two_x), a
-    ld a, 11
-    ld (powerup_two_y), a
-
-    ret
-
-powerups_prepare_map_d:
-    ld d, 2
-    ld e, 2
-    call powerups_draw_small_lake
-
-    ld a, 3
-    ld (powerup_one_x), a
-    ld a, 3
-    ld (powerup_one_y), a
-
-    ld d, 19
-    ld e, 12
-    call powerups_draw_small_lake
-
-    ld a, 20
-    ld (powerup_two_x), a
-    ld a, 13
-    ld (powerup_two_y), a
-
-    ret
-
 
 powerups_spawn_randomly:
 
@@ -95,18 +92,41 @@ powerups_spawn_randomly:
 
   powerups_spawn_randomly_spawn_two:
 
-
     ld a, r
     and $bb
     call z, powerups_spawn_powerup_two
 
   powerups_spawn_randomly_skip_two:
 
+    ; skip chance to spawn powerup_two if it exsts already
+    ld a, (powerup_three)
+    cp 0
+    jp nz, powerups_spawn_randomly_skip_three
+
+    ;skip chance to spawn if cursor is on powerup_two spot
+    ld a, (cursor_x)
+    ld b, a
+    ld a, (powerup_three_x)
+    cp b
+    jp nz, powerups_spawn_randomly_spawn_three
+
+    ld a, (cursor_y)
+    ld b, a
+    ld a, (powerup_three_y)
+    cp b
+    jp z, powerups_spawn_randomly_skip_three
+
+  powerups_spawn_randomly_spawn_three:
+
+    ld a, r
+    and $cc
+    call z, powerups_spawn_powerup_three
+
+  powerups_spawn_randomly_skip_three:
+
     ret
 
 powerups_spawn_powerup_one:
-    ld a, (powerup_one)
-
     ld bc, powerup_one
     ld a, (powerup_one_x)
     ld d, a
@@ -125,7 +145,17 @@ powerups_spawn_powerup_two:
     call powerups_spawn_powerup
 
     ret
-    
+   
+powerups_spawn_powerup_three:
+    ld bc, powerup_three
+    ld a, (powerup_three_x)
+    ld d, a
+    ld a, (powerup_three_y)
+    ld e, a
+    call powerups_spawn_powerup
+
+    ret 
+
 ; bc = address of powerup_one or powerup_two
 ; d = x for powerup cell
 ; e = y for powerup cell

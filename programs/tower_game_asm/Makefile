@@ -10,4 +10,7 @@ new: clean default
 run: new
 	/Users/kbuzsaki/dev/cse190/fuse/Fuse.app/Contents/MacOS/Fuse main.tap
 
+game: new
+	open -a fuse main.tap
+
 include ../makefile.defs

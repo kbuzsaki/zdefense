@@ -86,9 +86,15 @@ cursor_check_tower_inputs:
 
 cursor_check_powerups:
 
+    ld a, (powerup_one)
+
+    ; check if powerup_one is enabled
+    ld b, $ff    
+    cp b
+    jp z, cursor_after_powerup_one_check
+
     ; check if powerup_one exists
     ld b, 0
-    ld a, (powerup_one)
     cp b
     jp z, cursor_after_powerup_one_check
 
@@ -108,8 +114,13 @@ cursor_check_powerups:
 
   cursor_after_powerup_one_check:
 
-    ld b, 0
     ld a, (powerup_two)
+
+    ld b, $ff    
+    cp b
+    jp z, cursor_after_powerup_two_check
+
+    ld b, 0
     cp b
     jp z, cursor_after_powerup_two_check
 
@@ -126,6 +137,30 @@ cursor_check_powerups:
     call powerups_get_powerup
 
   cursor_after_powerup_two_check:
+
+    ld a, (powerup_three)
+
+    ld b, $ff    
+    cp b
+    jp z, cursor_after_powerup_three_check
+
+    ld b, 0
+    cp b
+    jp z, cursor_after_powerup_three_check
+
+
+    ld a, (powerup_three_x)
+    cp d
+    jp nz, cursor_after_powerup_three_check
+
+    ld a, (powerup_three_y)
+    cp e
+    jp nz, cursor_after_powerup_three_check
+
+    ld bc, powerup_three
+    call powerups_get_powerup
+
+  cursor_after_powerup_three_check:
 
     ret
 
