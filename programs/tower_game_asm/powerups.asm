@@ -129,11 +129,25 @@ powerups_spawn_powerup_two:
 ; bc = address of powerup_one or powerup_two
 ; d = x for powerup cell
 ; e = y for powerup cell
-; hl = address of powerup tile to draw
 powerups_spawn_powerup:
+    ; the lower bits seem to be more random than upper bits
     ld a, r
-    bit 3, a
-    jp z, powerups_spawn_money
+    rr a
+    rr a
+    rr a
+    rr a
+
+    sub 40
+    jp pe, powerups_spawn_slow
+    
+    sub 40
+    jp pe, powerups_spawn_bomb
+
+    sub 40
+    jp pe, powerups_spawn_zap 
+    
+    sub 40
+    jp pe, powerups_spawn_money
 
   powerups_spawn_life:
     ld hl, heart
@@ -147,6 +161,27 @@ powerups_spawn_powerup:
     ld a, $02 ; set the powerup to be the value for the money powerup
     ld (bc), a
     ld c, $0c ; desired attr byte value
+    jp powerups_spawn_draw
+
+  powerups_spawn_zap:
+    ld hl, lightning
+    ld a, $03
+    ld (bc), a
+    ld c, $0e
+    jp powerups_spawn_draw
+
+  powerups_spawn_bomb:
+    ld hl, bomb
+    ld a, $04
+    ld (bc), a
+    ld c, $08
+    jp powerups_spawn_draw
+
+  powerups_spawn_slow:
+    ld hl, snowflake
+    ld a, $05
+    ld (bc), a
+    ld c, $0d
     jp powerups_spawn_draw
 
   powerups_spawn_draw:
@@ -188,6 +223,15 @@ powerups_get_powerup:
     cp $02
     call z, powerups_get_money
 
+    cp $03
+    call z, powerups_get_zap
+
+    cp $04
+    call z, powerups_get_bomb
+
+    cp $05
+    call z, powerups_get_slow
+
     ret
 
 
@@ -198,6 +242,27 @@ powerups_get_health:
 
 powerups_get_money:
     call status_inc_money
+    call powerups_clear_powerup
+    ret
+
+powerups_get_zap:
+    push de
+    call status_inc_zap
+    pop de
+    call powerups_clear_powerup
+    ret
+
+powerups_get_bomb:
+    push de
+    call status_inc_bomb
+    pop de
+    call powerups_clear_powerup
+    ret
+
+powerups_get_slow:
+    push de
+    call status_inc_slow
+    pop de
     call powerups_clear_powerup
     ret
 

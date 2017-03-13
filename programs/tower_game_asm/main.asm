@@ -51,6 +51,13 @@ interrupt_handler:
     cp 2
     call z, powerups_spawn_randomly
 
+    ; update powerups counters on the 2nd visual frame
+    ld a, (sub_frame_counter)
+    and 3
+    cp 2
+    call z, status_update_powerups_charges 
+
+
 	; do enemy updates every 8th frame
 	ld a, (sub_frame_counter)
 	cp 0
