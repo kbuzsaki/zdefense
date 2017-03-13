@@ -293,64 +293,51 @@ cell_frame_counter:
 
 cursor_x:
 	defb 0
-
 cursor_y:
 	defb 0
-
 cursor_old_attr:
 	defb 0
 
 health_tens:
     defb 0
-
 health_ones:
     defb 1
 
 money_tens:
     defb 5
-
 money_ones:
     defb 0
 
 wave_count:
     defb 1
-
 enemy_count:
     defb 5
 
 zap_charges:
     defb 1
-
 bomb_charges:
     defb 1
-
 slow_charges:
     defb 1
 
 powerup_one:
     defb 0
-
 powerup_one_x:
-    defb 3
-
+    defb 20
 powerup_one_y:
-    defb 6
+    defb 13
 
 powerup_two:
     defb 0
-
 powerup_two_x:
-    defb 20
-
+    defb 3
 powerup_two_y:
-    defb 13
+    defb 6
 
 powerup_three:
     defb 0
-
 powerup_three_x:
-    defb 29
-
+    defb 28
 powerup_three_y:
     defb 2
 
@@ -1103,7 +1090,7 @@ build_tile_b:
 	defb $c3    ; ##    ##
 	defb $ff    ; ########
 
-small_lake:
+lake_3x3:
     defb 255  	; ########
     defb 255  	; ########
     defb 254  	; ####### 
@@ -1185,7 +1172,7 @@ small_lake:
     defb 255  	; ########
     defb 255  	; ########
 
-lake_two:
+lake_5x3:
     defb $ff    ; ########
     defb $ff    ; ########
     defb $ff    ; ########
@@ -1321,7 +1308,7 @@ lake_two:
     defb $ff    ; ########
     defb $ff    ; ########
 
-lake_three:
+lake_3x5:
     defb $bf    ; # ######
     defb $0d    ;     ## #
     defb $82    ; #     # 
