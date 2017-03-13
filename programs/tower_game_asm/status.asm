@@ -288,8 +288,6 @@ status_inc_health_end:
     ld (health_ones), a
     ret
 
-
-
 status_inc_money:
     ;increment money by one
     ld a, (money_ones)
@@ -307,6 +305,54 @@ status_inc_money:
 
 status_inc_money_end:
     ld (money_ones), a
+    ret
+
+status_inc_zap:
+
+    ; update the value in memory
+    ld a, (zap_charges)
+    inc a
+    ld (zap_charges), a
+
+    ; update the string that gets written to the status bar
+    add a, $30
+    ld d, a
+    ld e, $20
+
+    ld (status_zap_charge+3), de
+
+    ret
+
+status_inc_bomb:
+
+    ; update the value in memory
+    ld a, (bomb_charges)
+    inc a
+    ld (bomb_charges), a
+
+    ; update the string that gets written to the status bar
+    add a, $30
+    ld d, a
+    ld e, $20
+
+    ld (status_bomb_charge+3), de
+
+    ret
+
+status_inc_slow:
+
+    ; update the value in memory
+    ld a, (slow_charges)
+    inc a
+    ld (slow_charges), a
+
+    ; update the string that gets written to the status bar
+    add a, $30
+    ld d, a
+    ld e, $20
+
+    ld (status_slow_charge+3), de
+
     ret
 
 ;; update the "enemies coming up" in the status
