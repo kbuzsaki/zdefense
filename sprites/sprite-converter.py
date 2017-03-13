@@ -1,6 +1,9 @@
 import sys
 from PIL import Image
 
+def format_byte(b):
+    return "${:02x}".format(b)
+
 filename = sys.argv[1]
 
 print("reading: " + filename)
@@ -38,8 +41,8 @@ for y in range(height):
 print("Expanded Format:")
 for line in byte_list:
     for byte in line:
-        defb_line = "defb " + str(int(byte, 2))
-        comment = "  \t; " + byte.replace('0', ' ').replace('1', '#')
+        defb_line = "    defb " + format_byte(int(byte, 2))
+        comment = "    ; " + byte.replace('0', ' ').replace('1', '#')
 
         print(defb_line + comment)
     print()
