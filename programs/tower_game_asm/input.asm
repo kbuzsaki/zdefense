@@ -84,6 +84,46 @@ input_is_5_down:
     ld a, 0
     ret
 
+input_is_6_down:
+    ld bc, $effe
+    in b, (c)
+    bit 4, b
+    jp z, input_set_a
+    ld a, 0
+    ret
+
+input_is_7_down:
+    ld bc, $effe
+    in b, (c)
+    bit 3, b
+    jp z, input_set_a
+    ld a, 0
+    ret
+
+input_is_8_down:
+    ld bc, $effe
+    in b, (c)
+    bit 2, b
+    jp z, input_set_a
+    ld a, 0
+    ret
+
+input_is_9_down:
+    ld bc, $effe
+    in b, (c)
+    bit 1, b
+    jp z, input_set_a
+    ld a, 0
+    ret
+
+input_is_0_down:
+    ld bc, $effe
+    in b, (c)
+    bit 0, b
+    jp z, input_set_a
+    ld a, 0
+    ret
+
 input_set_a:
 	ld a, 1
 	ret
