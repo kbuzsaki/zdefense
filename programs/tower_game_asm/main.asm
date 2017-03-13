@@ -360,9 +360,6 @@ powerup_three_y:
 ; attr address
 ; [0, 1, 0,  1,  1,  0, y7, y6] [y5, y4, y3, x7, x6, x5, x4, x3]
 
-; filler padding for alignment
-; enemy data
-defs $9150 - $
 
 ; per-level pointers set up in main_init to point to the appropriate level data
 enemy_path:
@@ -415,26 +412,26 @@ current_attacked_enemy_value:
 	defb $00
 
 
-defs $9200 - $
+defs $9700 - $
 
 ; position -> index
 enemy_position_to_index_array:
-	defs $9300 - $, $ff
+	defs $9800 - $, $ff
 
 ; dynamic arrays of enemy state
 ; each array takes up a full memory page
 ; id / index -> position
 weak_enemy_position_array:
-	defs $9400 - $, $ff
+	defs $9900 - $, $ff
 ; id / index -> health
 weak_enemy_health_array:
-	defs $9500 - $, $ff
+	defs $9a00 - $, $ff
 strong_enemy_position_array:
-	defs $9600 - $, $ff
+	defs $9b00 - $, $ff
 strong_enemy_health_array:
-	defs $9700 - $, $ff
+	defs $9c00 - $, $ff
 
-defs $9700 - $
+defs $9d00 - $
 
 enemy_spawn_script:
 	defb $01
@@ -464,16 +461,16 @@ enemy_spawn_script:
 	defb $02
 	defb $02
 	defb $02
-	defb $9800 - $, $ff
+	defb $9e00 - $, $ff
 
-defs $9a00 - $
+
+defs $9e00 - $
 
 ; array of towers built at build tiles
 build_tile_towers:
-	defs $9a80 - $, $fe
+	defs $9e80 - $, $fe
 	defb $ff
 
-defs $9b00 - $
 
 ; dynamic array to store towers in. new towers are added here when they are created
 ; very first byte is array size in bytes (points to next avail slot, not last elem)
@@ -483,27 +480,27 @@ defs $9b00 - $
 ;		x coord, y coord, rank
 ; Can replace x,y with VRAM if necsesary, or just add more items
 ; Rank determines where to find that tower's info sheet (refer to tower_type_1_default immediately below for example)
-tower_array:
-	defb $00
-	defb $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff
-	defb $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff
-	defb $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff
-	defb $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff
-	defb $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff
+;tower_array:
+;	defb $00
+;	defb $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff
+;	defb $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff
+;	defb $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff
+;	defb $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff
+;	defb $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff, $ff
 
 
 ; Example of where a rank would vector to. Ranks are 1 byte so high byte would be 98 and rank determines low byte
 ; would have one of these structures for each tower and each corresponding upgrade
-defs $9c00 - $
-tower_type_1_default:
-	defw tower_basic			; normal sprite sheet addr
-	defw $FFFF					; attack animation sprite sheet addr
-	defb $FF					; damage info
-	defb $FF					; attack speed
-	defb $23					; attr byte for normal sprite bckgnd
-	defb $FF					; unused
+;defs $9c00 - $
+;tower_type_1_default:
+;	defw tower_basic			; normal sprite sheet addr
+;	defw $FFFF					; attack animation sprite sheet addr
+;	defb $FF					; damage info
+;	defb $FF					; attack speed
+;	defb $23					; attr byte for normal sprite bckgnd
+;	defb $FF					; unused
 
-defs $9d00 - $
+defs $9f00 - $
 
 ; format:
 ;   2 - tile address
