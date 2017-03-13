@@ -2,6 +2,8 @@ status_init:
     call status_clear_status
     call status_set_status_attrs
 
+    call status_update_powerups
+    call status_update_powerups_charges
     call status_update_tower_costs
     call status_update_money_life
     call status_update_wave_count
@@ -9,50 +11,138 @@ status_init:
 
 	ret
 
+status_update_powerups:
+    ld a, 2
+    call 5633
+
+    ld de, status_powerups_title
+    ld bc, status_powerups_title_end-status_powerups_title
+    call 8252
+
+    ld de, status_zap
+    ld bc, status_zap_end-status_zap
+    call 8252
+
+    ld de, status_bomb
+    ld bc, status_bomb_end-status_bomb
+    call 8252
+
+    ld de, status_slow
+    ld bc, status_slow_end-status_slow
+    call 8252
+
+    ; color the input characters magenta
+	ld e, 19
+	ld d, 8 
+	call cursor_get_cell_attr
+	ld (hl), $43
+	ld e, 20
+	ld d, 8
+	call cursor_get_cell_attr
+	ld (hl), $43
+	ld e, 21
+	ld d, 8
+	call cursor_get_cell_attr
+	ld (hl), $43
+
+    ret
+
+status_update_powerups_charges:
+    ld a, 2
+    call 5633
+
+    ld a, (zap_charges)
+    add a, $30
+    ld d, a
+    ld e, $20
+
+    ld (status_zap_charge+3), de
+
+    ld de, status_zap_charge
+    ld bc, status_zap_charge_end-status_zap_charge
+    call 8252
+
+    ld a, (bomb_charges)
+    add a, $30
+    ld d, a
+    ld e, $20
+
+    ld (status_bomb_charge+3), de
+
+    ld de, status_bomb_charge
+    ld bc, status_bomb_charge_end-status_bomb_charge
+    call 8252
+
+    ld a, (slow_charges)
+    add a, $30
+    ld d, a
+    ld e, $20
+
+    ld (status_slow_charge+3), de
+
+    ld de, status_slow_charge
+    ld bc, status_slow_charge_end-status_slow_charge
+    call 8252
+
+    ret
 
 status_update_tower_costs:
+    ld a, 2
+    call 5633
+
     ld de, status_tower_title
-    ld bc, status_tt_end-status_tower_title
+    ld bc, status_tower_title_end-status_tower_title
     call 8252
 
     ld de, status_laser
-    ld bc, status_l_end-status_laser
+    ld bc, status_laser_end-status_laser
+    call 8252
+
+    ld de, status_flame
+    ld bc, status_flame_end-status_flame
+    call 8252
+
+    ld de, status_tesla
+    ld bc, status_tesla_end-status_tesla
     call 8252
 
     ld a, 1
     call 5633
-    ld de, status_bomb
-    ld bc, status_b_end-status_bomb
-    call 8252
 
-    ld de, status_slow
-    ld bc, status_s_end-status_slow
+    ld de, status_upgrade
+    ld bc, status_upgrade_end-status_upgrade
     call 8252
 
 	; color the input characters magenta
+	ld e, 19
+	ld d, 20 
+	call cursor_get_cell_attr
+	ld (hl), $43
+	ld e, 20
+	ld d, 20
+	call cursor_get_cell_attr
+	ld (hl), $43
 	ld e, 21
 	ld d, 20
 	call cursor_get_cell_attr
 	ld (hl), $43
-	ld e, 22
-	ld d, 20
-	call cursor_get_cell_attr
-	ld (hl), $43
-	ld e, 23
+    ld e, 23
 	ld d, 20
 	call cursor_get_cell_attr
 	ld (hl), $43
 
-	; color the dollar signs green
+
+	; color the dollar signs green	
+    ld e, 19
+	ld d, 28
+	call cursor_get_cell_attr
+	ld (hl), $44
+
+	ld e, 20
+	ld d, 28
+	call cursor_get_cell_attr
+	ld (hl), $44
 	ld e, 21
-	ld d, 28
-	call cursor_get_cell_attr
-	ld (hl), $44
-	ld e, 22
-	ld d, 28
-	call cursor_get_cell_attr
-	ld (hl), $44
-	ld e, 23
 	ld d, 28
 	call cursor_get_cell_attr
 	ld (hl), $44
@@ -116,13 +206,11 @@ status_update_money_life:
 
     ld e, 16
     ld d, 29
-
     call cursor_get_cell_attr
     ld (hl), $02
 
     ld e, 16
     ld d, 30
-
     call cursor_get_cell_attr
     ld (hl), $02
 
@@ -155,7 +243,7 @@ status_update_wave_count:
     ld a, (wave_count)
     add a, $30
 
-    ld (status_round+9), a
+    ld (status_round+8), a
 
     ld a, 2
     call 5633
@@ -170,7 +258,7 @@ status_update_enemy_count:
     ld a, (enemy_count)
     add a, $30
 
-    ld (status_enemy_count+12), a
+    ld (status_enemy_count+11), a
 
     ld a, 2
     call 5633
@@ -357,30 +445,67 @@ status_enemy_preview_lookup:
 	defw strong_enemy + 96
 
 status_round:
-	defb 22, 16, 0,'Wave: 0'
+	defb 22, 16, 0,'Wave:0,'
 status_r_end: equ $
 
 status_enemy_count:
-	defb 22, 17, 0,'Enemies: 0'
+	defb 22, 16, 8,'Enemies:0'
 status_ec_end: equ $
 
 status_money_life:
 	defb 22, 16, 20,'$000    *00'
 status_ml_end: equ $
 
-status_tower_title:
-	defb 22, 20, 20,'Towers:'
-status_tt_end: equ $
 
-status_laser:
-	defb 22, 21, 20,'1:Laser $100'
-status_l_end: equ $
+status_powerups_title:
+    defb 22, 18, 8,'Powerups:'
+status_powerups_title_end: equ $
 
-; Printed using channel 1, so their y offset is different
+status_zap:
+    defb 22, 19, 8,'6:Zap:  0'
+status_zap_end: equ $
+
 status_bomb:
-	defb 22, 0, 20,'2:Flame $300'
-status_b_end: equ $
+    defb 22, 20, 8,'7:Bomb: 0'
+status_bomb_end: equ $
 
 status_slow:
-	defb 22, 1, 20,'3:Tesla $500'
-status_s_end: equ $
+    defb 22, 21, 8,'8:Slow: 0'
+status_slow_end: equ $
+
+status_zap_charge:
+    defb 22, 19, 15,' 0'
+status_zap_charge_end: equ $
+
+status_bomb_charge:
+    defb 22, 20, 15,' 0'
+status_bomb_charge_end: equ $
+
+status_slow_charge:
+    defb 22, 21, 15,' 0'
+status_slow_charge_end: equ $
+
+
+
+status_tower_title:
+	defb 22, 18, 20,'Towers:'
+status_tower_title_end: equ $
+
+status_laser:
+	defb 22, 19, 20,'1:Laser $100'
+status_laser_end: equ $
+
+status_flame:
+	defb 22, 20, 20,'2:Flame $300'
+status_flame_end: equ $
+
+status_tesla:
+	defb 22, 21, 20,'3:Tesla $500'
+status_tesla_end: equ $
+
+
+; Printed using channel 1, so y offset is different
+
+status_upgrade:
+	defb 22, 1, 20,'4:Upgrade'
+status_upgrade_end: equ $
