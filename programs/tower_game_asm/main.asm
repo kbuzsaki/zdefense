@@ -353,7 +353,7 @@ powerup_two_y:
 
 ; filler padding for alignment
 ; enemy data
-defs $9000 - $
+defs $9050 - $
 
 ; per-level pointers set up in main_init to point to the appropriate level data
 enemy_path:
