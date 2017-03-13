@@ -10,17 +10,17 @@ Kyle Buzsaki
 Kyle Huynh  
 
 ### Progress
-- Added multiple maps / levels
+- Added multiple maps / "levels"
 - Extended enemy code to support two types of enemies
 - Added "enemy spawn preview" showing the coming up enemies
-- Added player money and health to status screen
+- Added player money and health to status pane
 - Made player health decrease when enemies walk off the path, the player loses when health drops to 0
 - Designed data structures for player towers
-- Added the ability to build towers on designated "build zones" using the cursor
-  Building towers costs money and will fail if the player doesn't have enough
-- Implemented tower attacks for two types of tower, "laser" and "flame"
-  Towers can attack, deal damage to, and kill enemies, protecting the player from them
-  The player also gains money when they kill enemies
+- Added the ability to build towers on designated "build zones" using the cursor.
+  Building towers costs money and will fail if the player doesn't have enough.
+- Implemented tower attacks for two types of tower, "laser" and "flame".
+  Towers can attack, deal damage to, and kill enemies, protecting the player from them.
+  The player also gains money when they kill enemies.
 - Added "goodie lakes" that randomly spawn buff items.
 - Implemented "bonus money goodie" and "bonus health goodie"
   that increase the player's health and money when collected
