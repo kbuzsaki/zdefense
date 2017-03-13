@@ -311,6 +311,15 @@ wave_count:
 enemy_count:
     defb 5
 
+zap_charges:
+    defb 1
+
+bomb_charges:
+    defb 1
+
+slow_charges:
+    defb 1
+
 powerup_one:
     defb 0
 
