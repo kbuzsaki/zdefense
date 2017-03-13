@@ -51,13 +51,6 @@ interrupt_handler:
     cp 2
     call z, powerups_spawn_randomly
 
-    ; update powerups counters on the 2nd visual frame
-    ld a, (sub_frame_counter)
-    and 3
-    cp 2
-    call z, status_update_powerups_charges 
-
-
 	; do enemy updates every 8th frame
 	ld a, (sub_frame_counter)
 	cp 0
@@ -314,11 +307,11 @@ enemy_count:
     defb 5
 
 zap_charges:
-    defb 1
+    defb 0
 bomb_charges:
-    defb 1
+    defb 0
 slow_charges:
-    defb 1
+    defb 0
 
 powerup_one:
     defb 0

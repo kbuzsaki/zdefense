@@ -3,12 +3,15 @@ status_init:
     call status_set_status_attrs
 
     call status_update_powerups
-    call status_update_powerups_charges
     call status_update_tower_costs
     call status_update_money_life
     call status_update_wave_count
     call status_update_enemy_count 
 
+    call status_inc_bomb
+    call status_inc_zap
+    call status_inc_slow
+    
 	ret
 
 status_update_powerups:
@@ -44,45 +47,6 @@ status_update_powerups:
 	ld d, 8
 	call cursor_get_cell_attr
 	ld (hl), $43
-
-    ret
-
-status_update_powerups_charges:
-    ld a, 2
-    call 5633
-
-    ld a, (zap_charges)
-    add a, $30
-    ld d, a
-    ld e, $20
-
-    ld (status_zap_charge+3), de
-
-    ld de, status_zap_charge
-    ld bc, status_zap_charge_end-status_zap_charge
-    call 8252
-
-    ld a, (bomb_charges)
-    add a, $30
-    ld d, a
-    ld e, $20
-
-    ld (status_bomb_charge+3), de
-
-    ld de, status_bomb_charge
-    ld bc, status_bomb_charge_end-status_bomb_charge
-    call 8252
-
-    ld a, (slow_charges)
-    add a, $30
-    ld d, a
-    ld e, $20
-
-    ld (status_slow_charge+3), de
-
-    ld de, status_slow_charge
-    ld bc, status_slow_charge_end-status_slow_charge
-    call 8252
 
     ret
 
@@ -307,52 +271,133 @@ status_inc_money_end:
     ld (money_ones), a
     ret
 
-status_inc_zap:
-
-    ; update the value in memory
-    ld a, (zap_charges)
-    inc a
-    ld (zap_charges), a
-
-    ; update the string that gets written to the status bar
-    add a, $30
-    ld d, a
-    ld e, $20
-
-    ld (status_zap_charge+3), de
-
-    ret
-
 status_inc_bomb:
-
-    ; update the value in memory
     ld a, (bomb_charges)
+    cp 4
+    jp z, status_inc_bomb_end
     inc a
     ld (bomb_charges), a
 
-    ; update the string that gets written to the status bar
-    add a, $30
+    ld e, 19
+    ld d, 14
+    add a, d
     ld d, a
-    ld e, $20
 
-    ld (status_bomb_charge+3), de
+    call cursor_get_cell_attr
+    ld (hl), $47
 
+    call cursor_get_cell_addr
+    ld d, h
+    ld e, l
+    ld hl, bomb
+    call util_draw_tile
+status_inc_bomb_end:
+    ret
+
+status_inc_zap:
+    ld a, (zap_charges)
+    cp 4
+    jp z, status_inc_zap_end
+    inc a
+    ld (zap_charges), a
+
+    ld e, 20
+    ld d, 14
+    add a, d
+    ld d, a
+
+    call cursor_get_cell_attr
+    ld (hl), $46
+
+    call cursor_get_cell_addr
+    ld d, h
+    ld e, l
+    ld hl, lightning
+    call util_draw_tile
+status_inc_zap_end:
     ret
 
 status_inc_slow:
-
-    ; update the value in memory
     ld a, (slow_charges)
+    cp 4
+    jp z, status_inc_slow_end
     inc a
     ld (slow_charges), a
 
-    ; update the string that gets written to the status bar
-    add a, $30
+    ld e, 21
+    ld d, 14
+    add a, d
     ld d, a
-    ld e, $20
 
-    ld (status_slow_charge+3), de
+    call cursor_get_cell_attr
+    ld (hl), $45
 
+    call cursor_get_cell_addr
+    ld d, h
+    ld e, l
+    ld hl, snowflake
+    call util_draw_tile
+status_inc_slow_end:
+    ret
+
+status_dec_bomb:
+    ld a, (bomb_charges)
+    cp 0
+    jp z, status_dec_bomb_end
+    dec a
+    ld (bomb_charges), a
+
+    ld e, 19
+    ld d, 15
+    add a, d
+    ld d, a
+
+    call cursor_get_cell_addr
+    ld d, h
+    ld e, l
+    ld hl, blank_tile
+    call util_draw_tile
+status_dec_bomb_end:
+    ret
+
+status_dec_zap:
+    ld a, (zap_charges)
+    cp 0
+    jp z, status_dec_zap_end
+    dec a
+    ld (zap_charges), a
+
+    ld e, 20
+    ld d, 15
+    add a, d
+    ld d, a
+
+    call cursor_get_cell_addr
+    ld d, h
+    ld e, l
+    ld hl, blank_tile
+    call util_draw_tile
+status_dec_zap_end:
+    ret
+
+status_dec_slow:
+    ld a, (slow_charges)
+    cp 0
+    jp z, status_dec_slow_end
+    dec a
+    ld (slow_charges), a
+
+    ld e, 21
+    ld d, 15
+    add a, d
+    ld d, a
+
+    call cursor_get_cell_addr
+    ld d, h
+    ld e, l
+    ld hl, blank_tile
+    call util_draw_tile
+status_dec_slow_end:
     ret
 
 ;; update the "enemies coming up" in the status
@@ -507,25 +552,17 @@ status_powerups_title:
     defb 22, 18, 8,'Powerups:'
 status_powerups_title_end: equ $
 
-status_zap:
-    defb 22, 19, 8,'6:Zap:  0'
-status_zap_end: equ $
-
 status_bomb:
-    defb 22, 20, 8,'7:Bomb: 0'
+    defb 22, 19, 8,'6:Bomb:'
 status_bomb_end: equ $
 
+status_zap:
+    defb 22, 20, 8,'7:Zapp:'
+status_zap_end: equ $
+
 status_slow:
-    defb 22, 21, 8,'8:Slow: 0'
+    defb 22, 21, 8,'8:Slow:'
 status_slow_end: equ $
-
-status_zap_charge:
-    defb 22, 19, 15,' 0'
-status_zap_charge_end: equ $
-
-status_bomb_charge:
-    defb 22, 20, 15,' 0'
-status_bomb_charge_end: equ $
 
 status_slow_charge:
     defb 22, 21, 15,' 0'
