@@ -54,7 +54,7 @@ tower_handler_load_tower_type:
 ; output:
 ;  hl - the ptr into the build_tile_attackables array
 tower_handler_get_attackable_ptr:
-	ld hl, build_tile_attackables_d
+	ld hl, (build_tile_attackables)
 	sla a
 	sla a
 	ld l, a
