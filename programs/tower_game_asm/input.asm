@@ -44,6 +44,14 @@ input_is_d_down:
 	ld a, 0
 	ret
 
+input_is_g_down:
+    ld bc, $fdfe
+    in b, (c)
+	bit 4, b
+	jp z, input_set_a
+	ld a, 0
+	ret
+
 input_is_1_down:
     ld bc, $f7fe
     in b, (c)

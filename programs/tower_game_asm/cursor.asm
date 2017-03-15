@@ -43,6 +43,8 @@ cursor_entry_point_handle_input:
     call cursor_check_tower_inputs
     call cursor_check_powerups_collect
     call cursor_check_powerups_usage
+
+    call status_update_sell_price
 	
 	ret
 
@@ -82,6 +84,9 @@ cursor_check_tower_inputs:
 
     call input_is_4_down
     call z, build_basic_tower
+
+    call input_is_g_down
+    call z, build_sell_tower
 
 	ret
 

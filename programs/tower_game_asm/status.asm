@@ -81,7 +81,6 @@ status_update_tower_costs:
     ld bc, status_sell_end-status_sell
     call 8252
 
-
 	; color the input characters magenta
 	ld e, 19
 	ld d, 20 
@@ -104,13 +103,11 @@ status_update_tower_costs:
 	call cursor_get_cell_attr
 	ld (hl), $43
 
-
 	; color the dollar signs green	
     ld e, 19
 	ld d, 28
 	call cursor_get_cell_attr
 	ld (hl), $44
-
 	ld e, 20
 	ld d, 28
 	call cursor_get_cell_attr
@@ -122,6 +119,74 @@ status_update_tower_costs:
 
 	ret
 
+; d - cursor x position
+; e - cursor y position
+status_update_sell_price:
+    ; ignore if we're not on a valid build_tile
+    call build_find_build_tile_index
+    cp $ff
+    push af
+    call z, status_clear_sell_price
+    pop af
+    ret z
+
+    ; ignore if there is no tower on this build_tile
+    ld hl, build_tile_towers
+    ld l, a
+    ld a, (hl)
+    cp $fe ; $fe is uninitialized value
+    push af
+    call z, status_clear_sell_price
+    pop af
+    ret z
+
+
+    ; update sell price based on the tower
+    ld c, a
+    ld hl, tower_sell_price_tens
+    add a, l
+    ld l, a
+    ld a, (hl)
+    add a, $30
+    ld e, a
+
+    ld a, c
+    ld hl, tower_sell_price_ones
+    add a, l
+    ld l, a
+    ld a, (hl)
+    add a, $30
+    ld d, a
+
+    ld (status_sell_price+4), de
+
+    ld a, 1
+    call 5633
+    ld de, status_sell_price
+    ld bc, status_sell_price_end-status_sell_price
+    call 8252
+
+    ld e, 23
+	ld d, 28
+	call cursor_get_cell_attr
+	ld (hl), $44
+
+    ret
+
+status_clear_sell_price:
+    ld a, 1
+    call 5633
+
+    ld de, status_sell
+    ld bc, status_sell_end-status_sell
+    call 8252
+
+    ld e, 23
+	ld d, 20
+	call cursor_get_cell_attr
+	ld (hl), $43
+    
+    ret 
 
 status_update_money_life:
     ld a, (money_tens)
@@ -261,23 +326,44 @@ status_inc_health_end:
     ld (health_ones), a
     ret
 
-status_inc_money:
-    ;increment money by one
+; b - tens amount to inc by
+; c - ones amount to inc by
+status_add_money:
+    ;add the ones place
     ld a, (money_ones)
-    inc a
-
-    ; if money_ones is not 10, jump
-    cp 10
-    jp nz, status_inc_money_end
-
-    ; else inc money_tens and reset money_ones to 0
-    ld a, (money_tens)
-    inc a
-    ld (money_tens), a
-    ld a, 0
-
-status_inc_money_end:
+    add a, c
     ld (money_ones), a
+
+    ; if money_ones is < 10, jump to adding tens place
+    cp 10
+    jp c, status_add_money_tens
+
+    ; else subtract 10 from money_ones and inc money_tens
+    sub 10
+    ld (money_ones), a
+
+    inc b
+
+status_add_money_tens:
+    ; if we don't need to add to money_tens, skip it
+    ld a, b
+    cp 0
+    jp z, status_add_money_end
+
+    ; add the tens place
+    ld a, (money_tens)
+    add a, b
+    ld (money_tens), a
+
+    ; if money_tens is < 9, we're done
+    cp 9
+    jp c, status_add_money_end
+
+    ; else hard cap money_tens at 9
+    ld a, 9
+    ld (money_tens), a
+
+status_add_money_end:
     ret
 
 status_inc_bomb:
@@ -566,7 +652,7 @@ status_bomb:
 status_bomb_end: equ $
 
 status_zap:
-    defb 22, 20, 8,'7:Zapp:'
+    defb 22, 20, 8,'7:Zap :'
 status_zap_end: equ $
 
 status_slow:
@@ -603,5 +689,10 @@ status_upgrade:
 status_upgrade_end: equ $
 
 status_sell:
-	defb 22, 1, 20,'G:Sell'
+	defb 22, 1, 20,'G:Sell      '
 status_sell_end: equ $
+
+status_sell_price:
+    defb 22, 1, 28,'$000'
+status_sell_price_end: equ $
+

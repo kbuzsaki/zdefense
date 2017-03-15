@@ -334,6 +334,23 @@ powerup_three_x:
 powerup_three_y:
     defb 2
 
+; laser, flame, boost, 'basic' (unused)
+tower_byte_ids:
+    defb $01, $02, $03, $04
+
+; filler, laser, flame, boost, 'basic' (unused)
+tower_buy_price_tens:
+    defb $00, $01, $03, $02, $01
+tower_buy_price_ones:
+    defb $00, $00, $00, $00, $00
+
+; filler, laser, flame, boost, 'basic' (unused)
+tower_sell_price_tens:
+    defb $00, $00, $01, $01, $00
+tower_sell_price_ones:
+    defb $00, $05, $05, $00, $05
+    
+
 ; pixel address:
 ; [0, 1, 0, y7,  y6, y2, y1, y0] [y5, y4, y3, x7,  x6, x5, x4, x3]
 ;

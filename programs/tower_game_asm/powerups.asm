@@ -283,7 +283,11 @@ powerups_get_health:
     ret
 
 powerups_get_money:
-    call status_inc_money
+    push bc
+    ld b, 0
+    ld c, 1
+    call status_add_money
+    pop bc
     call powerups_clear_powerup
     ret
 

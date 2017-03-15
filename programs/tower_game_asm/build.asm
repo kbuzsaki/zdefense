@@ -109,60 +109,71 @@ build_check_money_no_borrow:
 ; inputs:
 ;  de - the xy coordinates to build at
 build_laser_tower:
-	ld a, $01
-	ld bc, $0100
+	ld a, (tower_byte_ids+0)
 	call build_build_tower
 	ret
 
 ; inputs:
 ;  de - the xy coordinates to build at
 build_bomb_tower:
-	ld a, $02
-	ld bc, $0300
+	ld a, (tower_byte_ids+1)
 	call build_build_tower
 	ret
 
 ; inputs:
 ;  de - the xy coordinates to build at
 build_slow_tower:
-	ld a, $03
-	ld bc, $0200
+	ld a, (tower_byte_ids+2)
 	call build_build_tower
 	ret
 
 ; inputs:
 ;  de - the xy coordinates to build at
 build_basic_tower:
-	ld a, $04
-	ld bc, $0100
+	ld a, (tower_byte_ids+3)
 	call build_build_tower
 	ret
 
 
 ; inputs:
-;   a - the tower type byte
-;  bc - the cost of the tower
+;   a - the tower type byte (aka its ID)
 ;  de - the xy coordinates to build at
 build_build_tower:
-	; put the tower type byte in a' until we need it
-	ex af, af'
-
-	push bc
+	; save two copies of the tower type byte to the stack
+    push af
+    push af
 
 	; ensure that this is a valid spot, give up if it isn't
 	call build_find_build_tile_index
 	cp $ff
-	ret z
-
-	pop bc
+	jp z, build_build_tower_end_cleanup
 
 	; make sure there isn't a tile here already
-	; also stash the build tile index in l
+	; also store the build tile index in l
 	ld hl, build_tile_towers
 	ld l, a
 	ld a, (hl)
 	cp $fe
-	ret nz
+	jp nz, build_build_tower_end_cleanup
+
+    pop af ; recover tower type id, its our index into tower_costs
+
+    push hl
+
+    ; get the tower cost and store into bc
+    ld c, a ; copy tower byte id into c
+    ld hl, tower_buy_price_tens
+    add a, l
+    ld l, a
+    ld b, (hl)
+
+    ld a, c ; load tower byte id from c
+    ld hl, tower_buy_price_ones
+    add a, l
+    ld l, a
+    ld c, (hl)
+
+    pop hl
 
 	; subtract the cost of the tower from our money, give up if we don't have enough
 	call build_try_decrement_money
@@ -172,13 +183,18 @@ build_build_tower:
 	;; now that we've subtracted the money, actually store the tower
 	; grab the tile index again and tower type byte again
 	ld b, l
-	ex af, af'
+    pop af ; recover tower type id
 	; register the new tower in the array
 	call build_register_new_tower
 
 	; draw the new tower on the screen
 	call build_draw_tower
 
+    ret
+
+build_build_tower_end_cleanup:
+    pop af
+    pop af
 	ret
 
 
@@ -237,3 +253,53 @@ build_register_new_tower:
 
     ret
 
+
+; de - the xy coordinates of the possible tower to sell
+build_sell_tower:
+
+    ; ignore if we're not on a valid build_tile
+    call build_find_build_tile_index
+    cp $ff
+    ret z
+
+    ; ignore if there is no tower on this build_tile
+    ; stash build tile index in l
+    ld hl, build_tile_towers
+    ld l, a
+    ld a, (hl)
+    cp $fe ; $fe is uninitialized value
+    ret z
+
+    push hl
+    ; increment money based on the tower
+    ld c, a
+    ld hl, tower_sell_price_tens
+    add a, l
+    ld l, a
+    ld b, (hl)
+
+    ld a, c
+    ld hl, tower_sell_price_ones
+    add a, l
+    ld l, a
+    ld c, (hl)
+
+    call status_add_money
+
+    pop hl
+
+    ; clear the tower from the build_tile_towers array
+    ld b, l
+    ld a, $fe ; $fe means no tower
+    call build_register_new_tower
+
+    
+    ; clear the tower from the screen
+    call cursor_get_cell_addr
+    ex de, hl
+    ld hl, build_tile_b
+    call util_draw_tile
+	; store the tower attribute byte
+    ld a, $34
+    ld (cursor_old_attr), a
+    ret

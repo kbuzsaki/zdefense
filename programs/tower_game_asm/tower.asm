@@ -420,10 +420,11 @@ tower_handler_kill_enemy:
 ; input:
 ;  a - the value of the enemy
 tower_handler_add_money:
-	ld b, a
-tower_handler_add_money_loop:
-	call status_inc_money
-	djnz tower_handler_add_money_loop
+    ld b, 0
+	ld c, a
+
+    call status_add_money
+
 	ret
 
 
