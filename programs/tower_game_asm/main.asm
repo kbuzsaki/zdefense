@@ -1,4 +1,8 @@
 org 32768
+
+call	level_select_setup
+
+title_bypass_load:
 	; disable interrupts for the duration of the setup phase
 	di
 
@@ -109,7 +113,7 @@ main_init:
 	ld d, $ff
 	call util_fill_all_pixels
 
-	call init_level_d
+	; call init_level_d
 
 	ret
 
@@ -239,6 +243,7 @@ increment_frame_counters:
 	ret
 
 
+include "level_select.asm"
 include "build.asm"
 include "cursor.asm"
 include "enemy_handler.asm"
