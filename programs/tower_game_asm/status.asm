@@ -308,6 +308,20 @@ status_update_enemy_count:
     ret
 
 status_inc_health:
+    ; show indicator
+    push de
+    ld e, 16
+    ld d, 31
+    call cursor_get_cell_addr
+    ex de, hl
+    ld hl, up_arrow
+    call util_draw_tile
+    ld e, 16
+    ld d, 31
+	call cursor_get_cell_attr
+	ld (hl), $43
+    pop de
+
     ;increment health by one
     ld a, (health_ones)
     inc a
@@ -329,6 +343,21 @@ status_inc_health_end:
 ; b - tens amount to inc by
 ; c - ones amount to inc by
 status_add_money:
+    ; show indicator
+    push de
+    ld e, 16
+    ld d, 24
+    call cursor_get_cell_addr
+    ex de, hl
+    ld hl, up_arrow
+    call util_draw_tile
+    ld e, 16
+    ld d, 24
+	call cursor_get_cell_attr
+	ld (hl), $43
+    pop de
+
+
     ;add the ones place
     ld a, (money_ones)
     add a, c
@@ -672,7 +701,7 @@ status_enemy_count:
 status_ec_end: equ $
 
 status_money_life:
-	defb 22, 16, 20,'$000    *00'
+	defb 22, 16, 20,'$000    *00 '
 status_ml_end: equ $
 
 
