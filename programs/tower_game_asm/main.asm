@@ -2180,3 +2180,79 @@ defb 219  	; ## ## ##
 defb 127  	;  #######
 defb 110  	;  ## ### 
 defb 7  	;      ###
+
+
+defs $b600 - $
+t_tile_topleft:
+	defb 0 ; y = 0
+	defb 0 ; y = 1
+	defb 63 ; y = 2
+	defb 63 ; y = 3
+	defb 63 ; y = 4
+	defb 3 ; y = 5
+	defb 3 ; y = 6
+	defb 3 ; y = 7
+t_tile_topright:
+	defb 0 ; y = 0
+	defb 0 ; y = 1
+	defb 252 ; y = 2
+	defb 252 ; y = 3
+	defb 252 ; y = 4
+	defb 192 ; y = 5
+	defb 192 ; y = 6
+	defb 192 ; y = 7
+t_tile_bottomleft:
+	defb 192 ; y = 0
+	defb 192 ; y = 1
+	defb 192 ; y = 2
+	defb 192 ; y = 3
+	defb 192 ; y = 4
+	defb 192 ; y = 5
+	defb 192 ; y = 6
+	defb 0 ; y = 7
+t_tile_bottomright:
+	defb 3 ; y = 0
+	defb 3 ; y = 1
+	defb 3 ; y = 2
+	defb 3 ; y = 3
+	defb 3 ; y = 4
+	defb 3 ; y = 5
+	defb 3 ; y = 6
+	defb 0 ; y = 7
+
+h_tile_topleft:
+	defb 0 ; y = 0
+	defb 0 ; y = 1
+	defb 28 ; y = 2
+	defb 28 ; y = 3
+	defb 28 ; y = 4
+	defb 28 ; y = 5
+	defb 31 ; y = 6
+	defb 31 ; y = 7
+h_tile_topright:
+	defb 0 ; y = 0
+	defb 0 ; y = 1
+	defb 56 ; y = 2
+	defb 56 ; y = 3
+	defb 56 ; y = 4
+	defb 56 ; y = 5
+	defb 248 ; y = 6
+	defb 248 ; y = 7
+h_tile_bottomleft:
+	defb 248 ; y = 0
+	defb 248 ; y = 1
+	defb 56 ; y = 2
+	defb 56 ; y = 3
+	defb 56 ; y = 4
+	defb 56 ; y = 5
+	defb 56 ; y = 6
+	defb 0 ; y = 7
+h_tile_bottomright:
+	defb 31 ; y = 0
+	defb 31 ; y = 1
+	defb 28 ; y = 2
+	defb 28 ; y = 3
+	defb 28 ; y = 4
+	defb 28 ; y = 5
+	defb 28 ; y = 6
+	defb 0 ; y = 7
