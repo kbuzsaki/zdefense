@@ -9,15 +9,53 @@ level_select_setup:
 	jp		infinite_wait 
 
 level_select_setup_screen:
+    ; Clear screen
     call    util_clear_pixels
 
+    ; Load background map
+    ld      hl, loading_screen_map
+    ld      d, $50
+    ld      e, $00
+    call    load_map_draw_map
+
+
+    ; Write level select text to the screen
     ld      a, 2
     call    5633
     ld      de, wumbo_w
     ld      bc, eo_wumbo_d-wumbo_w
     call    8252
 
+    ; Fill all attrs to green
+    ld      d, $20
+    call    util_fill_all_attrs
 
+
+    ; Self modifying code--------------------------------------
+    ; overwrite line 88 in util.asm to be ld b, 85
+    ld      hl, util_fill_attrs_inner_loop
+    dec     hl
+    ld      (hl), $55 ; 85
+
+    ld      hl, $5A00
+    ld      c, 3
+    ld      d, $34
+    call    util_fill_attrs
+
+    ; self modifying code again. modify back to how it was before.
+    ld      hl, util_fill_attrs_inner_loop
+    dec     hl
+    ld      (hl), $FF ; 255
+    ; end nasty self modifying code --------------------------
+
+
+    ; Clear the walking path for the sprites
+    ld      de,loading_screen_map_attrs
+    ld      (enemy_path_attr), de
+    call    load_map_init_path_attr_bytes
+
+
+    ; Get x y for position where title letters will be put
     ld      d, 4
     ld      e, 5
     call    cursor_get_cell_addr
@@ -64,6 +102,8 @@ reason:
 title_load_interrupt_handler:
     di
 
+    ld      a, 4
+    ; out     ($fe), a
     ; Check keyboard input 
     ; For now, level 1 - w, level 2 - a, level 3 - s, level 4 - d
     call    input_is_w_down
