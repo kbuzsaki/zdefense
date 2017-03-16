@@ -435,64 +435,97 @@ status_inc_slow:
 status_inc_slow_end:
     ret
 
+; input:
+;   - reads from (bomb_charges)
+; side effect:
+;   - decrements (bomb_charges) if it is > 0, else nothing
+; output:
+;   a - 1 if a charge was used successfully, else 0
 status_dec_bomb:
+	; try to subtract a charge, give up and return 0 if we can't
     ld a, (bomb_charges)
     cp 0
-    jp z, status_dec_bomb_end
+	ret z
     dec a
     ld (bomb_charges), a
 
+	; get the xy coordinate in the status screen of the charge we used
     ld e, 19
     ld d, 15
     add a, d
     ld d, a
 
+	; clear that charge from the status screen
     call cursor_get_cell_addr
     ld d, h
     ld e, l
     ld hl, blank_tile
     call util_draw_tile
-status_dec_bomb_end:
-    ret
 
+	; load 1 to indicate a charge was used successfully and return
+	ld a, 1
+	ret
+
+; input:
+;   - reads from (zap_charges)
+; side effect:
+;   - decrements (zap_charges) if it is > 0, else nothing
+; output:
+;   a - 1 if a charge was used successfully, else 0
 status_dec_zap:
+	; try to subtract a charge, give up and return 0 if we can't
     ld a, (zap_charges)
     cp 0
-    jp z, status_dec_zap_end
+	ret z
     dec a
     ld (zap_charges), a
 
+	; get the xy coordinate in the status screen of the charge we used
     ld e, 20
     ld d, 15
     add a, d
     ld d, a
 
+	; clear that charge from the status screen
     call cursor_get_cell_addr
     ld d, h
     ld e, l
     ld hl, blank_tile
     call util_draw_tile
-status_dec_zap_end:
-    ret
 
+	; load 1 to indicate a charge was used successfully and return
+	ld a, 1
+	ret
+
+; input:
+;   - reads from (slow_charges)
+; side effect:
+;   - decrements (slow_charges) if it is > 0, else nothing
+; output:
+;   a - 1 if a charge was used successfully, else 0
 status_dec_slow:
+	; try to subtract a charge, give up and return 0 if we can't
     ld a, (slow_charges)
     cp 0
-    jp z, status_dec_slow_end
+	ret z
     dec a
     ld (slow_charges), a
 
+	; get the xy coordinate in the status screen of the charge we used
     ld e, 21
     ld d, 15
     add a, d
     ld d, a
 
+	; clear that charge from the status screen
     call cursor_get_cell_addr
     ld d, h
     ld e, l
     ld hl, blank_tile
     call util_draw_tile
-status_dec_slow_end:
+
+	; load 1 to indicate a charge was used successfully and return
+	ld a, 1
     ret
 
 ;; update the "enemies coming up" in the status

@@ -9,8 +9,10 @@ load_map_init:
 
 
 load_map_init_path_attr_bytes:
-	ld hl, (enemy_path_attr)
 	ld b, $30
+
+load_map_set_path_attr_bytes:
+	ld hl, (enemy_path_attr)
 
 load_map_init_path_attr_bytes_loop:
 	; load the next attr byte address

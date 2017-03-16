@@ -313,14 +313,46 @@ powerups_get_slow:
     ret
 
 powerups_use_zap:
+	; try to dec a charge, give up if we can't
     call status_dec_zap
+	cp 0
+	ret z
+
+	; flash the path
+	ld b, $75
+	call load_map_set_path_attr_bytes
+
+	; damage all of the enemies
+	; todo: maybe queue up the zap again so it flashes and then does damage?
+
     ret
 
 powerups_use_bomb:
+	; try to dec a charge, give up if we can't
     call status_dec_bomb
+	cp 0
+	ret z
+
+	; todo: validate coords, actually make this do something
+	; paint the bomb
+	ld a, (cursor_x)
+	ld d, a
+	ld a, (cursor_y)
+	ld e, a
+	call cursor_get_cell_addr
+	ex de, hl
+	ld hl, bomb
+	call util_draw_tile
+
     ret
 
 powerups_use_slow:
+	; try to dec a charge, give up if we can't
     call status_dec_slow
+	cp 0
+	ret z
+
+	; todo: actually make this do something
+
     ret
 
