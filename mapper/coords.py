@@ -115,16 +115,14 @@ def print_cell_data(cells, suffix=""):
         print("\tdefb " + ", ".join(map(format_byte, a)))
     print("\tdefb $ff")
 
-    """
     xys = sum(cells, ())
     print()
-    print(";", len(xys) * 2 + 4, "bytes")
+    print(";", len(xys) + 4, "bytes")
     print("enemy_path_xy" + suffix + ":")
     print("\tdefb $00, $00")
     for a in chunk(xys, 8):
         print("\tdefb " + ", ".join(map(format_byte, a)))
     print("\tdefb $ff, $ff")
-    """
 
 def print_coords(coords, chunk_size=8):
     for a in chunk(coords, chunk_size):

@@ -173,6 +173,15 @@ init_level_c:
 
 ; sets up level data to use level d
 init_level_d:
+	ld hl, enemy_path_xy_d
+	ld de, enemy_path_d
+	call unpack_vram_addresses
+
+	ld hl, enemy_path_xy_d
+	ld de, enemy_path_attr_d
+	call unpack_attr_addresses
+
+
 	; path data
 	ld hl, enemy_path_d
 	ld (enemy_path), hl
@@ -189,6 +198,108 @@ init_level_d:
 	ld hl, tile_map_d
 	ld (tile_map), hl
 	ret             
+
+
+; inputs:
+;  hl: the enemy_path_xy pointer to use (xy coordinates)
+;  de: the enemy_path_attr pointer to use (attr addresses)
+unpack_attr_addresses:
+	push ix
+	push iy
+
+	ld bc, $02
+	push hl
+	pop ix
+	push de
+	pop iy
+	
+	; skip past the padding 0 coords in the xy coords
+	add ix, bc
+
+	; first address is 0
+	ld (iy+0), 0
+	ld (iy+1), 0
+	add iy, bc
+
+	; loop over all coords
+unpack_attr_addresses_loop:
+	; load the x and y coordinates
+	ld d, (ix+0)
+	ld e, (ix+1)
+	add ix, bc
+
+	ld a, d
+	cp $ff
+	jp z, unpack_attr_addresses_loop_end
+
+	; compute the attr address
+	call cursor_get_cell_attr
+
+	ld (iy+1), h
+	ld (iy+0), l
+	add iy, bc
+
+	jp unpack_attr_addresses_loop
+
+unpack_attr_addresses_loop_end:
+	ld (iy+0), $ff
+	ld (iy+1), $ff
+
+	pop iy
+	pop ix
+	ret
+
+; inputs:
+;  hl: the enemy_path_xy pointer to use (xy coordinates)
+;  de: the enemy_path pointer to use (vram addresses)
+unpack_vram_addresses:
+	push ix
+	push iy
+
+	ld bc, $02
+	push hl
+	pop ix
+	push de
+	pop iy
+	
+	; skip past the padding 0 coords in the xy coords
+	add ix, bc
+
+	; first address is 0
+	ld (iy+0), 0
+	ld (iy+1), 0
+	add iy, bc
+
+	; loop over all coords
+unpack_vram_addresses_loop:
+	; load the x and y coordinates
+	ld d, (ix+0)
+	ld e, (ix+1)
+	add ix, bc
+
+	ld a, d
+	cp $ff
+	jp z, unpack_vram_addresses_loop_end
+
+	; compute the vram address
+	call cursor_get_cell_addr
+
+	ld (iy+1), h
+	ld (iy+0), l
+	add iy, bc
+
+	jp unpack_vram_addresses_loop
+
+unpack_vram_addresses_loop_end:
+	ld (iy+0), $ff
+	ld (iy+1), $ff
+
+	pop iy
+	pop ix
+	ret
+
+
+	
 
 	
 
@@ -864,32 +975,6 @@ tile_map_c:
 
 defs $ac00 - $
 
-; 88 bytes
-; must be aligned
-enemy_path_d:
-	defw $0000
-	defw $4008, $4028, $4048, $4068, $4088, $40a8, $40c8, $40e8
-	defw $4808, $4828, $4848, $4849, $484a, $484b, $484c, $484d
-	defw $484e, $484f, $4850, $4830, $4810, $40f0, $40d0, $40b0
-	defw $40b1, $40b2, $40b3, $40b4, $40b5, $40b6, $40b7, $40b8
-	defw $40d8, $40f8, $4818, $4838, $4858, $4878, $4898, $48b8
-	defw $48d8, $48f8
-	defw $ffff
-
-; 88 bytes
-; unaligned
-enemy_path_attr_d:
-	defw $0000
-	defw $5808, $5828, $5848, $5868, $5888, $58a8, $58c8, $58e8
-	defw $5908, $5928, $5948, $5949, $594a, $594b, $594c, $594d
-	defw $594e, $594f, $5950, $5930, $5910, $58f0, $58d0, $58b0
-	defw $58b1, $58b2, $58b3, $58b4, $58b5, $58b6, $58b7, $58b8
-	defw $58d8, $58f8, $5918, $5938, $5958, $5978, $5998, $59b8
-	defw $59d8, $59f8
-	defw $ffff
-
-defs $ad00 - $
-
 ; 44 bytes
 ; must be aligned
 enemy_path_direction_d:
@@ -901,6 +986,23 @@ enemy_path_direction_d:
 	defb $03, $03, $03, $03, $03, $03, $03, $03
 	defb $03, $03
 	defb $ff
+
+; 88 bytes
+; unaligned
+enemy_path_xy_d:
+	defb $00, $00
+	defb $08, $00, $08, $01, $08, $02, $08, $03
+	defb $08, $04, $08, $05, $08, $06, $08, $07
+	defb $08, $08, $08, $09, $08, $0a, $09, $0a
+	defb $0a, $0a, $0b, $0a, $0c, $0a, $0d, $0a
+	defb $0e, $0a, $0f, $0a, $10, $0a, $10, $09
+	defb $10, $08, $10, $07, $10, $06, $10, $05
+	defb $11, $05, $12, $05, $13, $05, $14, $05
+	defb $15, $05, $16, $05, $17, $05, $18, $05
+	defb $18, $06, $18, $07, $18, $08, $18, $09
+	defb $18, $0a, $18, $0b, $18, $0c, $18, $0d
+	defb $18, $0e, $18, $0f
+	defb $ff, $ff
 
 ; 50 bytes
 ; unaligned
@@ -2158,3 +2260,16 @@ defb 219  	; ## ## ##
 defb 127  	;  #######
 defb 110  	;  ## ### 
 defb 7  	;      ###
+
+
+; filler labels to load into passed the tape boundary
+
+org $c000
+; 88 bytes
+; must be aligned
+enemy_path_d:
+
+org $c080
+; 88 bytes
+; unaligned
+enemy_path_attr_d:
