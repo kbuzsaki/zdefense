@@ -144,6 +144,19 @@ init_level_a:
 	; map tiles
 	ld hl, tile_map_a
 	ld (tile_map), hl
+	; lakes
+	ld a, 28
+	ld (powerup_one_x), a
+	ld a, 2
+	ld (powerup_one_y), a
+	ld a, 7
+	ld (powerup_two_x), a
+	ld a, 3
+	ld (powerup_two_y), a
+	ld a, 14
+	ld (powerup_three_x), a
+	ld a, 13
+	ld (powerup_three_y), a
 	ret             
 
 ; sets up level data to use level b
@@ -173,6 +186,22 @@ init_level_b:
 	; map tiles
 	ld hl, tile_map_b
 	ld (tile_map), hl
+	; lakes
+	ld a, 6
+	ld (powerup_one_x), a
+	ld a, 13
+	ld (powerup_one_y), a
+	; no powerup two
+	ld a, $ff
+	ld (powerup_two), a
+	;ld a, 0
+	;ld (powerup_two_x), a
+	;ld a, 0
+	;ld (powerup_two_y), a
+	ld a, 24
+	ld (powerup_three_x), a
+	ld a, 2
+	ld (powerup_three_y), a
 	ret             
 
 ; sets up level data to use level c
@@ -202,6 +231,19 @@ init_level_c:
 	; map tiles
 	ld hl, tile_map_c
 	ld (tile_map), hl
+	; lakes
+	ld a, 16
+	ld (powerup_one_x), a
+	ld a, 13
+	ld (powerup_one_y), a
+	ld a, 3
+	ld (powerup_two_x), a
+	ld a, 3
+	ld (powerup_two_y), a
+	ld a, 28
+	ld (powerup_three_x), a
+	ld a, 2
+	ld (powerup_three_y), a
 	ret             
 
 ; sets up level data to use level d
@@ -231,6 +273,19 @@ init_level_d:
 	; map tiles
 	ld hl, tile_map_d
 	ld (tile_map), hl
+	; lakes
+	ld a, 20
+	ld (powerup_one_x), a
+	ld a, 13
+	ld (powerup_one_y), a
+	ld a, 3
+	ld (powerup_two_x), a
+	ld a, 6
+	ld (powerup_two_y), a
+	ld a, 28
+	ld (powerup_three_x), a
+	ld a, 2
+	ld (powerup_three_y), a
 	ret             
 
 
@@ -462,23 +517,23 @@ slow_charges:
 powerup_one:
     defb 0
 powerup_one_x:
-    defb 20
+    defb 0
 powerup_one_y:
-    defb 13
+    defb 0
 
 powerup_two:
     defb 0
 powerup_two_x:
-    defb 3
+    defb 0
 powerup_two_y:
-    defb 6
+    defb 0
 
 powerup_three:
     defb 0
 powerup_three_x:
-    defb 28
+    defb 0
 powerup_three_y:
-    defb 2
+    defb 0
 
 ; laser, flame, boost, 'basic' (unused)
 tower_byte_ids:
