@@ -169,30 +169,43 @@ powerups_spawn_powerup_three:
 
     ret 
 
+
+; most of the rom has roughly equal entropy, so starting at 0 is fine
+powerup_spawn_powerup_rand_ptr:
+	defw $0000
+
 ; bc = address of powerup_one or powerup_two
 ; d = x for powerup cell
 ; e = y for powerup cell
 powerups_spawn_powerup:
-    ; the lower bits seem to be more random than upper bits
-    ld a, r
-    rr a
-    rr a
-    rr a
+	; load the rom pointer into hl, inc it by a random amount based on r, and put it back
+	push bc
+	ld hl, (powerup_spawn_powerup_rand_ptr)
+	ld a, r
+	and $07
+	ld b, 0
+	ld c, a
+	inc bc
+	add hl, bc
+	ld (powerup_spawn_powerup_rand_ptr), hl
+	pop bc
 
-	; spawn lots of one powerup for testing
-    ; jp powerups_spawn_zap 
+	; then read from rom to get a random value
+	ld a, (hl)
 
-    sub 30
+    sub 50
     jp pe, powerups_spawn_slow
     
-    sub 30
+    sub 40
     jp pe, powerups_spawn_bomb
 
-    sub 30
+    sub 40
     jp pe, powerups_spawn_zap 
     
-    sub 30
-    jp pe, powerups_spawn_money
+    sub 40
+    jp pe, powerups_spawn_life
+
+	jp powerups_spawn_money
 
   powerups_spawn_life:
     ld hl, heart
