@@ -179,6 +179,9 @@ powerups_spawn_powerup:
     rr a
     rr a
 
+	; spawn lots of one powerup for testing
+    ; jp powerups_spawn_zap 
+
     sub 30
     jp pe, powerups_spawn_slow
     
@@ -319,13 +322,67 @@ powerups_use_zap:
 	ret z
 
 	; flash the path
+	; todo: make this flash back and forth for a set period
+	; right now it stays lit for a semi-random number of frames
 	ld b, $75
 	call load_map_set_path_attr_bytes
 
 	; damage all of the enemies
 	; todo: maybe queue up the zap again so it flashes and then does damage?
+	call powerups_do_zap_damage
 
     ret
+
+; zaps all enemies currently on the path
+powerups_do_zap_damage:
+	; weak enemies
+	ld hl, weak_enemy_position_array
+	ld (current_enemy_position_array), hl
+	ld hl, weak_enemy_health_array
+	ld (current_enemy_health_array), hl
+	ld a, 1
+	ld (current_attacked_enemy_value), a
+
+	call powerups_do_zap_damage_generic
+
+	; strong enemies
+	ld hl, strong_enemy_position_array
+	ld (current_enemy_position_array), hl
+	ld hl, strong_enemy_health_array
+	ld (current_enemy_health_array), hl
+	ld a, 2
+	ld (current_attacked_enemy_value), a
+
+	call powerups_do_zap_damage_generic
+
+	ret
+
+powerups_do_zap_damage_generic:
+	ld a, 0
+	ld (current_enemy_index), a
+powerups_do_zap_damage_generic_loop:
+	; load the position for this enemy to do checks
+	ld a, (current_enemy_index)
+	call enemy_handler_load_position_index
+
+	; check for $fe (skip enemy)
+	cp $fe
+	jp z, powerups_do_zap_damage_generic_loop_increment
+
+	; check for $ff (end of array)
+	cp $ff
+	ret z
+
+	ld a, (current_enemy_index)
+	call tower_handler_damage_enemy
+
+	; increment loop counter and jump to beginning of loop
+powerups_do_zap_damage_generic_loop_increment:
+	ld a, (current_enemy_index)
+	inc a
+	ld (current_enemy_index), a
+
+	jp powerups_do_zap_damage_generic_loop
 
 powerups_use_bomb:
 	; try to dec a charge, give up if we can't

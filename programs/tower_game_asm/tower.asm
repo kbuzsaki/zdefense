@@ -151,7 +151,7 @@ tower_handler_handle_laser_attack_check_attackable:
 ;  a - the packed type / index of the enemy to attack
 tower_handler_handle_laser_attack_enemy:
 	call tower_handler_init_enemy_arrays
-	call tower_handler_damage_enemy
+	call tower_handler_tower_damage_enemy
 	ret
 
 
@@ -267,7 +267,7 @@ tower_handler_handle_flame_attack_enemies:
 	jp z, tower_handler_handle_flame_attack_enemies_two
 
 	call tower_handler_init_enemy_arrays
-	call tower_handler_damage_enemy
+	call tower_handler_tower_damage_enemy
 
 tower_handler_handle_flame_attack_enemies_two:
 	ld a, (current_attacked_enemy_position)
@@ -280,7 +280,7 @@ tower_handler_handle_flame_attack_enemies_two:
 	jp z, tower_handler_handle_flame_attack_enemies_three
 
 	call tower_handler_init_enemy_arrays
-	call tower_handler_damage_enemy
+	call tower_handler_tower_damage_enemy
 
 tower_handler_handle_flame_attack_enemies_three:
 	ld a, (current_attacked_enemy_position)
@@ -293,7 +293,7 @@ tower_handler_handle_flame_attack_enemies_three:
 	jp z, tower_handler_handle_flame_attack_enemies_done
 
 	call tower_handler_init_enemy_arrays
-	call tower_handler_damage_enemy
+	call tower_handler_tower_damage_enemy
 
 	; todo: make flame tower always flash its attacks
 tower_handler_handle_flame_attack_enemies_done:
@@ -338,8 +338,8 @@ tower_handler_init_enemy_arrays_strong_enemy:
 	ret
 
 
-; input
-tower_handler_damage_enemy:
+; damages an enemy and shows that it was this tower
+tower_handler_tower_damage_enemy:
 	;; flash the tile being attacked
 	call tower_handler_highlight_enemy
 
@@ -348,13 +348,23 @@ tower_handler_damage_enemy:
 
 	; find and decrement the enemy's health
 	ld a, (current_attacked_enemy_index)
+
+	call tower_handler_damage_enemy
+	
+	ret
+
+; input:
+;   a - enemy index
+;  (current_enemy_health_array)
+;  (current_enemy_position_array)
+; damages an enemy and does health cleanup / money rewards
+tower_handler_damage_enemy:
 	ld hl, (current_enemy_health_array)
 	ld l, a
 	dec (hl)
 
 	; if we hit 0, remove the enemy
 	call z, tower_handler_kill_enemy
-	
 	ret
 
 tower_handler_highlight_enemy:
@@ -409,8 +419,9 @@ tower_handler_highlight_tower:
 
 
 ; todo: blood splatter, clean up enemy
+; input:
+;   a - the enemy index
 tower_handler_kill_enemy:
-	ld a, (current_attacked_enemy_index)
 	call enemy_handler_clear_enemy_at_index
 
 	ld a, (current_attacked_enemy_value)
