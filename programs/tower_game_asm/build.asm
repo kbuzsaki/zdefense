@@ -7,6 +7,13 @@
 build_find_build_tile_index:
 	; the pointer
 	ld hl, (build_tile_xys)
+
+; input:
+;  de - the xy coordinates to scan through the list for
+;  hl - the pointer to the array of xys to scan through
+; output:
+;   a - the index into hl that was matched, or $ff if not found
+build_find_xys_tile_index:
 	; the counter
 	ld b, 0
 

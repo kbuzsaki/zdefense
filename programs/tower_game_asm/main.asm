@@ -128,6 +128,8 @@ init_level_a:
 	call unpack_attr_addresses
 
 	; path data
+	ld hl, enemy_path_xy_a
+	ld (enemy_path_xy), hl
 	ld hl, enemy_path_a
 	ld (enemy_path), hl
 	ld hl, enemy_path_attr_a
@@ -155,6 +157,8 @@ init_level_b:
 	call unpack_attr_addresses
 
 	; path data
+	ld hl, enemy_path_xy_b
+	ld (enemy_path_xy), hl
 	ld hl, enemy_path_b
 	ld (enemy_path), hl
 	ld hl, enemy_path_attr_b
@@ -182,6 +186,8 @@ init_level_c:
 	call unpack_attr_addresses
 
 	; path data
+	ld hl, enemy_path_xy_c
+	ld (enemy_path_xy), hl
 	ld hl, enemy_path_c
 	ld (enemy_path), hl
 	ld hl, enemy_path_attr_c
@@ -209,6 +215,8 @@ init_level_d:
 	call unpack_attr_addresses
 
 	; path data
+	ld hl, enemy_path_xy_d
+	ld (enemy_path_xy), hl
 	ld hl, enemy_path_d
 	ld (enemy_path), hl
 	ld hl, enemy_path_attr_d

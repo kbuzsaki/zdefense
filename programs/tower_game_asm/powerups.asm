@@ -385,21 +385,33 @@ powerups_do_zap_damage_generic_loop_increment:
 	jp powerups_do_zap_damage_generic_loop
 
 powerups_use_bomb:
-	; try to dec a charge, give up if we can't
-    call status_dec_bomb
-	cp 0
-	ret z
-
-	; todo: validate coords, actually make this do something
 	; paint the bomb
 	ld a, (cursor_x)
 	ld d, a
 	ld a, (cursor_y)
 	ld e, a
+
+	; check if the coordinates are valid
+	ld hl, (enemy_path_xy)
+	call build_find_xys_tile_index
+	cp $ff
+	ret z
+
+	; try to dec a charge, give up if we can't
+	push de
+    call status_dec_bomb
+	pop de
+	cp 0
+	ret z
+
+	; if we got this far, then draw the bomb
 	call cursor_get_cell_addr
 	ex de, hl
 	ld hl, bomb
 	call util_draw_tile
+
+	; todo:
+	; do game state for making the bomb actually explode and damage an enemy
 
     ret
 
