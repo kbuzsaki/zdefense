@@ -84,29 +84,28 @@ def direction(start, end):
         return 3
 
 def print_cell_data(cells, suffix=""):
-    cell_addrs = [cell_coords_to_pixel_address(cell_x, cell_y) for cell_x, cell_y in cells]
-    print(";", len(cell_addrs) * 2 + 4, "bytes")
-    print("; must be aligned")
-    print("enemy_path" + suffix + ":")
-    print("\tdefw $0000")
-    for a in chunk(cell_addrs, 8):
-        print("\tdefw " + ", ".join(map(format_address, a)))
-    print("\tdefw $ffff")
+    #cell_addrs = [cell_coords_to_pixel_address(cell_x, cell_y) for cell_x, cell_y in cells]
+    #print(";", len(cell_addrs) * 2 + 4, "bytes")
+    #print("; must be aligned")
+    #print("enemy_path" + suffix + ":")
+    #print("\tdefw $0000")
+    #for a in chunk(cell_addrs, 8):
+    #    print("\tdefw " + ", ".join(map(format_address, a)))
+    #print("\tdefw $ffff")
 
-    attr_addrs = [cell_coords_to_attr_address(cell_x, cell_y) for cell_x, cell_y in cells]
-    print()
-    print(";", len(attr_addrs) * 2 + 4, "bytes")
-    print("; unaligned")
-    print("enemy_path_attr" + suffix + ":")
-    print("\tdefw $0000")
-    for a in chunk(attr_addrs, 8):
-        print("\tdefw " + ", ".join(map(format_address, a)))
-    print("\tdefw $ffff")
+    #attr_addrs = [cell_coords_to_attr_address(cell_x, cell_y) for cell_x, cell_y in cells]
+    #print()
+    #print(";", len(attr_addrs) * 2 + 4, "bytes")
+    #print("; unaligned")
+    #print("enemy_path_attr" + suffix + ":")
+    #print("\tdefw $0000")
+    #for a in chunk(attr_addrs, 8):
+    #    print("\tdefw " + ", ".join(map(format_address, a)))
+    #print("\tdefw $ffff")
 
     dirs = [direction(cells[i], cells[i+1]) for i in range(len(cells)-1)]
     # extend the last tile so that enemies move off the map properly
     dirs += [dirs[-1]]
-    print()
     print(";", len(dirs) + 2, "bytes")
     print("; must be aligned")
     print("enemy_path_direction" + suffix + ":")
@@ -118,11 +117,14 @@ def print_cell_data(cells, suffix=""):
     xys = sum(cells, ())
     print()
     print(";", len(xys) + 4, "bytes")
+    print("; unaligned, used to compute enemy_path" + suffix + " and enemy_path_attr" + suffix)
     print("enemy_path_xy" + suffix + ":")
     print("\tdefb $00, $00")
     for a in chunk(xys, 8):
         print("\tdefb " + ", ".join(map(format_byte, a)))
     print("\tdefb $ff, $ff")
+
+    return (len(dirs) + 2) + (len(xys) + 4)
 
 def print_coords(coords, chunk_size=8):
     for a in chunk(coords, chunk_size):

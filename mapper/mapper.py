@@ -384,6 +384,11 @@ def print_build_tile_data(simple_tile_map, suffix):
     build_cells = filter_build_cells(simple_tile_map)
     attackables = get_build_tile_attackables(simple_tile_map)
 
+    print(";", len(attackables) * 4, "bytes")
+    print("; must be aligned")
+    print("build_tile_attackables" + suffix + ":")
+    coords.print_coords(sum(attackables, ()), 4)
+
     print()
     print(";", len(build_cells) * 2 + 2, "bytes")
     print("; unaligned")
@@ -391,27 +396,46 @@ def print_build_tile_data(simple_tile_map, suffix):
     coords.print_coords(sum(build_cells, ()), 2)
     print("\tdefb $ff, $ff")
 
-    print()
-    print(";", len(attackables) * 4, "bytes")
-    print("; must be aligned")
-    print("build_tile_attackables" + suffix + ":")
-    coords.print_coords(sum(attackables, ()), 4)
+    return (len(build_cells) * 2 + 2) + (len(attackables) * 4)
 
 def print_tile_map_data(simple_tile_map, suffix):
     tiles = make_simple_tiles(simple_tile_map)
-    print()
     print(";", len(tiles) * 16, "bytes")
     print("; must be aligned")
     print("tile_map" + suffix + ":")
     for row in tiles:
         print("\t" + make_defb([e.value for e in row]))
 
+    return (len(tiles) * 16)
+
 
 def print_map_data(simple_tile_map, suffix):
+    print_next_defs()
     cells = parse_cell_coords(simple_tile_map)
     coords.print_cell_data(cells, suffix)
+
+    print_next_defs()
     print_build_tile_data(simple_tile_map, suffix)
+
+    print_next_defs()
     print_tile_map_data(simple_tile_map, suffix)
+
+def print_map_filler_buffers(m, s):
+    print_next_defs(0x80)
+    print("enemy_path" + s + ":")
+    print_next_defs(0x80)
+    print("enemy_path_attr" + s + ":")
+    pass
+
+
+defs_address = 0xa000
+
+def print_next_defs(incr=0x100):
+    print()
+    print("defs ${:04x} - $".format(defs_address))
+    global defs_address
+    defs_address += incr
+
 
 def do_stuff(simple_tile_map):
     cells = parse_cell_coords(simple_tile_map)
@@ -431,4 +455,13 @@ if __name__ == "__main__":
         print()
         print()
         print()
+
+    defs_address = 0xc000
+
+    print()
+    print()
+    print()
+    print("; empty addresses to go in the upper ram chip a the bottom of main.asm")
+    for m, s in MAP_SUFFIXES:
+        print_map_filler_buffers(m, s)
 
