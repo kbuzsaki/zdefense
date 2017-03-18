@@ -96,11 +96,36 @@ reason:
     inc     e  
     djnz    reason 
 
+
+    ; Set up path for enemies to walk through
+	ld hl, enemy_path_title
+	ld (enemy_path), hl
+    ; Set up directions corresponding to the path
+	ld hl, enemy_path_direction_title
+	ld (enemy_path_direction), hl
+    ; Initialize enemy module
+    call    enemy_handler_init
+
     ret
 
 
 title_load_interrupt_handler:
     di
+
+    ; We'll utilize frame counters for our purposes for moving sprites
+    call    increment_frame_counters
+
+    ; Move existing sprites
+	ld a, (sub_frame_counter)
+	cp 0
+	call z, enemy_handler_entry_point_handle_enemies
+
+    ; Spawn enemies if necessary
+	ld a, (real_frame_counter)
+	and $3f
+	cp $18
+	call z, enemy_handler_entry_point_handle_spawn_enemies
+
 
     ld      a, 4
     ; out     ($fe), a
@@ -124,24 +149,32 @@ title_load_handler_end:
 
 load_map_1:
     call    init_level_a
+    call    reset_frame_counters
+    call    reset_enemy_data
     ei
     call    title_bypass_load
     ret
 
 load_map_2:
     call    init_level_b
+    call    reset_frame_counters
+    call    reset_enemy_data 
     ei
     call    title_bypass_load
     ret
 
 load_map_3:
     call    init_level_c
+    call    reset_frame_counters
+    call    reset_enemy_data    
     ei
     call    title_bypass_load
     ret
 
 load_map_4:
     call    init_level_d
+    call    reset_frame_counters
+    call    reset_enemy_data
     ei
     call    title_bypass_load
     ret

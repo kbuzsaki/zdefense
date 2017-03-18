@@ -438,6 +438,41 @@ increment_frame_counters:
 
 	ret
 
+reset_frame_counters:
+	xor		a
+	ld		(real_frame_counter), a
+	ld		(sub_frame_counter), a
+	ld		(frame_counter), a
+	ld		(cell_frame_counter), a
+	ret
+
+reset_enemy_data:
+	; Clear a bunch of enemy data
+	ld		hl, $3900
+	ld		de, weak_enemy_position_array
+	ld		bc, $0100
+	ldir
+
+	ld		hl, $3900
+	ld		de, weak_enemy_health_array
+	ld		bc, $0100
+	ldir
+	
+	ld		hl, $3900
+	ld		de, strong_enemy_position_array
+	ld		bc, $0100
+	ldir
+
+	ld		hl, $3900
+	ld		de, strong_enemy_health_array
+	ld		bc, $0100
+	ldir
+
+	ld		hl, $3900
+	ld		de, enemy_position_to_index_array
+	ld		bc, $0100
+	ldir
+	ret
 
 include "level_select.asm"
 include "build.asm"
@@ -2358,6 +2393,34 @@ loading_screen_map_attrs:
 	defw $5a90, $5a91, $5a92, $5a93, $5a94, $5a95, $5a96, $5a97
 	defw $5a98, $5a99, $5a9a, $5a9b, $5a9c, $5a9d, $5a9e, $5a9f
 	defw $ffff
+
+; TODO:
+;		Find proper aligned places for path_title and direction_title
+;		direction_title - find contiguous 0 spot in memory instead?
+;		enemy_path_title - can dynamically generate, just incrementing lower byte?
+;		put those two in RAM instead?
+;		Make another enemy line on the botttom :)
+;		De-initialize or wipe all frame counters before giving up control
+defs $b800 - $
+enemy_path_title:
+	defw $0000
+	defw $5060, $5061, $5062, $5063, $5064, $5065, $5066, $5067
+	defw $5068, $5069, $506a, $506b, $506c, $506d, $506e, $506f
+	defw $5070, $5071, $5072, $5073, $5074, $5075, $5076, $5077
+	defw $5078, $5079, $507a, $507b, $507c, $507d, $507e, $507f
+	defw $ffff
+
+
+defs $b900 - $
+enemy_path_direction_title:
+	defb $00
+	defb $00, $00, $00, $00, $00, $00, $00, $00
+	defb $00, $00, $00, $00, $00, $00, $00, $00
+	defb $00, $00, $00, $00, $00, $00, $00, $00
+	defb $00, $00, $00, $00, $00, $00, $00, $00
+	defb $00, $00, $00, $00, $00, $00, $00, $00
+	defb $00, $00
+	defb $ff
 
 t_tile_topleft:
 	defb 0 ; y = 0
