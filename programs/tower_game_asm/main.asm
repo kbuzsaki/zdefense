@@ -448,6 +448,8 @@ reset_frame_counters:
 
 reset_enemy_data:
 	; Clear a bunch of enemy data
+	; TODO: Since most of these are contiguous
+	;		just free up one big block instead of indivs.
 	ld		hl, $3900
 	ld		de, weak_enemy_position_array
 	ld		bc, $0100
@@ -475,6 +477,7 @@ reset_enemy_data:
 	ret
 
 include "level_select.asm"
+include "death.asm"
 include "build.asm"
 include "cursor.asm"
 include "enemy_handler.asm"

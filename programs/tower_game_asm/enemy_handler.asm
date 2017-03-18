@@ -420,6 +420,9 @@ enemy_handler_decrement_health_handle_dead:
 	out ($fe), a
 	ld ($fdcc), a
 
+	; bring up death screen
+	call	death_screen_setup
+
 	ret
 
 
