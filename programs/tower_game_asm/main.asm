@@ -2395,33 +2395,9 @@ loading_screen_map_attrs:
 	defw $ffff
 
 ; TODO:
-;		Find proper aligned places for path_title and direction_title
-;		direction_title - find contiguous 0 spot in memory instead?
-;		enemy_path_title - can dynamically generate, just incrementing lower byte?
-;		put those two in RAM instead?
 ;		Make another enemy line on the botttom :)
-;		De-initialize or wipe all frame counters before giving up control
+;		self-modify code to avoid border turning red
 defs $b800 - $
-enemy_path_title:
-	defw $0000
-	defw $5060, $5061, $5062, $5063, $5064, $5065, $5066, $5067
-	defw $5068, $5069, $506a, $506b, $506c, $506d, $506e, $506f
-	defw $5070, $5071, $5072, $5073, $5074, $5075, $5076, $5077
-	defw $5078, $5079, $507a, $507b, $507c, $507d, $507e, $507f
-	defw $ffff
-
-
-defs $b900 - $
-enemy_path_direction_title:
-	defb $00
-	defb $00, $00, $00, $00, $00, $00, $00, $00
-	defb $00, $00, $00, $00, $00, $00, $00, $00
-	defb $00, $00, $00, $00, $00, $00, $00, $00
-	defb $00, $00, $00, $00, $00, $00, $00, $00
-	defb $00, $00, $00, $00, $00, $00, $00, $00
-	defb $00, $00
-	defb $ff
-
 t_tile_topleft:
 	defb 0 ; y = 0
 	defb 0 ; y = 1

@@ -3,6 +3,14 @@ level_select_setup:
 	ld 		hl, title_load_interrupt_handler
 	call 	setup_interrupt_handler
 
+    ; Generate data
+    call    generate_path_data
+    call    generate_direction_data
+
+    ; Init necessary bare-bones data
+    call    enemy_handler_init
+
+    ; Set up screen
     call    level_select_setup_screen
 
 	ei
@@ -95,16 +103,6 @@ reason:
     inc     e
     inc     e  
     djnz    reason 
-
-
-    ; Set up path for enemies to walk through
-	ld hl, enemy_path_title
-	ld (enemy_path), hl
-    ; Set up directions corresponding to the path
-	ld hl, enemy_path_direction_title
-	ld (enemy_path_direction), hl
-    ; Initialize enemy module
-    call    enemy_handler_init
 
     ret
 
@@ -213,6 +211,46 @@ load_2x2_sprite:
 
     pop     de
     pop     hl
+    ret
+
+generate_direction_data:
+    ; Address at 7100 should already be 00-filled
+    ; so just place an $ff at the appropriate spot
+    ld      hl, $712B
+    ld      (hl), $FF
+    ld      hl, enemy_path_direction
+    ld      (hl), $00
+    inc     l
+    ld      (hl), $71
+    
+    ret
+
+generate_path_data:
+    ; Address at $7000 will suffice for storage
+    ; technically start at 7000+2 to skip first initial 0 word
+    ld      (saved_sp), sp
+    ld      sp, $7044
+    ld      b, $20
+    
+    ; Push the last $FFFF word
+    ld      hl, $FFFF
+    push    hl
+
+    ld      hl, $507f               ; base address
+generate_path_data_filling_loop:
+    push    hl
+    dec     hl
+
+    djnz    generate_path_data_filling_loop
+
+    ld      sp, (saved_sp)
+
+    ; Overwrite the global variable w/ this addr
+    ld      hl, enemy_path
+    ld      (hl), $00
+    inc     l
+    ld      (hl), $70
+
     ret
 
 
