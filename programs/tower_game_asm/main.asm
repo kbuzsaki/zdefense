@@ -496,7 +496,6 @@ include "misc.asm"
 include "status.asm"
 include "tower.asm"
 include "util.asm"
-include "music.asm"
 include "sound_effect.asm"
 include "powerups.asm"
 
