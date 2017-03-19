@@ -120,6 +120,46 @@ death_screen_ending_prep:
 
     ret
 
+; ============================== DELAY STAGE FUNCTIONS =================================
+death_screen_beginning_prep:
+    ; Setup the stage function
+    ld      de, death_screen_closing_animation
+    ld      (top_third_stage_function), de
+
+    ; Setup the next prep function (for stage 2)
+    ld      de, prep_second_stage
+    ld      (top_third_next_stage_prep_func), de
+
+    ; Reset the counter back to the normal value
+    ld      a, 13
+    ld      (top_third_counter), a
+
+    ret
+
+
+death_screen_delay_animation:
+    ; Dummy function that will simply decrement the counter to act as a delay
+    ld      a, (top_third_counter)
+    dec     a
+    ld      (top_third_counter), a
+
+    ; Ending
+    cp      0
+    jr      nz, death_screen_delay_animation_end
+    
+    ; Prep for the actual animation stage
+    ld      hl, (top_third_next_stage_prep_func)
+    jp      (hl)
+    ret
+death_screen_delay_animation_end:
+    ; Set the border color according to the current counter
+    and     2
+    out     ($fe), a
+    ret
+; ======================================================================================
+
+
+
 ; The main stage function for both stage 1 and stage 2, simply called differently.
 death_screen_closing_animation:
     ld      c, $82
@@ -218,14 +258,14 @@ top_third_next_offset:
     defw    $5800
     defw    $5AFF
 top_third_counter:
-    defb    13
+    defb    20
 top_third_stage_function:
-    defw    death_screen_closing_animation
+    defw    death_screen_delay_animation
 top_third_next_stage_prep_func:
-    defw    prep_second_stage
+    defw    death_screen_beginning_prep
 
 dead_text:    defb    22, 11, 12,'YOU DIED.'
               defb    13
-              defb    22, 12, 6,'ARE YOU TRULY HAPPY?'
+              defb    22, 12, 8,'CONGRATULATIONS.'
 dead_text_eo: equ $
 ; ------------------------------------------------------

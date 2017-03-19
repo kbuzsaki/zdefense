@@ -423,7 +423,6 @@ enemy_handler_decrement_health_handle_dead:
 
 	; set border to red, and abort
 	ld a, 2
-	out ($fe), a
 	ld ($fdcc), a
 
 	; bring up death screen
