@@ -414,6 +414,12 @@ enemy_handler_decrement_health_handle_dead:
 	ld (health_ones), a
 	ld (health_tens), a
 
+	; Check whether we're on a faux-map or a real map
+	ld	hl, (tile_map)
+	ld a, h
+	xor l
+	cp 0
+	jr z, enemy_handler_decrement_health_handle_dead_end
 
 	; set border to red, and abort
 	ld a, 2
@@ -423,6 +429,7 @@ enemy_handler_decrement_health_handle_dead:
 	; bring up death screen
 	call	death_screen_setup
 
+enemy_handler_decrement_health_handle_dead_end:
 	ret
 
 
