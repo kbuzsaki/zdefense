@@ -37,8 +37,16 @@ interrupt_handler:
 	and 3
 	call z, cursor_entry_point_handle_input
 
-	; play music note on odd frames
+	; play sound on frames 5, 6, 7 (0-indexed)
+	ld a, (sub_frame_counter)
+	and 7
+	add a, 3
+	and 8
+	call nz, sound_effect_entry
+	
 	;ld a, (sub_frame_counter)
+	;and 7
+	;ld b, a
 	;and 1
 	;call nz, music_entry_point
 
@@ -489,6 +497,7 @@ include "status.asm"
 include "tower.asm"
 include "util.asm"
 include "music.asm"
+include "sound_effect.asm"
 include "powerups.asm"
 
 
