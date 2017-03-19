@@ -2390,79 +2390,577 @@ loading_screen_map_attrs:
 ;		Make another enemy line on the botttom :)
 ;		self-modify code to avoid border turning red
 defs $b800 - $
-t_tile_topleft:
-	defb 0 ; y = 0
-	defb 0 ; y = 1
-	defb 63 ; y = 2
-	defb 63 ; y = 3
-	defb 63 ; y = 4
-	defb 3 ; y = 5
-	defb 3 ; y = 6
-	defb 3 ; y = 7
-t_tile_topright:
-	defb 0 ; y = 0
-	defb 0 ; y = 1
-	defb 252 ; y = 2
-	defb 252 ; y = 3
-	defb 252 ; y = 4
-	defb 192 ; y = 5
-	defb 192 ; y = 6
-	defb 192 ; y = 7
-t_tile_bottomleft:
-	defb 192 ; y = 0
-	defb 192 ; y = 1
-	defb 192 ; y = 2
-	defb 192 ; y = 3
-	defb 192 ; y = 4
-	defb 192 ; y = 5
-	defb 192 ; y = 6
-	defb 0 ; y = 7
-t_tile_bottomright:
-	defb 3 ; y = 0
-	defb 3 ; y = 1
-	defb 3 ; y = 2
-	defb 3 ; y = 3
-	defb 3 ; y = 4
-	defb 3 ; y = 5
-	defb 3 ; y = 6
-	defb 0 ; y = 7
+titlefont_data:
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
 
-h_tile_topleft:
-	defb 0 ; y = 0
-	defb 0 ; y = 1
-	defb 28 ; y = 2
-	defb 28 ; y = 3
-	defb 28 ; y = 4
-	defb 28 ; y = 5
-	defb 31 ; y = 6
-	defb 31 ; y = 7
-h_tile_topright:
-	defb 0 ; y = 0
-	defb 0 ; y = 1
-	defb 56 ; y = 2
-	defb 56 ; y = 3
-	defb 56 ; y = 4
-	defb 56 ; y = 5
-	defb 248 ; y = 6
-	defb 248 ; y = 7
-h_tile_bottomleft:
-	defb 248 ; y = 0
-	defb 248 ; y = 1
-	defb 56 ; y = 2
-	defb 56 ; y = 3
-	defb 56 ; y = 4
-	defb 56 ; y = 5
-	defb 56 ; y = 6
-	defb 0 ; y = 7
-h_tile_bottomright:
-	defb 31 ; y = 0
-	defb 31 ; y = 1
-	defb 28 ; y = 2
-	defb 28 ; y = 3
-	defb 28 ; y = 4
-	defb 28 ; y = 5
-	defb 28 ; y = 6
-	defb 0 ; y = 7
+
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+
+
+	defb 0
+	defb 0
+	defb 0
+	defb 63
+	defb 63
+	defb 63
+	defb 63
+	defb 63
+
+
+	defb 0
+	defb 0
+	defb 0
+	defb 252
+	defb 252
+	defb 252
+	defb 3
+	defb 3
+
+
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 128
+	defb 128
+
+
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+
+
+	defb 31
+	defb 31
+	defb 31
+	defb 31
+	defb 31
+	defb 31
+	defb 31
+	defb 31
+
+
+	defb 255
+	defb 255
+	defb 255
+	defb 128
+	defb 128
+	defb 128
+	defb 128
+	defb 128
+
+
+	defb 192
+	defb 192
+	defb 192
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+
+
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+
+
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+
+
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+
+
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+
+
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+
+
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+
+
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+	defb 0
+
+
+	defb 0
+	defb 31
+	defb 31
+	defb 31
+	defb 0
+	defb 0
+	defb 0
+	defb 3
+
+
+	defb 0
+	defb 254
+	defb 254
+	defb 254
+	defb 126
+	defb 126
+	defb 126
+	defb 240
+
+
+	defb 63
+	defb 63
+	defb 63
+	defb 63
+	defb 63
+	defb 63
+	defb 63
+	defb 63
+
+
+	defb 3
+	defb 3
+	defb 3
+	defb 3
+	defb 3
+	defb 3
+	defb 3
+	defb 3
+
+
+	defb 128
+	defb 143
+	defb 143
+	defb 143
+	defb 143
+	defb 143
+	defb 143
+	defb 143
+
+
+	defb 0
+	defb 255
+	defb 255
+	defb 255
+	defb 192
+	defb 192
+	defb 192
+	defb 248
+
+
+	defb 31
+	defb 31
+	defb 31
+	defb 31
+	defb 31
+	defb 31
+	defb 31
+	defb 31
+
+
+	defb 128
+	defb 241
+	defb 241
+	defb 241
+	defb 129
+	defb 129
+	defb 129
+	defb 129
+
+
+	defb 0
+	defb 255
+	defb 255
+	defb 255
+	defb 248
+	defb 248
+	defb 248
+	defb 255
+
+
+	defb 0
+	defb 227
+	defb 227
+	defb 227
+	defb 3
+	defb 3
+	defb 3
+	defb 3
+
+
+	defb 0
+	defb 240
+	defb 240
+	defb 240
+	defb 254
+	defb 254
+	defb 254
+	defb 241
+
+
+	defb 0
+	defb 56
+	defb 56
+	defb 56
+	defb 56
+	defb 56
+	defb 56
+	defb 248
+
+
+	defb 0
+	defb 255
+	defb 255
+	defb 255
+	defb 252
+	defb 252
+	defb 252
+	defb 255
+
+
+	defb 0
+	defb 241
+	defb 241
+	defb 241
+	defb 1
+	defb 1
+	defb 1
+	defb 241
+
+
+	defb 0
+	defb 255
+	defb 255
+	defb 255
+	defb 254
+	defb 254
+	defb 254
+	defb 255
+
+
+	defb 0
+	defb 248
+	defb 248
+	defb 248
+	defb 0
+	defb 0
+	defb 0
+	defb 192
+
+halfway:
+
+	defb 3
+	defb 3
+	defb 31
+	defb 31
+	defb 31
+	defb 31
+	defb 31
+	defb 31
+
+
+	defb 240
+	defb 240
+	defb 128
+	defb 128
+	defb 128
+	defb 254
+	defb 254
+	defb 254
+
+
+	defb 63
+	defb 63
+	defb 63
+	defb 63
+	defb 63
+	defb 63
+	defb 63
+	defb 63
+
+
+	defb 3
+	defb 3
+	defb 3
+	defb 3
+	defb 3
+	defb 252
+	defb 252
+	defb 252
+
+
+	defb 143
+	defb 143
+	defb 143
+	defb 143
+	defb 143
+	defb 15
+	defb 15
+	defb 15
+
+
+	defb 248
+	defb 248
+	defb 192
+	defb 192
+	defb 192
+	defb 255
+	defb 255
+	defb 255
+
+
+	defb 31
+	defb 31
+	defb 31
+	defb 31
+	defb 31
+	defb 31
+	defb 31
+	defb 31
+
+
+	defb 129
+	defb 129
+	defb 129
+	defb 129
+	defb 129
+	defb 129
+	defb 129
+	defb 129
+
+
+	defb 255
+	defb 255
+	defb 248
+	defb 248
+	defb 248
+	defb 255
+	defb 255
+	defb 255
+
+
+	defb 3
+	defb 3
+	defb 3
+	defb 3
+	defb 3
+	defb 227
+	defb 227
+	defb 227
+
+
+	defb 241
+	defb 241
+	defb 240
+	defb 240
+	defb 240
+	defb 240
+	defb 240
+	defb 240
+
+
+	defb 248
+	defb 248
+	defb 56
+	defb 56
+	defb 56
+	defb 56
+	defb 56
+	defb 56
+
+
+	defb 255
+	defb 255
+	defb 3
+	defb 3
+	defb 3
+	defb 255
+	defb 255
+	defb 255
+
+
+	defb 241
+	defb 241
+	defb 241
+	defb 241
+	defb 241
+	defb 241
+	defb 241
+	defb 241
+
+
+	defb 255
+	defb 255
+	defb 254
+	defb 254
+	defb 254
+	defb 255
+	defb 255
+	defb 255
+
+
+	defb 192
+	defb 192
+	defb 0
+	defb 0
+	defb 0
+	defb 240
+	defb 240
+	defb 240
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+; t_tile_topleft:
+; 	defb 0 ; y = 0
+; 	defb 0 ; y = 1
+; 	defb 63 ; y = 2
+; 	defb 63 ; y = 3
+; 	defb 63 ; y = 4
+; 	defb 3 ; y = 5
+; 	defb 3 ; y = 6
+; 	defb 3 ; y = 7
+; t_tile_topright:
+; 	defb 0 ; y = 0
+; 	defb 0 ; y = 1
+; 	defb 252 ; y = 2
+; 	defb 252 ; y = 3
+; 	defb 252 ; y = 4
+; 	defb 192 ; y = 5
+; 	defb 192 ; y = 6
+; 	defb 192 ; y = 7
+; t_tile_bottomleft:
+; 	defb 192 ; y = 0
+; 	defb 192 ; y = 1
+; 	defb 192 ; y = 2
+; 	defb 192 ; y = 3
+; 	defb 192 ; y = 4
+; 	defb 192 ; y = 5
+; 	defb 192 ; y = 6
+; 	defb 0 ; y = 7
+; t_tile_bottomright:
+; 	defb 3 ; y = 0
+; 	defb 3 ; y = 1
+; 	defb 3 ; y = 2
+; 	defb 3 ; y = 3
+; 	defb 3 ; y = 4
+; 	defb 3 ; y = 5
+; 	defb 3 ; y = 6
+; 	defb 0 ; y = 7
+
+; h_tile_topleft:
+; 	defb 0 ; y = 0
+; 	defb 0 ; y = 1
+; 	defb 28 ; y = 2
+; 	defb 28 ; y = 3
+; 	defb 28 ; y = 4
+; 	defb 28 ; y = 5
+; 	defb 31 ; y = 6
+; 	defb 31 ; y = 7
+; h_tile_topright:
+; 	defb 0 ; y = 0
+; 	defb 0 ; y = 1
+; 	defb 56 ; y = 2
+; 	defb 56 ; y = 3
+; 	defb 56 ; y = 4
+; 	defb 56 ; y = 5
+; 	defb 248 ; y = 6
+; 	defb 248 ; y = 7
+; h_tile_bottomleft:
+; 	defb 248 ; y = 0
+; 	defb 248 ; y = 1
+; 	defb 56 ; y = 2
+; 	defb 56 ; y = 3
+; 	defb 56 ; y = 4
+; 	defb 56 ; y = 5
+; 	defb 56 ; y = 6
+; 	defb 0 ; y = 7
+; h_tile_bottomright:
+; 	defb 31 ; y = 0
+; 	defb 31 ; y = 1
+; 	defb 28 ; y = 2
+; 	defb 28 ; y = 3
+; 	defb 28 ; y = 4
+; 	defb 28 ; y = 5
+; 	defb 28 ; y = 6
+; 	defb 0 ; y = 7
 
 
 ; filler labels to load into passed the tape boundary

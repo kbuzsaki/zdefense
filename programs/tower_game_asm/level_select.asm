@@ -63,46 +63,24 @@ level_select_setup_screen:
     call    load_map_init_path_attr_bytes
 
 
-    ; Get x y for position where title letters will be put
-    ld      d, 4
+    ; Draw the first two rows of the title 
+    ld      hl, titlefont_data
+    ld      b, 16
+    ld      c, 2
+    ld      d, 8
     ld      e, 5
-    call    cursor_get_cell_addr
-    
-    ex      de, hl
+    ld      a, $21
+    call    util_draw_image
 
-    ld      b, 6
-fruity_loops:
-    ld      hl, t_tile_topleft
-    call    load_2x2_sprite
+    ; Draw the third row
+    ld      hl, halfway
+    ld      b, 16
+    ld      c, 1
+    ld      d, 8
+    ld      e, 7
+    ld      a, $21
+    call    util_draw_image
 
-    inc     e
-    inc     e
-    ld      hl, h_tile_topleft
-    call    load_2x2_sprite
-
-    inc     e
-    inc     e  
-    djnz    fruity_loops
-
-; Phase two, draw second line right below but in the 2nd section of screen
-    ld      d, 10
-    ld      e, 8
-    call    cursor_get_cell_addr
-    ex      de, hl
-
-    ld      b, 3
-reason:
-    ld      hl, t_tile_topleft
-    call    load_2x2_sprite
-
-    inc     e
-    inc     e
-    ld      hl, h_tile_topleft
-    call    load_2x2_sprite
-
-    inc     e
-    inc     e  
-    djnz    reason 
 
     ret
 
