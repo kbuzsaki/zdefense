@@ -15,6 +15,7 @@ powerups_init:
     ld hl, lake_3x3
     ld b, 3
     ld c, 3
+    ld a, $0c
     call util_draw_image
 
   powerups_init_skip_one:
@@ -33,6 +34,7 @@ powerups_init:
     ld hl, lake_3x5
     ld b, 3
     ld c, 5
+    ld a, $0c
     call util_draw_image
 
 
@@ -52,6 +54,7 @@ powerups_init:
     ld hl, lake_5x3
     ld b, 5
     ld c, 3
+    ld a, $0c
     call util_draw_image
 
   powerups_init_skip_three:
@@ -308,23 +311,17 @@ powerups_get_money:
     ret
 
 powerups_get_zap:
-    push de
     call status_inc_zap
-    pop de
     call powerups_clear_powerup
     ret
 
 powerups_get_bomb:
-    push de
     call status_inc_bomb
-    pop de
     call powerups_clear_powerup
     ret
 
 powerups_get_slow:
-    push de
     call status_inc_slow
-    pop de
     call powerups_clear_powerup
     ret
 
