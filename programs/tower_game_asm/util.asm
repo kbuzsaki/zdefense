@@ -97,8 +97,9 @@ util_fill_attrs_inner_loop:
 ; Draws a rectangular set of tiles
 ;
 ; hl = address of first image tile
-; b = width of the image
-; c = height of the image
+; a  = value of the attr byte to use for each cell
+; b  = width of the image
+; c  = height of the image
 ; d  = x for upper left cell 
 ; e  = y for upper left cell
 ;
@@ -109,7 +110,13 @@ image_tile_offset:
 image_width:
     defb 0
 
+image_attr_value:
+    defb 0
+
 util_draw_image:
+    ; save the attr byte to use
+    ld (image_attr_value), a
+
     ; setup hl' with the address of the first image tile
     push hl
     exx
@@ -135,7 +142,7 @@ util_draw_image:
   util_draw_image_inner_loop:
     ; set attr byte
     call cursor_get_cell_attr
-    ld a, $0c
+    ld a, (image_attr_value)
     ld (hl), a
 
     ; setup pixel byte

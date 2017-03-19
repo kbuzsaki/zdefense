@@ -308,6 +308,20 @@ status_update_enemy_count:
     ret
 
 status_inc_health:
+    ; show indicator
+    push de
+    ld e, 16
+    ld d, 31
+    call cursor_get_cell_addr
+    ex de, hl
+    ld hl, up_arrow
+    call util_draw_tile
+    ld e, 16
+    ld d, 31
+	call cursor_get_cell_attr
+	ld (hl), $43
+    pop de
+
     ;increment health by one
     ld a, (health_ones)
     inc a
@@ -329,6 +343,21 @@ status_inc_health_end:
 ; b - tens amount to inc by
 ; c - ones amount to inc by
 status_add_money:
+    ; show indicator
+    push de
+    ld e, 16
+    ld d, 24
+    call cursor_get_cell_addr
+    ex de, hl
+    ld hl, up_arrow
+    call util_draw_tile
+    ld e, 16
+    ld d, 24
+	call cursor_get_cell_attr
+	ld (hl), $43
+    pop de
+
+
     ;add the ones place
     ld a, (money_ones)
     add a, c
@@ -366,73 +395,91 @@ status_add_money_tens:
 status_add_money_end:
     ret
 
-status_inc_bomb:
-    ld a, (bomb_charges)
-    cp 4
-    jp z, status_inc_bomb_end
-    inc a
-    ld (bomb_charges), a
+; a  = desired attr byte value for charge
+; bc = address of the charge's icon in memory
+; d  = x for first cell a charge is drawn to
+; e  = y for first cell a charge is drawn to
+; hl = address of charge counter in memory
 
-    ld e, 19
-    ld d, 14
+status_inc_charge:
+    push af ; save attr byte
+
+    ld a, (hl)
+    cp 4
+    jp z, status_inc_charge_cleanup
+    inc a
+    ld (hl), a
+
     add a, d
     ld d, a
 
     call cursor_get_cell_attr
-    ld (hl), $47
+    pop af ; getting attr byte
+    ld (hl), a
 
     call cursor_get_cell_addr
     ld d, h
     ld e, l
-    ld hl, bomb
+    ld h, b
+    ld l, c
     call util_draw_tile
-status_inc_bomb_end:
+    ret
+status_inc_charge_cleanup:
+    pop af
+    ret
+
+status_inc_bomb:
+    push af
+    push bc
+    push de
+
+    ld a, $47
+    ld bc, bomb
+    ld d, 14
+    ld e, 19
+    ld hl, bomb_charges
+
+    call status_inc_charge
+
+    pop de
+    pop bc
+    pop af
     ret
 
 status_inc_zap:
-    ld a, (zap_charges)
-    cp 4
-    jp z, status_inc_zap_end
-    inc a
-    ld (zap_charges), a
+    push af
+    push bc
+    push de
 
-    ld e, 20
+    ld a, $46
+    ld bc, lightning
     ld d, 14
-    add a, d
-    ld d, a
+    ld e, 20
+    ld hl, zap_charges
 
-    call cursor_get_cell_attr
-    ld (hl), $46
-
-    call cursor_get_cell_addr
-    ld d, h
-    ld e, l
-    ld hl, lightning
-    call util_draw_tile
-status_inc_zap_end:
+    call status_inc_charge
+        
+    pop de
+    pop bc
+    pop af
     ret
 
 status_inc_slow:
-    ld a, (slow_charges)
-    cp 4
-    jp z, status_inc_slow_end
-    inc a
-    ld (slow_charges), a
+    push af
+    push bc
+    push de
 
-    ld e, 21
+    ld a, $45
+    ld bc, snowflake
     ld d, 14
-    add a, d
-    ld d, a
+    ld e, 21
+    ld hl, slow_charges
 
-    call cursor_get_cell_attr
-    ld (hl), $45
-
-    call cursor_get_cell_addr
-    ld d, h
-    ld e, l
-    ld hl, snowflake
-    call util_draw_tile
-status_inc_slow_end:
+    call status_inc_charge    
+    
+    pop de
+    pop bc
+    pop af
     ret
 
 ; input:
@@ -672,7 +719,7 @@ status_enemy_count:
 status_ec_end: equ $
 
 status_money_life:
-	defb 22, 16, 20,'$000    *00'
+	defb 22, 16, 20,'$000    *00 '
 status_ml_end: equ $
 
 

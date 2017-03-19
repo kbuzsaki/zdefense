@@ -1,4 +1,13 @@
 org 32768
+
+; this initializes memory in the upper ram chip for handling enemies
+; which is needed before the level select screen can work because the
+; level select screen has animated enemies
+ld bc, $0600
+ld hl, $3900
+ld de, enemy_position_to_index_array
+ldir
+
 call	level_select_setup
 
 title_bypass_load:
@@ -119,8 +128,6 @@ main_init:
 	; set the screen to black
 	ld d, $ff
 	call util_fill_all_pixels
-
-	; call init_level_d
 
 	ret
 
@@ -656,24 +663,6 @@ current_attacked_enemy_value:
 	defb $00
 
 
-defs $9700 - $
-
-; position -> index
-enemy_position_to_index_array:
-	defs $9800 - $, $ff
-
-; dynamic arrays of enemy state
-; each array takes up a full memory page
-; id / index -> position
-weak_enemy_position_array:
-	defs $9900 - $, $ff
-; id / index -> health
-weak_enemy_health_array:
-	defs $9a00 - $, $ff
-strong_enemy_position_array:
-	defs $9b00 - $, $ff
-strong_enemy_health_array:
-	defs $9c00 - $, $ff
 
 defs $9d00 - $
 
@@ -2486,26 +2475,46 @@ h_tile_bottomright:
 
 ; filler labels to load into passed the tape boundary
 
-defs $c000 - $
+org $c000
 enemy_path_a:
 
-defs $c080 - $
+org $c080
 enemy_path_attr_a:
 
-defs $c100 - $
+org $c100
 enemy_path_b:
 
-defs $c180 - $
+org $c180
 enemy_path_attr_b:
 
-defs $c200 - $
+org $c200
 enemy_path_c:
 
-defs $c280 - $
+org $c280
 enemy_path_attr_c:
 
-defs $c300 - $
+org $c300
 enemy_path_d:
 
-defs $c380 - $
+org $c380
 enemy_path_attr_d:
+
+org $d000
+; position -> index
+enemy_position_to_index_array:
+
+org $d100
+; dynamic arrays of enemy state
+; each array takes up a full memory page
+; id / index -> position
+weak_enemy_position_array:
+
+org $d200
+; id / index -> health
+weak_enemy_health_array:
+
+org $d300
+strong_enemy_position_array:
+
+org $d400
+strong_enemy_health_array:

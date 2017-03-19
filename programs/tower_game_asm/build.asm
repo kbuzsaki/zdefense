@@ -185,7 +185,7 @@ build_build_tower:
 	; subtract the cost of the tower from our money, give up if we don't have enough
 	call build_try_decrement_money
 	cp $00
-	ret z
+	jp z, build_build_tower_end_cleanup
 
 	;; now that we've subtracted the money, actually store the tower
 	; grab the tile index again and tower type byte again
