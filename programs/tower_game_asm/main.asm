@@ -3,7 +3,7 @@ org 32768
 ; this initializes memory in the upper ram chip for handling enemies
 ; which is needed before the level select screen can work because the
 ; level select screen has animated enemies
-ld bc, $0400
+ld bc, $0600
 ld hl, $3900
 ld de, enemy_position_to_index_array
 ldir
