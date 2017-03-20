@@ -373,8 +373,17 @@ enemy_handler_handle_enemy_at_end:
 	; set position to fe so this enemy is skipped
 	ld a, (current_enemy_index)
 	call enemy_handler_clear_enemy_index
+
+	; Check whether we're on a faux-map or a real map
+	ld	hl, (tile_map)
+	ld a, h
+	xor l
+	cp 0
+	jr z, enemy_handler_handle_enemy_at_end_end
+
 	call enemy_handler_decrement_health
 
+enemy_handler_handle_enemy_at_end_end:
 	ret
 
 
@@ -414,13 +423,6 @@ enemy_handler_decrement_health_handle_dead:
 	ld (health_ones), a
 	ld (health_tens), a
 
-	; Check whether we're on a faux-map or a real map
-	ld	hl, (tile_map)
-	ld a, h
-	xor l
-	cp 0
-	jr z, enemy_handler_decrement_health_handle_dead_end
-
 	; set border to red, and abort
 	ld a, 2
 	ld ($fdcc), a
@@ -428,7 +430,6 @@ enemy_handler_decrement_health_handle_dead:
 	; bring up death screen
 	call	death_screen_setup
 
-enemy_handler_decrement_health_handle_dead_end:
 	ret
 
 

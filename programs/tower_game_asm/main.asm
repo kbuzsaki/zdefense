@@ -1313,6 +1313,7 @@ lake_3x3:
     defb $2f    ;   # ####
     defb $1f    ;    #####
 
+lake_3x3_secondline:
     defb $c0    ; ##      
     defb $c0    ; ##      
     defb $c0    ; ##      
@@ -1413,6 +1414,7 @@ lake_5x3:
     defb $0b    ;     # ##
     defb $07    ;      ###
 
+lake_5x3_secondline:
     defb $f0    ; ####    
     defb $f0    ; ####    
     defb $e0    ; ###     
@@ -2365,10 +2367,10 @@ defb 7  	;      ###
 defs $b600 - $
 loading_screen_map:
 	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
-	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
 	defb $44, $44, $44, $44, $44, $44, $44, $44, $44, $44, $44, $44, $44, $44, $44, $44
 	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00	
 	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+	defb $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00	
 	defb $55, $55, $55, $55, $55, $55, $55, $55, $55, $55, $55, $55, $55, $55, $55, $55
 	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
 	defb $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22, $22
@@ -2386,582 +2388,823 @@ loading_screen_map_attrs:
 	defw $5a98, $5a99, $5a9a, $5a9b, $5a9c, $5a9d, $5a9e, $5a9f
 	defw $ffff
 
-; TODO:
-;		Make another enemy line on the botttom :)
-;		self-modify code to avoid border turning red
 defs $b800 - $
 titlefont_data:
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
 
 
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
+defb 0
+defb 0
+defb 0
+defb 63
+defb 63
+defb 63
+defb 63
+defb 63
 
 
-	defb 0
-	defb 0
-	defb 0
-	defb 63
-	defb 63
-	defb 63
-	defb 63
-	defb 63
+defb 0
+defb 0
+defb 0
+defb 252
+defb 252
+defb 252
+defb 3
+defb 3
 
 
-	defb 0
-	defb 0
-	defb 0
-	defb 252
-	defb 252
-	defb 252
-	defb 3
-	defb 3
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 128
+defb 128
 
 
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 128
-	defb 128
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
 
 
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
+defb 31
+defb 31
+defb 31
+defb 31
+defb 31
+defb 31
+defb 31
+defb 31
 
 
-	defb 31
-	defb 31
-	defb 31
-	defb 31
-	defb 31
-	defb 31
-	defb 31
-	defb 31
+defb 255
+defb 255
+defb 255
+defb 128
+defb 128
+defb 128
+defb 128
+defb 128
 
 
-	defb 255
-	defb 255
-	defb 255
-	defb 128
-	defb 128
-	defb 128
-	defb 128
-	defb 128
+defb 192
+defb 192
+defb 192
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
 
 
-	defb 192
-	defb 192
-	defb 192
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
 
 
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
 
 
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
 
 
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
 
 
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
 
 
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
 
 
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
+defb 0
 
 
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
-	defb 0
+defb 0
+defb 31
+defb 31
+defb 31
+defb 0
+defb 0
+defb 0
+defb 3
 
 
-	defb 0
-	defb 31
-	defb 31
-	defb 31
-	defb 0
-	defb 0
-	defb 0
-	defb 3
+defb 0
+defb 254
+defb 254
+defb 254
+defb 126
+defb 126
+defb 126
+defb 240
 
 
-	defb 0
-	defb 254
-	defb 254
-	defb 254
-	defb 126
-	defb 126
-	defb 126
-	defb 240
+defb 63
+defb 63
+defb 63
+defb 63
+defb 63
+defb 63
+defb 63
+defb 63
 
 
-	defb 63
-	defb 63
-	defb 63
-	defb 63
-	defb 63
-	defb 63
-	defb 63
-	defb 63
+defb 3
+defb 3
+defb 3
+defb 3
+defb 3
+defb 3
+defb 3
+defb 3
 
 
-	defb 3
-	defb 3
-	defb 3
-	defb 3
-	defb 3
-	defb 3
-	defb 3
-	defb 3
+defb 128
+defb 143
+defb 143
+defb 143
+defb 143
+defb 143
+defb 143
+defb 143
 
 
-	defb 128
-	defb 143
-	defb 143
-	defb 143
-	defb 143
-	defb 143
-	defb 143
-	defb 143
+defb 0
+defb 255
+defb 255
+defb 255
+defb 192
+defb 192
+defb 192
+defb 248
 
 
-	defb 0
-	defb 255
-	defb 255
-	defb 255
-	defb 192
-	defb 192
-	defb 192
-	defb 248
+defb 31
+defb 31
+defb 31
+defb 31
+defb 31
+defb 31
+defb 31
+defb 31
 
 
-	defb 31
-	defb 31
-	defb 31
-	defb 31
-	defb 31
-	defb 31
-	defb 31
-	defb 31
+defb 128
+defb 241
+defb 241
+defb 241
+defb 129
+defb 129
+defb 129
+defb 129
 
 
-	defb 128
-	defb 241
-	defb 241
-	defb 241
-	defb 129
-	defb 129
-	defb 129
-	defb 129
+defb 0
+defb 255
+defb 255
+defb 255
+defb 248
+defb 248
+defb 248
+defb 255
 
 
-	defb 0
-	defb 255
-	defb 255
-	defb 255
-	defb 248
-	defb 248
-	defb 248
-	defb 255
+defb 0
+defb 227
+defb 227
+defb 227
+defb 3
+defb 3
+defb 3
+defb 3
 
 
-	defb 0
-	defb 227
-	defb 227
-	defb 227
-	defb 3
-	defb 3
-	defb 3
-	defb 3
+defb 0
+defb 240
+defb 240
+defb 240
+defb 254
+defb 254
+defb 254
+defb 241
 
 
-	defb 0
-	defb 240
-	defb 240
-	defb 240
-	defb 254
-	defb 254
-	defb 254
-	defb 241
+defb 0
+defb 56
+defb 56
+defb 56
+defb 56
+defb 56
+defb 56
+defb 248
 
 
-	defb 0
-	defb 56
-	defb 56
-	defb 56
-	defb 56
-	defb 56
-	defb 56
-	defb 248
+defb 0
+defb 255
+defb 255
+defb 255
+defb 252
+defb 252
+defb 252
+defb 255
 
 
-	defb 0
-	defb 255
-	defb 255
-	defb 255
-	defb 252
-	defb 252
-	defb 252
-	defb 255
+defb 0
+defb 241
+defb 241
+defb 241
+defb 1
+defb 1
+defb 1
+defb 241
 
 
-	defb 0
-	defb 241
-	defb 241
-	defb 241
-	defb 1
-	defb 1
-	defb 1
-	defb 241
+defb 0
+defb 255
+defb 255
+defb 255
+defb 254
+defb 254
+defb 254
+defb 255
 
 
-	defb 0
-	defb 255
-	defb 255
-	defb 255
-	defb 254
-	defb 254
-	defb 254
-	defb 255
-
-
-	defb 0
-	defb 248
-	defb 248
-	defb 248
-	defb 0
-	defb 0
-	defb 0
-	defb 192
+defb 0
+defb 248
+defb 248
+defb 248
+defb 0
+defb 0
+defb 0
+defb 192
 
 halfway:
 
-	defb 3
-	defb 3
-	defb 31
-	defb 31
-	defb 31
-	defb 31
-	defb 31
-	defb 31
+defb 3
+defb 3
+defb 31
+defb 31
+defb 31
+defb 31
+defb 31
+defb 31
 
 
-	defb 240
-	defb 240
-	defb 128
-	defb 128
-	defb 128
-	defb 254
-	defb 254
-	defb 254
+defb 240
+defb 240
+defb 128
+defb 128
+defb 128
+defb 254
+defb 254
+defb 254
 
 
-	defb 63
-	defb 63
-	defb 63
-	defb 63
-	defb 63
-	defb 63
-	defb 63
-	defb 63
+defb 63
+defb 63
+defb 63
+defb 63
+defb 63
+defb 63
+defb 63
+defb 63
 
 
-	defb 3
-	defb 3
-	defb 3
-	defb 3
-	defb 3
-	defb 252
-	defb 252
-	defb 252
+defb 3
+defb 3
+defb 3
+defb 3
+defb 3
+defb 252
+defb 252
+defb 252
 
 
-	defb 143
-	defb 143
-	defb 143
-	defb 143
-	defb 143
-	defb 15
-	defb 15
-	defb 15
+defb 143
+defb 143
+defb 143
+defb 143
+defb 143
+defb 15
+defb 15
+defb 15
 
 
-	defb 248
-	defb 248
-	defb 192
-	defb 192
-	defb 192
-	defb 255
-	defb 255
-	defb 255
+defb 248
+defb 248
+defb 192
+defb 192
+defb 192
+defb 255
+defb 255
+defb 255
 
 
-	defb 31
-	defb 31
-	defb 31
-	defb 31
-	defb 31
-	defb 31
-	defb 31
-	defb 31
+defb 31
+defb 31
+defb 31
+defb 31
+defb 31
+defb 31
+defb 31
+defb 31
 
 
-	defb 129
-	defb 129
-	defb 129
-	defb 129
-	defb 129
-	defb 129
-	defb 129
-	defb 129
+defb 129
+defb 129
+defb 129
+defb 129
+defb 129
+defb 129
+defb 129
+defb 129
 
 
-	defb 255
-	defb 255
-	defb 248
-	defb 248
-	defb 248
-	defb 255
-	defb 255
-	defb 255
+defb 255
+defb 255
+defb 248
+defb 248
+defb 248
+defb 255
+defb 255
+defb 255
 
 
-	defb 3
-	defb 3
-	defb 3
-	defb 3
-	defb 3
-	defb 227
-	defb 227
-	defb 227
+defb 3
+defb 3
+defb 3
+defb 3
+defb 3
+defb 227
+defb 227
+defb 227
 
 
-	defb 241
-	defb 241
-	defb 240
-	defb 240
-	defb 240
-	defb 240
-	defb 240
-	defb 240
+defb 241
+defb 241
+defb 240
+defb 240
+defb 240
+defb 240
+defb 240
+defb 240
 
 
-	defb 248
-	defb 248
-	defb 56
-	defb 56
-	defb 56
-	defb 56
-	defb 56
-	defb 56
+defb 248
+defb 248
+defb 56
+defb 56
+defb 56
+defb 56
+defb 56
+defb 56
 
 
-	defb 255
-	defb 255
-	defb 3
-	defb 3
-	defb 3
-	defb 255
-	defb 255
-	defb 255
+defb 255
+defb 255
+defb 3
+defb 3
+defb 3
+defb 255
+defb 255
+defb 255
 
 
-	defb 241
-	defb 241
-	defb 241
-	defb 241
-	defb 241
-	defb 241
-	defb 241
-	defb 241
+defb 241
+defb 241
+defb 241
+defb 241
+defb 241
+defb 241
+defb 241
+defb 241
 
 
-	defb 255
-	defb 255
-	defb 254
-	defb 254
-	defb 254
-	defb 255
-	defb 255
-	defb 255
+defb 255
+defb 255
+defb 254
+defb 254
+defb 254
+defb 255
+defb 255
+defb 255
 
 
-	defb 192
-	defb 192
-	defb 0
-	defb 0
-	defb 0
-	defb 240
-	defb 240
-	defb 240
+defb 192
+defb 192
+defb 0
+defb 0
+defb 0
+defb 240
+defb 240
+defb 240
+
+
+defs $ba00 - $
+; map data for map: _a
+minimap_data:
+; map data for map: _a
+cell_0_0_a:
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $07    ;      ###
+defb $f7    ; #### ###
+defb $d5    ; ## # # #
+
+cell_0_1_a:
+defb $ff    ; ########
+defb $fe    ; ####### 
+defb $ff    ; ########
+defb $f0    ; ####    
+defb $f7    ; #### ###
+defb $d5    ; ## # # #
+defb $f7    ; #### ###
+defb $55    ;  # # # #
+
+cell_0_2_a:
+defb $ff    ; ########
+defb $bf    ; # ######
+defb $ff    ; ########
+defb $07    ;      ###
+defb $f5    ; #### # #
+defb $55    ;  # # # #
+defb $f5    ; #### # #
+defb $d7    ; ## # ###
+
+cell_0_3_a:
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $fb    ; ##### ##
+defb $ff    ; ########
+defb $f0    ; ####    
+
+cell_1_0_a:
+defb $f7    ; #### ###
+defb $f0    ; ####    
+defb $ff    ; ########
+defb $fe    ; ####### 
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+
+cell_1_1_a:
+defb $f7    ; #### ###
+defb $07    ;      ###
+defb $ff    ; ########
+defb $bf    ; # ######
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+
+cell_1_2_a:
+defb $f5    ; #### # #
+defb $d7    ; ## # ###
+defb $f5    ; #### # #
+defb $f7    ; #### ###
+defb $f0    ; ####    
+defb $ff    ; ########
+defb $fe    ; ####### 
+defb $ff    ; ########
+
+cell_1_3_a:
+defb $d7    ; ## # ###
+defb $f5    ; #### # #
+defb $57    ;  # # ###
+defb $f5    ; #### # #
+defb $07    ;      ###
+defb $ff    ; ########
+defb $bf    ; # ######
+defb $ff    ; ########
 
 
 
 
+; map data for map: _b
+cell_0_0_b:
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $df    ; ## #####
+defb $ff    ; ########
+defb $00    ;         
+
+cell_0_1_b:
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $75    ;  ### # #
+defb $ff    ; ########
+defb $00    ;         
+
+cell_0_2_b:
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $57    ;  # # ###
+defb $ff    ; ########
+defb $00    ;         
+
+cell_0_3_b:
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $df    ; ## #####
+defb $ff    ; ########
+defb $00    ;         
+
+cell_1_0_b:
+defb $ff    ; ########
+defb $fb    ; ##### ##
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+
+cell_1_1_b:
+defb $ff    ; ########
+defb $ea    ; ### # # 
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+
+cell_1_2_b:
+defb $ff    ; ########
+defb $ae    ; # # ### 
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+
+cell_1_3_b:
+defb $ff    ; ########
+defb $fb    ; ##### ##
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
 
 
 
 
+; map data for map: _c
+cell_0_0_c:
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+
+cell_0_1_c:
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $fa    ; ##### # 
+defb $ff    ; ########
+defb $f0    ; ####    
+defb $d7    ; ## # ###
+defb $f5    ; #### # #
+
+cell_0_2_c:
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $af    ; # # ####
+defb $ff    ; ########
+defb $07    ;      ###
+defb $f5    ; #### # #
+defb $57    ;  # # ###
+
+cell_0_3_c:
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+
+cell_1_0_c:
+defb $fd    ; ###### #
+defb $ff    ; ########
+defb $00    ;         
+defb $ff    ; ########
+defb $fa    ; ##### # 
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+
+cell_1_1_c:
+defb $57    ;  # # ###
+defb $f5    ; #### # #
+defb $07    ;      ###
+defb $ff    ; ########
+defb $bf    ; # ######
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+
+cell_1_2_c:
+defb $f5    ; #### # #
+defb $d7    ; ## # ###
+defb $f0    ; ####    
+defb $ff    ; ########
+defb $fe    ; ####### 
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+
+cell_1_3_c:
+defb $5f    ;  # #####
+defb $ff    ; ########
+defb $00    ;         
+defb $ff    ; ########
+defb $af    ; # # ####
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
 
 
 
 
+; map data for map: _d
+cell_0_0_d:
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $fd    ; ###### #
+defb $ff    ; ########
+defb $fd    ; ###### #
 
+cell_0_1_d:
+defb $7f    ;  #######
+defb $7f    ;  #######
+defb $7f    ;  #######
+defb $7f    ;  #######
+defb $7f    ;  #######
+defb $7f    ;  #######
+defb $5d    ;  # ### #
+defb $7f    ;  #######
 
+cell_0_2_d:
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $aa    ; # # # # 
+defb $ff    ; ########
+defb $00    ;         
+defb $7f    ;  #######
+defb $55    ;  # # # #
 
+cell_0_3_d:
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $7f    ;  #######
+defb $5f    ;  # #####
+defb $7f    ;  #######
 
+cell_1_0_d:
+defb $ff    ; ########
+defb $fd    ; ###### #
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
 
+cell_1_1_d:
+defb $55    ;  # # # #
+defb $7f    ;  #######
+defb $00    ;         
+defb $ff    ; ########
+defb $aa    ; # # # # 
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
 
-; t_tile_topleft:
-; 	defb 0 ; y = 0
-; 	defb 0 ; y = 1
-; 	defb 63 ; y = 2
-; 	defb 63 ; y = 3
-; 	defb 63 ; y = 4
-; 	defb 3 ; y = 5
-; 	defb 3 ; y = 6
-; 	defb 3 ; y = 7
-; t_tile_topright:
-; 	defb 0 ; y = 0
-; 	defb 0 ; y = 1
-; 	defb 252 ; y = 2
-; 	defb 252 ; y = 3
-; 	defb 252 ; y = 4
-; 	defb 192 ; y = 5
-; 	defb 192 ; y = 6
-; 	defb 192 ; y = 7
-; t_tile_bottomleft:
-; 	defb 192 ; y = 0
-; 	defb 192 ; y = 1
-; 	defb 192 ; y = 2
-; 	defb 192 ; y = 3
-; 	defb 192 ; y = 4
-; 	defb 192 ; y = 5
-; 	defb 192 ; y = 6
-; 	defb 0 ; y = 7
-; t_tile_bottomright:
-; 	defb 3 ; y = 0
-; 	defb 3 ; y = 1
-; 	defb 3 ; y = 2
-; 	defb 3 ; y = 3
-; 	defb 3 ; y = 4
-; 	defb 3 ; y = 5
-; 	defb 3 ; y = 6
-; 	defb 0 ; y = 7
+cell_1_2_d:
+defb $7f    ;  #######
+defb $5d    ;  # ### #
+defb $7f    ;  #######
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
+defb $ff    ; ########
 
-; h_tile_topleft:
-; 	defb 0 ; y = 0
-; 	defb 0 ; y = 1
-; 	defb 28 ; y = 2
-; 	defb 28 ; y = 3
-; 	defb 28 ; y = 4
-; 	defb 28 ; y = 5
-; 	defb 31 ; y = 6
-; 	defb 31 ; y = 7
-; h_tile_topright:
-; 	defb 0 ; y = 0
-; 	defb 0 ; y = 1
-; 	defb 56 ; y = 2
-; 	defb 56 ; y = 3
-; 	defb 56 ; y = 4
-; 	defb 56 ; y = 5
-; 	defb 248 ; y = 6
-; 	defb 248 ; y = 7
-; h_tile_bottomleft:
-; 	defb 248 ; y = 0
-; 	defb 248 ; y = 1
-; 	defb 56 ; y = 2
-; 	defb 56 ; y = 3
-; 	defb 56 ; y = 4
-; 	defb 56 ; y = 5
-; 	defb 56 ; y = 6
-; 	defb 0 ; y = 7
-; h_tile_bottomright:
-; 	defb 31 ; y = 0
-; 	defb 31 ; y = 1
-; 	defb 28 ; y = 2
-; 	defb 28 ; y = 3
-; 	defb 28 ; y = 4
-; 	defb 28 ; y = 5
-; 	defb 28 ; y = 6
-; 	defb 0 ; y = 7
-
+cell_1_3_d:
+defb $5f    ;  # #####
+defb $7f    ;  #######
+defb $5f    ;  # #####
+defb $7f    ;  #######
+defb $7f    ;  #######
+defb $7f    ;  #######
+defb $7f    ;  #######
+defb $7f    ;  #######
 
 ; filler labels to load into passed the tape boundary
 
