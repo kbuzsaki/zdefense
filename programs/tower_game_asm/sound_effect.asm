@@ -2,233 +2,294 @@ sound_effect_entry:
 	di		; 4
 	call increment_frame_counters	; 17 + 136 = 153
 	call increment_frame_counters	; 17 + 136 = 153
+	call increment_frame_counters	; 17 + 136 = 153
 
 ; frame management : 310 T
 
+	push iy
+	ld iy, chan_3_is_music
 	exx		; 4
 	push bc		; 11
 	push de		; 11
 	push hl		; 11
 	exx		; 4
 
-;	ld c, 13	; 7
-;loop_lol:
-;	ld b, 255	; 7
-;lol_loop:
-;	nop	; 4 * 8 = 32 cycles
-;	nop
-;	nop
-;	nop
-;	nop
-;	nop
-;	nop
-;	nop
-;	djnz lol_loop	; 254 * (32 + 13) + (32 + 8) = 11470 T
-;
-;	dec c 		; 4
-;	jr nz, loop_lol	; 12 * (11481 + 12) + (11481 + 7) = 149404 T
-;
-;	ei		; 4
-;	ret		; 10
-;
-;sound_effect_entry_1:
+; hidden register saving : 41 T
 
 	ld a, (sound_effect_flags)	; 13
+	ld de, 14
+	ld b, 7
+	ld c, 3
+	ld hl, laser_sequence-14
 
-laser_sfx:
-	rrca				; 4
-	jp nc, empty_laser		; 10
-	ld bc, laser_sequence		; 10
-	jp bomb_sfx			; 10 (optional)
+sound_effect_find_next_bit:
+	djnz sound_effect_inc_address
+	ld a, c
+	cp 1
+	jp z, sound_effect_music_channel_3
+	cp 2
+	jp z, sound_effect_channel_2_empty
+	jp sound_effect_channel_1_empty
+sound_effect_inc_address:
+	add hl, de
+	rrca
+	jp nc, sound_effect_find_next_bit
+	
+	push hl
+	dec c
+	jp z, sound_effect_retrieve_pointers
+	jp sound_effect_find_next_bit
 
-empty_laser:
-	ld bc, empty_sequence		; 10
+sound_effect_channel_1_empty:
+	ld hl, sound_effect_empty_sequence
+	push hl
 
-bomb_sfx:
-	exx
-	rrca				; 4
-	jp nc, empty_bomb		; 10
-	ld de, bomb_sequence		; 10
-	jp slow_sfx			; 10 (optional)
+sound_effect_channel_2_empty:
+	ld hl, sound_effect_empty_sequence
+	push hl
 
-empty_bomb:
-	ld de, empty_sequence		; 10
+sound_effect_music_channel_3:
+	ld hl, sound_effect_music_sequence		; 10
+	ld a, (sound_effect_music_sequence_index)
+	ld e, a
+	ld d, 0
+	add hl, de
+	ld (iy+0), 1
+	push hl
 
-slow_sfx:
-	exx
-	rrca				; 4
-	jp nc, empty_slow		; 10
-	ld hl, slow_sequence		; 10
-	jp play_sfx			; 10
+; sfx pointer loading total with all sfx: 90 (+ 20) + 13 = 103 (+ 20)
 
-empty_slow:
-	ld hl, empty_sequence		; 10
-	jp play_sfx			; 10
-
-; sfx pointer loading total with all sfx: 82 (+ 20) + 13
-
-retrieve_pointers:
+sound_effect_retrieve_pointers:
 	pop hl				; 10
-	exx
+	exx				; 4
 	pop de				; 10
-	exx
+	exx				; 4
 	pop bc				; 10
 
-; pointer popping : 30 T
+; pointer popping : 38 T
 
-play_sfx:
-	; load channel 1 base freq into de
-	ld a, (bc)			; 13
-	ld e, a
-	inc bc
-	ld a, (bc)
-	ld d, a
+sound_effect_play_sfx:
+	; load channel 1 base freq into de : 66 T
+	ld a, (bc)			; 7
+	ld e, a				; 4
+	inc bc				; 6
+	ld a, (bc)			; 7
+	ld d, a				; 4
 	and e				; 4
-	cp $ff
+	cp $ff				; 7
 	jp z, sound_effect_exit		; 10
-	inc bc				; 4
+	inc bc				; 6
 	push bc				; 11
-	; load channel 2 base freq into bc'
-	exx
-	ld a, (de)			; 13
-	ld c, a
-	inc de
-	ld a, (de)
-	inc de				; 4
+	; load channel 2 base freq into bc' : 53 T
+	exx				; 4
+	ld a, (de)			; 7
+	ld c, a				; 4
+	inc de				; 6
+	ld a, (de)			; 7
+	inc de				; 6
 	push de				; 11
-	ld b, a
-	exx
-	; load channel 3 base freq into bc
-	ld a, (hl)			; 13
-	ld c, a
-	inc hl
-	ld a, (hl)
-	inc hl
-	push hl				; 11
 	ld b, a				; 4
+	exx				; 4
+	; load channel 3 base freq into bc : 45 T
+	ld a, (hl)			; 7
+	ld c, a				; 4
+	inc hl				; 6
+	ld a, (hl)			; 7
+	ld b, a				; 4
+	xor a
+	add a, (iy+0)
+	jp z, sound_effect_dont_dec_not_music
+	dec hl
+	dec hl
+sound_effect_dont_dec_not_music:
+	inc hl				; 6
+	push hl				; 11
 
-	ld ix, $0
-	ld iy, $0
-	;ld b, c				; 4
-	;ld d, e				; 4
-	;ld h, l				; 4
+	; reg initialization : 56 T
+	ld ix, $0			; 14
+	ld hl, $0			; 14
 
-	exx
-	ld hl, $0
-	ld de, 300			; 14
-	exx
+	exx				; 4
+	ld hl, $0			; 10
+	ld de, 300			; 10
+	exx				; 4
 
-; note duration loading total: 136 T
+; note duration loading total: 66 + 53 + 45 + 56 = 220 T
 
-sound_loop:
-;	xor a				; 4
-;	dec b				; 4
-;	jp nz, skip1			; 10
-;	ld a, $10			; 7
-;	ld b, c				; 4
-;skip1:
-;	out ($fe), a			; 11
-	add ix, de
-	sbc a, a
-	and $10
-	out ($fe), a
+sound_effect_sound_loop:
+	add ix, de			; 15
+	sbc a, a			; 4
+	and $10				; 7
+	out ($fe), a			; 11
 
-;channel_2:
-;	xor a				; 4
-;	dec d				; 4
-;	jp nz, skip2			; 10
-;	ld a, $10			; 7
-;	ld d, e				; 4
-;skip2:
-;	out ($fe), a			; 11
-	exx
-	add hl, bc
-	sbc a, a
-	and $10
-	out ($fe), a
-	exx
+	exx				; 4
+	add hl, bc			; 11
+	sbc a, a			; 4
+	and $10				; 7
+	out ($fe), a			; 11
+	exx				; 4
 
-;channel_3:
-;	xor a				; 4
-;	dec h				; 4
-;	jp nz, skip3			; 10
-;	ld a, $10			; 7
-;	ld h, l				; 4
-;skip3:
-;	out ($fe), a			; 11
-	add iy, bc
-	sbc a, a
-	and $10
-	out ($fe), a
+	add hl, bc			; 15
+	sbc a, a			; 4
+	and $10				; 7
+	out ($fe), a			; 11
 
-duration_dec:
-	exx
-	dec de				; 10
-	ld a, d
-	or e				; 8
-	exx
-	jp nz, sound_loop		; 10
+sound_effect_duration_dec:
+	exx				; 4
+	dec de				; 6
+	ld a, d				; 4
+	or e				; 4
+	exx				; 4
+	jp nz, sound_effect_sound_loop		; 10
 
-; sound loop iteration: 102 T
-; max total cycle ct with length ix: 300 * 160 = 28500
+; sound loop iteration: 147 T
+; max total cycle ct with length ix: 300 * 147 = 44100
 
-	jp retrieve_pointers		; 10
+	jp sound_effect_retrieve_pointers		; 10
 
-; per note iteration: 30 + 136 + 28500 + 10 = 28676 T
+; per note iteration: 38 + 220 + 44100 + 10 = 44368 T
 
 sound_effect_exit:
 	xor a				; 4
 	ld (sound_effect_flags), a	; 13
-	exx
-	pop hl
-	pop de
-	pop bc
-	exx
+	ld (sound_effect_chan_3_is_music), a
+	exx				; 4
+	pop hl				; 10
+	pop de				; 10
+	pop bc				; 10
+	exx				; 4
+	ld a, (sound_effect_music_sequence_index)
+	add a, 2
+	and 15
+	ld (sound_effect_music_sequence_index), a
+	pop iy
 	ret				; 10
 
-; exit sequence: 27 T
+; exit sequence: 65 T
 
-; total ct with 6 notes: 310 + 115 + 6 * 28676 + 27 = 172508
+; total ct with 3 notes: 310 + 41 + 123 + 3 * 44100 + 65 = 132839
 
 sound_effect_flags:
 	defb 0
 
-; b c d e b' c' d' e' h' l' ixh ixl iyh iyl
-; hl - timer
-; d e ixl iyl - b c ixh iyh
-; d' e' h' - b' c' l'
+sound_effect_music_sequence_index:
+	defb 0
 
-laser_sequence:
-	dw 800
-	dw 800
-	dw 800
+sound_effect_chan_3_is_music:
+	defb 0
+
+sound_effect_music_sequence:
+	dw 1
+	dw 1
+	dw 1
+	dw 1
+	dw 1
+	dw 1
+	dw 1
+	dw 1
+	dw 1
+	dw 1
+	dw 1
+	dw 1
+	dw 1
+	dw 1
+	dw 1
+	dw 1
+
+sound_effect_music_sequence_1:
+	dw 3275
+	dw 0
+	dw 2453
+	dw 0
+	dw 2599
+	dw 0
+	dw 1838
+	dw 0
+	dw 2453
+	dw 0
+	dw 1638
+	dw 0
+	dw 1838
+	dw 0
+	dw 2599
+	dw 0
+	dw 2186
+	dw 0
+	dw 2453
+	dw 0
+	dw 2754
+	dw 0
+	dw 3091
+	dw 0
+
+sound_effect_laser_sequence:
+	dw 1000
+	dw 3000
+	dw 5000
+	dw 7000
+	dw 8000
+	dw 10000
 	dw $ffff
-	defb 101
-	defb 101
-	defb 101
-	defb 101
-	defb 101
-	defb 255
 
-bomb_sequence:
-	defb 200
-	defb 250
-	defb 220
-	defb 230
-	defb 245
-	defb 190
-	defb 1
-	defb 255
+sound_effect_item_sequence:
+	dw 3676
+	dw 3676
+	dw 3676
+	dw 3676
+	dw 0
+	dw 0
+	dw $ffff
 
-slow_sequence:
-	defb 90
+sound_effect_zap_sequence:
+	dw 423
+	dw 423
+	dw 423
+	dw 423
+	dw 423
+	dw 423
+	dw $ffff
 
-empty_sequence:
+sound_effect_player_dmg_sequence:
+	dw 10000
+	dw 10000
+	dw 5000
+	dw 5000
+	dw 8000
+	dw 8000
+	dw $ffff
+
+sound_effect_bomb_sequence:
+	dw 300
+	dw 300
+	dw 350
+	dw 370
+	dw 383
+	dw 300
+	dw $ffff
+
+sound_effect_enemy_death_sequence:
+	dw 8800
+	dw 8800
+	dw 5050
+	dw 1200
+	dw 1
+	dw 1
+	dw $ffff
+
+sound_effect_flame_sequence:
+	dw 1
+	dw 1
+	dw 1
+	dw 1
+	dw 1
+	dw 1
+	dw $ffff
+
+sound_effect_empty_sequence:
+	dw $1
+	dw $1
+	dw $1
 	dw $1
 	dw $1
 	dw $1
 	dw $ffff
-	defb 1
-	defb 1
-	defb 1
-	defb 255

@@ -48,26 +48,18 @@ interrupt_handler:
 
 	; play sound on frames 5, 6, 7 (0-indexed)
 	ld a, (sub_frame_counter)
-	and 7
-	add a, 3
-	and 8
+	and 4
 	call nz, sound_effect_entry
 	
-	;ld a, (sub_frame_counter)
-	;and 7
-	;ld b, a
-	;and 1
-	;call nz, music_entry_point
-
 	; update the life and money status on the 2nd visual frame
 	ld a, (sub_frame_counter)
-	and 3
+	and 7
 	cp 2
     call z, status_update_money_life
 
     ; spawn powerups randomly on the 2nd visual frame
     ld a, (sub_frame_counter)
-    and 3
+    and 7
     cp 2
     call z, powerups_spawn_randomly
 
