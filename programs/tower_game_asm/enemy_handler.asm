@@ -549,6 +549,11 @@ enemy_handler_increment_wave:
 	ld a, (wave_count)
 	inc a
 	ld (wave_count), a
+
+	; if we've beat the last wave, then increase the level and start again
+	cp $05
+	jp z, enemy_handler_increment_wave_increment_level
+
 	call status_update_wave_count
 
 	ld hl, enemy_handler_wave_lookup
@@ -563,4 +568,34 @@ enemy_handler_increment_wave:
 	ex de, hl
 	ld (enemy_spawn_script_ptr), hl
 
+	ret
+
+enemy_handler_increment_wave_increment_level:
+	; increase the level
+	ld a, (level_count)
+	inc a
+	ld (level_count), a
+
+	; increase the enemy starting healths and hurt thresholds
+	ld a, (weak_enemy_default_health)
+	sla a
+	ld (weak_enemy_default_health), a
+	ld a, (weak_enemy_hurt_threshold)
+	sla a
+	ld (weak_enemy_hurt_threshold), a
+
+	ld a, (strong_enemy_default_health)
+	sla a
+	ld (strong_enemy_default_health), a
+	ld a, (strong_enemy_hurt_threshold)
+	sla a
+	ld (strong_enemy_hurt_threshold), a
+
+	; set the wave back to 1
+	ld a, 1
+	ld (wave_count), a
+	call status_update_wave_count
+
+	ld hl, enemy_spawn_script_wave_1
+	ld (enemy_spawn_script_ptr), hl
 	ret

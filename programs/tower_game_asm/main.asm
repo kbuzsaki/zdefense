@@ -553,6 +553,8 @@ money_tens:
 money_ones:
     defb 0
 
+level_count:
+	defb 1
 wave_count:
     defb 0
 enemy_count:
