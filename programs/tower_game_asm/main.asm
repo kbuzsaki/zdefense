@@ -106,6 +106,7 @@ interrupt_handler_end:
 	reti
 
 
+
 ; misc init in the main module
 ; sets the border color and clears the screen
 main_init:
@@ -548,7 +549,7 @@ health_ones:
     defb 1
 
 money_tens:
-    defb 5
+    defb 3
 money_ones:
     defb 0
 
@@ -629,13 +630,13 @@ build_tile_attackables:
 
 ; constants for enemy health 
 weak_enemy_default_health:
-	defb $04
+	defb $06
 weak_enemy_hurt_threshold:
-	defb $02
+	defb $03
 strong_enemy_default_health:
-	defb $08
+	defb $0c
 strong_enemy_hurt_threshold:
-	defb $04
+	defb $06
 
 ; game state maintained by enemy_handler functions
 current_enemy_position_array:
