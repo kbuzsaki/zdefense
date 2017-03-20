@@ -46,20 +46,21 @@ interrupt_handler:
 	and 3
 	call z, cursor_entry_point_handle_input
 
-	; play music note on odd frames
-	;ld a, (sub_frame_counter)
-	;and 1
-	;call nz, music_entry_point
-
+	; play sound effects on frames 4 (after cursor is finished), 5, 6, 7
+	; (subject to change)
+	ld a, (sub_frame_counter)
+	and 4
+	call nz, sound_effect_entry
+	
 	; update the life and money status on the 2nd visual frame
 	ld a, (sub_frame_counter)
-	and 3
+	and 7
 	cp 2
     call z, status_update_money_life
 
     ; spawn powerups randomly on the 2nd visual frame
     ld a, (sub_frame_counter)
-    and 3
+    and 7
     cp 2
     call z, powerups_spawn_randomly
 
@@ -495,7 +496,7 @@ include "misc.asm"
 include "status.asm"
 include "tower.asm"
 include "util.asm"
-include "music.asm"
+include "sound_effect.asm"
 include "powerups.asm"
 
 

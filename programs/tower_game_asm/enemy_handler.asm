@@ -388,6 +388,11 @@ enemy_handler_handle_enemy_at_end_end:
 
 
 enemy_handler_decrement_health:
+	; play the damage sound effect
+	ld a, (sound_effect_flags)
+	or $08
+	ld (sound_effect_flags), a
+
 	; load the current health value
 	ld a, (health_ones)
 

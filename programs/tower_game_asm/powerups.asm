@@ -293,6 +293,12 @@ powerups_get_powerup:
     cp $05
     call z, powerups_get_slow
 
+	; play the get item sfx
+	ld a, (sound_effect_flags)
+	or $02
+	ld (sound_effect_flags), a
+
+
     ret
 
 
@@ -330,6 +336,11 @@ powerups_use_zap:
     call status_dec_zap
 	cp 0
 	ret z
+
+	; set the zap sound effect
+	ld a, (sound_effect_flags)
+	or $04
+	ld (sound_effect_flags), a
 
 	; flash the path
 	; todo: make this flash back and forth for a set period
@@ -419,6 +430,11 @@ powerups_use_bomb:
 	ex de, hl
 	ld hl, bomb
 	call util_draw_tile
+
+	; and set the bomb sound effect
+	ld a, (sound_effect_flags)
+	or $01
+	ld (sound_effect_flags), a
 
 	; todo:
 	; do game state for making the bomb actually explode and damage an enemy
