@@ -337,6 +337,11 @@ powerups_use_zap:
 	cp 0
 	ret z
 
+	; set the zap sound effect
+	ld a, (sound_effect_flags)
+	or $04
+	ld (sound_effect_flags), a
+
 	; flash the path
 	; todo: make this flash back and forth for a set period
 	; right now it stays lit for a semi-random number of frames
@@ -425,6 +430,11 @@ powerups_use_bomb:
 	ex de, hl
 	ld hl, bomb
 	call util_draw_tile
+
+	; and set the bomb sound effect
+	ld a, (sound_effect_flags)
+	or $01
+	ld (sound_effect_flags), a
 
 	; todo:
 	; do game state for making the bomb actually explode and damage an enemy
