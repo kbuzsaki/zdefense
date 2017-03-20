@@ -122,6 +122,10 @@ main_init:
 	ld d, $ff
 	call util_fill_all_pixels
 
+	; todo: figure out what health value to use
+	ld a, 1
+	ld (health_ones), a
+
 	ret
 
 
@@ -549,9 +553,9 @@ money_ones:
     defb 0
 
 wave_count:
-    defb 1
+    defb 0
 enemy_count:
-    defb 5
+    defb 0
 
 zap_charges:
     defb 0
@@ -606,6 +610,8 @@ tower_sell_price_ones:
 
 
 ; per-level pointers set up in main_init to point to the appropriate level data
+enemy_spawn_script:
+	defw enemy_spawn_script_wave_0
 enemy_path:
 	defw $00
 enemy_path_attr:
@@ -659,35 +665,56 @@ current_attacked_enemy_value:
 
 defs $9d00 - $
 
-enemy_spawn_script:
+enemy_spawn_script_wave_0:
 	defb $01
-	defb $01
+	defb $ff, $ff, $ff, $ff, $ff, $ff
+
+enemy_spawn_script_wave_1:
+	defb $01, $fe
+	defb $01, $fe
+	defb $01, $01, $fe
+	defb $01, $01, $fe
+	defb $02, $fe
+	defb $01, $02, $fe
+	defb $01, $02, $fe
 	defb $fe
-	defb $01
-	defb $01
-	defb $fe
-	defb $02
-	defb $02
-	defb $fe
-	defb $02
-	defb $02
-	defb $02
-	defb $02
-	defb $fe
-	defb $01
-	defb $01
-	defb $fe
-	defb $01
-	defb $01
-	defb $fe
-	defb $02
-	defb $02
-	defb $fe
-	defb $02
-	defb $02
-	defb $02
-	defb $02
-	defb $9e00 - $, $ff
+	defb $02, $02
+	defb $ff, $ff, $ff, $ff, $ff, $ff
+
+enemy_spawn_script_wave_2:
+	defb $01, $01, $fe
+	defb $01, $01, $fe
+	defb $02, $02, $fe
+	defb $02, $02, $fe
+	defb $01, $01, $02, $fe
+	defb $01, $01, $02, $fe
+	defb $01, $02, $02, $fe
+	defb $01, $02, $02, $fe
+	defb $ff, $ff, $ff, $ff, $ff, $ff
+
+enemy_spawn_script_wave_3:
+	defb $01, $01, $02, $fe
+	defb $01, $01, $02, $fe
+	defb $01, $02, $02, $fe
+	defb $01, $02, $02, $fe
+	defb $02, $02, $02, $fe
+	defb $02, $01, $01, $02, $fe
+	defb $02, $02, $02, $fe
+	defb $02, $01, $01, $02, $fe
+	defb $ff, $ff, $ff, $ff, $ff, $ff
+
+enemy_spawn_script_wave_4:
+	defb $02, $fe, $fe
+	defb $01, $01, $01, $02, $fe
+	defb $02, $02, $fe
+	defb $02, $01, $01, $01, $01, $02, $fe
+	defb $01, $02, $02, $fe
+	defb $01, $01, $01, $01, $01, $01, $01, $fe
+	defb $02, $01, $01, $02, $fe
+	defb $02, $01, $01, $02, $fe
+	defb $02, $02, $02, $02, $02, $02, $02, $fe
+	defb $ff, $ff, $ff, $ff, $ff, $ff
+        
 
 
 defs $9e00 - $

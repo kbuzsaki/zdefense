@@ -444,6 +444,9 @@ tower_handler_kill_enemy:
 	or $20
 	ld (sound_effect_flags), a
 
+	; decrement the enemy count
+	call enemy_handler_decrement_enemy_count
+
 	ld a, (current_attacked_enemy_value)
 	call tower_handler_add_money
 	ret

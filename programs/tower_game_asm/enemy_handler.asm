@@ -1,6 +1,6 @@
 enemy_handler_init:
 	; initialize the enemy spawn script
-	ld hl, enemy_spawn_script
+	ld hl, (enemy_spawn_script)
 	ld (enemy_spawn_script_ptr), hl
 
 	ret
@@ -60,6 +60,10 @@ enemy_handler_entry_point_handle_spawn_enemies:
 	inc hl
 	ld (enemy_spawn_script_ptr), hl
 
+	; if it's an empty slot, just return
+	cp $fe
+	ret z
+
 	; if 01, then weak enemy
 	ld hl, weak_enemy_position_array
 	ld de, weak_enemy_health_array
@@ -76,7 +80,7 @@ enemy_handler_entry_point_handle_spawn_enemies:
 	ld a, (strong_enemy_default_health)
 	jp z, enemy_handler_handle_spawn_enemy
 
-	; else we fell through, so just return
+	; else we fell through -- this shouldn't happen
 	ret
 
 
@@ -88,6 +92,11 @@ enemy_handler_entry_point_handle_spawn_enemies:
 enemy_handler_handle_spawn_enemy:
 	; save the enemy health into b
 	ld b, a
+
+	; increment the enemy count
+	ld a, (enemy_count)
+	inc a
+	ld (enemy_count), a
 
 enemy_handler_handle_spawn_enemy_loop:
 	ld a, (hl)
@@ -382,6 +391,7 @@ enemy_handler_handle_enemy_at_end:
 	jr z, enemy_handler_handle_enemy_at_end_end
 
 	call enemy_handler_decrement_health
+	call enemy_handler_decrement_enemy_count
 
 enemy_handler_handle_enemy_at_end_end:
 	ret
@@ -502,4 +512,55 @@ enemy_handler_clear_position_to_index_array:
 	; write 256 times
 	ld bc, $0100
 	ldir
+	ret
+
+
+; lowers the enemy count and potentially increments the wave count
+enemy_handler_decrement_enemy_count:
+	ld a, (enemy_count)
+	dec a
+	ld (enemy_count), a
+
+	; check if enemy count is 0, if it is and there are no enemies left to spawn
+	; then advance to the next wave
+	cp $01
+	ret nz
+
+	; if there are still enemies left to spawn, then don't increment the wave
+	ld hl, (enemy_spawn_script_ptr)
+	ld a, (hl)
+	cp $ff
+	ret nz
+
+	; else increment the wave
+	call enemy_handler_increment_wave
+
+	ret
+
+enemy_handler_wave_lookup:
+	defw enemy_spawn_script_wave_0 ; this is just a temp / test wave with only 1 enemy
+	defw enemy_spawn_script_wave_1
+	defw enemy_spawn_script_wave_2
+	defw enemy_spawn_script_wave_3
+	defw enemy_spawn_script_wave_4
+	defw $ffff
+
+enemy_handler_increment_wave:
+	ld a, (wave_count)
+	inc a
+	ld (wave_count), a
+	call status_update_wave_count
+
+	ld hl, enemy_handler_wave_lookup
+	ld d, 0
+	ld a, (wave_count)
+	sla a
+	ld e, a
+	add hl, de
+	ld e, (hl)
+	inc hl
+	ld d, (hl)
+	ex de, hl
+	ld (enemy_spawn_script_ptr), hl
+
 	ret

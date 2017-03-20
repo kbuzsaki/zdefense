@@ -275,6 +275,8 @@ status_update_money_life_repaint_money_red:
 	
 
 status_update_money_life_end:
+	; todo: maybe move this?
+	call status_update_enemy_count
     ret
 
 status_update_wave_count:
@@ -294,7 +296,8 @@ status_update_wave_count:
 
 status_update_enemy_count:
     ld a, (enemy_count)
-    add a, $30
+	; only add 2f instead of 30 because enemy spawns are weird
+    add a, $2f
 
     ld (status_enemy_count+11), a
 
