@@ -66,8 +66,6 @@ tower_handler_get_attackable_ptr:
 ; todo: check if this tower has attacked already
 ; handles the attack for a laser tower
 tower_handler_handle_laser_attack:
-	ld a, 1
-	ld (sound_effect_flags), a
 	; get the attackables pointer
 	ld a, (current_tower_index)
 
@@ -104,12 +102,17 @@ tower_handler_handle_laser_attack:
 
 	; if we get here then none of the attackables had an enemy
 	; so just do nothing
-	xor a
-	ld (sound_effect_flags), a
 	ret
 
 	; jump here when we attack an enemy so that we only attack one enemy
 tower_handler_handle_laser_attack_do_attack:
+	; play the laser sound effect
+	; maybe optimize this cuz of the excessive push and pop?
+	push af
+	ld a, (sound_effect_flags)
+	or $01
+	ld (sound_effect_flags), a
+	pop af
 
 	; attack the enemy at the position in a
 	call tower_handler_handle_laser_attack_enemy
