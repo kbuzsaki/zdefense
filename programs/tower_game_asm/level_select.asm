@@ -81,7 +81,7 @@ level_select_setup_screen:
     ld      a, $06
     call    util_draw_image
 
-    ; draw lake
+    ; ----------------- draw random lakes
     ld hl, lake_5x3
     ld b, 5
     ld c, 3
@@ -98,17 +98,10 @@ level_select_setup_screen:
     ld a, $0c
     call util_draw_image
 
+    ; draw the second lake on the right
     ld hl, lake_3x3
     ld b, 3
     ld c, 3
-    ld d, 28
-    ld e, 2
-    ld a, $0c
-    call util_draw_image
-
-    ld hl, lake_3x3_secondline
-    ld b, 3
-    ld c, 2
     ld d, 28
     ld e, 4
     ld a, $0c
@@ -118,11 +111,21 @@ level_select_setup_screen:
     ld b, 3
     ld c, 2
     ld d, 28
-    ld e, 5
+    ld e, 6
     ld a, $0c
     call util_draw_image
 
+    ld hl, lake_3x3_secondline
+    ld b, 3
+    ld c, 2
+    ld d, 28
+    ld e, 7
+    ld a, $0c
+    call util_draw_image
+    ; ----------------- end draw lakes
 
+
+    ; Set up the initial minimap
     call selection_change_minimap
 
 
@@ -412,9 +415,6 @@ selection_change_minimap_load_d:
 level_select_handle_input:
     call    input_is_w_down
     call      z, move_selection_up
-
-    ; call    input_is_a_down
-    ; call      z, load_map_2
 
     call    input_is_s_down
     call      z, move_selection_down
