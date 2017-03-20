@@ -205,6 +205,14 @@ tower_handler_handle_flame_attack:
 
 	; jump here when we attack an enemy so that we only attack one enemy
 tower_handler_handle_flame_attack_do_attack:
+	; play the flame sound effect
+	; maybe optimize this cuz of the excessive push and pop?
+	push af
+	ld a, (sound_effect_flags)
+	; this is actually the zap sound but oh well
+	or $04
+	ld (sound_effect_flags), a
+	pop af
 
 	ld a, (hl)
 
@@ -430,6 +438,11 @@ tower_handler_highlight_tower:
 ;   a - the enemy index
 tower_handler_kill_enemy:
 	call enemy_handler_clear_enemy_at_index
+
+	; play the enemy dead sound effect
+	ld a, (sound_effect_flags)
+	or $20
+	ld (sound_effect_flags), a
 
 	ld a, (current_attacked_enemy_value)
 	call tower_handler_add_money

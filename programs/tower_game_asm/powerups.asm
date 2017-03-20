@@ -293,6 +293,12 @@ powerups_get_powerup:
     cp $05
     call z, powerups_get_slow
 
+	; play the get item sfx
+	ld a, (sound_effect_flags)
+	or $02
+	ld (sound_effect_flags), a
+
+
     ret
 
 
