@@ -46,7 +46,8 @@ interrupt_handler:
 	and 3
 	call z, cursor_entry_point_handle_input
 
-	; play sound on frames 5, 6, 7 (0-indexed)
+	; play sound effects on frames 4 (after cursor is finished), 5, 6, 7
+	; (subject to change)
 	ld a, (sub_frame_counter)
 	and 4
 	call nz, sound_effect_entry
