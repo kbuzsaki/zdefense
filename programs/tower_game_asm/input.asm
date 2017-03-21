@@ -132,6 +132,14 @@ input_is_0_down:
     ld a, 0
     ret
 
+input_is_enter_down:
+    ld bc, $bffe
+    in b, (c)
+    bit 0, b
+    jp z, input_set_a
+    ld a, 0
+    ret
+
 input_set_a:
 	ld a, 1
 	ret

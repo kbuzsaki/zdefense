@@ -450,8 +450,11 @@ level_select_handle_input:
     call    input_is_s_down
     call      z, move_selection_down
 
+	; allow both d and enter to select a map
     call    input_is_d_down
     call      z, selection_load_map
+	call    input_is_enter_down
+	call      z, selection_load_map
 
     ret
 
