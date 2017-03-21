@@ -6,8 +6,36 @@ enemy_handler_init:
 	ret
 
 
+enemy_handler_do_slow_counter:
+	; compute the cell frame counter slow frames
+	ld a, (real_frame_counter)
+	and $30
+	srl a
+	srl a
+	srl a
+	srl a
+	ld (animation_frame_counter), a
+
+	ret
+
 
 enemy_handler_entry_point_handle_enemies:
+	ld a, (frame_counter)
+	ld (animation_frame_counter), a
+
+	ld a, (slow_counter)
+	cp $00
+	jp z, enemy_handler_skip_slow_counter
+
+	ld b, a
+	ld a, (frame_counter)
+	and 1
+	ret nz
+	ld a, b
+	call enemy_handler_do_slow_counter
+
+enemy_handler_skip_slow_counter:
+
 	ld hl, weak_enemy
 	ld (current_enemy_sprite_page), hl
 	ld hl, weak_enemy_position_array
@@ -34,7 +62,7 @@ enemy_handler_entry_point_handle_enemies:
 
 enemy_handler_handle_enemy:
 	; if the frame counter is modulo 0, then run game logic (move enemies to next cell)
-	ld a, (frame_counter)
+	ld a, (animation_frame_counter)
 	cp 0
 	call z, enemy_handler_update_enemies
 	; no matter what, animate the enemies
@@ -45,6 +73,23 @@ enemy_handler_handle_enemy:
 	
 
 enemy_handler_entry_point_handle_spawn_enemies:
+	; check if we're in slow mode
+	ld a, (slow_counter)
+	cp $00
+	jp z, enemy_handler_entry_point_handle_spawn_enemies_skip_slow_counter
+
+	; dec and store slow counter
+	dec a
+	ld (slow_counter), a
+	call z, powerups_slow_end
+
+	; check if we should abort
+	ld a, (cell_frame_counter)
+	and 3
+	ret nz
+
+enemy_handler_entry_point_handle_spawn_enemies_skip_slow_counter:
+
 	ld hl, (enemy_spawn_script_ptr)
 
 	; if ff, then we've hit the end so return and do nothing

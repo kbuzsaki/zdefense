@@ -566,6 +566,9 @@ frame_counter:
 cell_frame_counter:
 	defb 0
 
+animation_frame_counter:
+	defb 0
+
 cursor_x:
 	defb 0
 cursor_y:
@@ -586,7 +589,7 @@ money_ones:
 level_count:
 	defb 1
 wave_count:
-    defb 0
+    defb 1
 enemy_count:
     defb 0
 
@@ -657,7 +660,7 @@ tower_damage_array:
 
 ; per-level pointers set up in main_init to point to the appropriate level data
 enemy_spawn_script:
-	defw enemy_spawn_script_wave_0
+	defw enemy_spawn_script_wave_1
 enemy_path:
 	defw $00
 enemy_path_attr:
@@ -713,6 +716,9 @@ bomb_position_array:
 	defb $fe, $fe, $fe, $fe
 	defb $ff
 
+slow_counter:
+	defb $00
+
 
 
 defs $9d00 - $
@@ -722,6 +728,21 @@ enemy_spawn_script_wave_0:
 	defb $ff, $ff, $ff, $ff, $ff, $ff
 
 enemy_spawn_script_wave_1:
+	defb $01, $01
+	defb $01, $01
+	defb $01, $01
+	defb $01, $01
+	defb $01, $01
+	defb $01, $01
+	defb $01, $01
+	defb $01, $01
+	defb $01, $01
+	defb $01, $01
+	defb $01, $01
+	defb $01, $01
+	defb $01, $01
+	defb $01, $01
+	defb $01, $01
 	defb $01, $fe
 	defb $01, $fe
 	defb $01, $01, $fe

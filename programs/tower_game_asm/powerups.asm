@@ -541,9 +541,27 @@ powerups_use_slow:
 	cp 0
 	ret z
 
-	; todo: actually make this do something
 
-    ret
+powerups_slow_start:
+	ld a, $10
+	ld (slow_counter), a 
+
+	; set the background color to cyan
+	ld a, $05
+	out ($fe), a
+	ld ($fdcc), a
+
+	ret
+
+powerups_slow_end:
+	; set the background color back to blue
+	ld a, $01
+	out ($fe), a
+	ld ($fdcc), a
+
+	ret
+
+
 
 ; inputs:
 ;   b - the position value
