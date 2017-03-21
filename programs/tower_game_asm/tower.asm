@@ -499,11 +499,41 @@ tower_handler_kill_enemy:
 	or $20
 	ld (sound_effect_flags), a
 
+	; blood splatter
+	; b is the position from enemy_handler_clear_enemy_at_index
+	call tower_handler_draw_blood_splatter
+	; then insert it as a path element
+	ld c, $04
+	call powerups_insert_path_element
+
 	; decrement the enemy count
 	call enemy_handler_decrement_enemy_count
 
 	ld a, (current_attacked_enemy_value)
 	call tower_handler_add_money
+	ret
+
+; input:
+;  b - the position index to draw the blood splatter at
+tower_handler_draw_blood_splatter:
+	; draw the blood splatter sprite
+	ld a, b
+	call enemy_handler_load_position_vram
+	ld hl, snowflake
+	call util_draw_tile
+
+	; set the green blood attribute
+	ld a, b
+	ld hl, (enemy_path_attr)
+	ld d, 0
+	sla a
+	ld e, a
+	add hl, de
+	ld e, (hl)
+	inc hl
+	ld d, (hl)
+	ex de, hl
+	ld (hl), $74
 	ret
 
 ; input:
@@ -543,7 +573,7 @@ tower_handler_toggle_border_color:
 ; todo: what if cursor is on it
 tower_clear_attack_highlights:
 	; clear enemy highlights
-	call load_map_init_path_attr_bytes
+	call tower_clear_path_highlights
 
 	; clear build tile highlights
 	ld hl, (build_tile_xys)
@@ -569,4 +599,28 @@ tower_clear_attack_highlights_loop:
 	ld (hl), a
 
 	jp tower_clear_attack_highlights_loop
+
+
+tower_clear_path_highlights:
+	ld hl, (enemy_path_attr)
+
+tower_clear_path_highlights_loop:
+	; check if at the end
+	ld a, (hl)
+	cp $ff
+	ret z
+
+	; load the address
+	ld e, a
+	inc hl
+	ld d, (hl)
+	inc hl
+
+	; clear the highlight bit
+	ld a, (de)
+	and $bf
+	ld (de), a
+
+	; repeat
+	jp tower_clear_path_highlights_loop
 

@@ -228,10 +228,15 @@ enemy_handler_clear_enemy_index:
 ; side effect:
 ;  sets the enemy's index to fe, which clears it
 ;  clears the enemy's tiles in vram
+; output:
+;  b - the enemy's position before it was removed
 enemy_handler_clear_enemy_at_index:
 	push af
 	; load the position index
     call enemy_handler_load_position_index
+
+	; this might cause bugs oh no I hope no one was relying on b not being touched
+	ld b, a
 
 	; clear the first tile
 	push af

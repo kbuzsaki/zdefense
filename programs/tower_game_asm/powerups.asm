@@ -481,7 +481,9 @@ powerups_handle_bomb_explode_checks_loop:
 	jp z, powerups_handle_bomb_explode_checks_loop
 
 	; if there is, then set it to empty 
+	ex de, hl
 	ld (hl), $fe
+	ex de, hl
 
 	; and explode it!
 	push de
@@ -503,13 +505,33 @@ powerups_handle_bomb_explode:
 	ld a, (current_attacked_enemy_index)
 	call tower_handler_kill_enemy
 
-	; draw the explosion
+	; get the position of the bomb
 	pop hl
-	ld a, l
-	inc a
+	ld b, l
+	inc b
+
+	; draw the explosion sprite
+	ld a, b
 	call enemy_handler_load_position_vram
 	ld hl, snowflake
 	call util_draw_tile
+
+	; set the explosion attribute
+	ld a, b
+	ld hl, (enemy_path_attr)
+	ld d, 0
+	sla a
+	ld e, a
+	add hl, de
+	ld e, (hl)
+	inc hl
+	ld d, (hl)
+	ex de, hl
+	ld (hl), $72
+
+	; insert the explosion as a path element to remove later
+	ld c, $04
+	call powerups_insert_path_element
 	
 	ret
 
@@ -524,3 +546,92 @@ powerups_use_slow:
 
     ret
 
+; inputs:
+;   b - the position value
+;   c - the timer value
+powerups_insert_path_element:
+	ld hl, path_elements_timer_array
+	ld de, path_elements_position_array
+
+powerups_insert_path_element_loop:
+	; if it's empty, then use this spot
+	ld a, (hl)
+	cp $fe
+	jp z, powerups_insert_path_element_do_insert
+	cp $ff
+	jp z, powerups_insert_path_element_do_insert
+
+	; else loop back
+	inc hl
+	inc de
+	jp powerups_insert_path_element_loop
+
+powerups_insert_path_element_do_insert:
+	ld (hl), c
+	ex de, hl
+	ld (hl), b
+
+	ret
+
+; checks to clear temporary path elements like explosions and blood splatters
+powerups_clear_path_elements:
+	ld hl, path_elements_timer_array
+	ld de, path_elements_position_array
+
+powerups_clear_path_elements_loop:
+	ld a, (hl)
+
+	; if we find $ff then we're done
+	cp $ff
+	ret z
+
+	; if we find not $fe then process
+	cp $fe
+	call nz, powerups_clear_path_element_process_element
+
+	; finally loop back
+	inc hl
+	inc de
+	jp powerups_clear_path_elements_loop
+
+
+; removes the element pointed to by hl and de
+powerups_clear_path_element_process_element:
+	; dec the timer, if we don't hit 0 then abort
+	dec (hl)
+	ret nz
+
+	; if we do hit 0 then remove the element
+	push hl
+	push de
+
+	; clear the element in the array
+	ld (hl), $fe
+
+	; load its position
+	ld a, (de)
+
+	; stash it in a
+	ld b, a
+
+	; clear the vram addr
+	call enemy_handler_load_position_vram
+	ld hl, blank_tile
+	call util_draw_tile
+
+	; clear the attr byte
+	ld a, b
+	ld hl, (enemy_path_attr)
+	ld d, 0
+	sla a
+	ld e, a
+	add hl, de
+	ld e, (hl)
+	inc hl
+	ld d, (hl)
+	ex de, hl
+	ld (hl), $30
+
+	pop de
+	pop hl
+	ret

@@ -88,6 +88,12 @@ interrupt_handler:
 	cp $03
 	call z, powerups_handle_bomb_explode_checks
 
+	; on subframe 3 of every animation frame, check to remove path elements
+	; like blood splatters and bomb explosions
+	ld a, (sub_frame_counter)
+	cp $03
+	call z, powerups_clear_path_elements
+
 	; clear highlights from tower attacks on the second subframe 2 of every cell frame
 	ld a, (real_frame_counter)
 	and $1f
@@ -106,7 +112,7 @@ interrupt_handler:
 	and $3f
 	cp $18
 	call z, status_entry_point_update_enemy_spawn_preview
-	
+
 interrupt_handler_end:
 	ei
 
@@ -494,6 +500,17 @@ reset_enemy_data:
 	ld		de, enemy_position_to_index_array
 	ld		bc, $0100
 	ldir
+
+	ld		hl, $3900
+	ld		de, path_elements_timer_array
+	ld		bc, $0100
+	ldir
+
+	ld		hl, $3900
+	ld		de, path_elements_position_array
+	ld		bc, $0100
+	ldir
+
 	ret
 
 include "level_select.asm"
@@ -3341,3 +3358,11 @@ strong_enemy_position_array:
 
 org $d400
 strong_enemy_health_array:
+
+; the below two arrays contain info about the 
+; 
+org $d500
+path_elements_timer_array:
+
+org $d600
+path_elements_position_array:
