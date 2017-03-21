@@ -418,6 +418,9 @@ powerups_use_bomb:
 	cp $ff
 	ret z
 
+	; stash the position index in c
+	ld c, a
+
 	; try to dec a charge, give up if we can't
 	push de
     call status_dec_bomb
@@ -426,20 +429,90 @@ powerups_use_bomb:
 	ret z
 
 	; if we got this far, then draw the bomb
-	call cursor_get_cell_addr
-	ex de, hl
+	ld a, c
+	call enemy_handler_load_position_vram
 	ld hl, bomb
 	call util_draw_tile
 
-	; and set the bomb sound effect
+	; set the bomb sound effect
 	ld a, (sound_effect_flags)
 	or $01
 	ld (sound_effect_flags), a
 
 	; todo:
 	; do game state for making the bomb actually explode and damage an enemy
+	ld hl, bomb_position_array-1
 
+powerups_use_bomb_loop:
+	inc hl
+	; load this index, check if it's valid
+	ld a, (hl)
+	cp $fe
+	jp nz, powerups_use_bomb_loop
+
+	; else if it's valid then store the bomb position
+	ld (hl), c
     ret
+
+; checks whether bombs should explode (because they have an enemy before them)
+powerups_handle_bomb_explode_checks:
+	ld de, bomb_position_array-1
+	ld hl, enemy_position_to_index_array
+
+powerups_handle_bomb_explode_checks_loop:
+	inc de
+	ld a, (de)
+
+	; if it's fe then it's empty so skip
+	cp $fe
+	jp z, powerups_handle_bomb_explode_checks_loop
+
+	; if it's ff then end of array so return
+	cp $ff
+	ret z
+
+	; else it's present so check if there's an enemy right before it
+	dec a
+	ld l, a
+	ld a, (hl)
+
+	; if there isn't then skip
+	cp $ff
+	jp z, powerups_handle_bomb_explode_checks_loop
+
+	; if there is, then set it to empty 
+	ld (hl), $fe
+
+	; and explode it!
+	push de
+	push hl
+	call powerups_handle_bomb_explode
+	pop hl
+	pop de
+	
+	ret
+
+; inputs:
+;   a - the packed enemy index to explode
+;   l - the path position
+powerups_handle_bomb_explode:
+	push hl
+
+	; kill the enemy
+	call tower_handler_init_enemy_arrays
+	ld a, (current_attacked_enemy_index)
+	call tower_handler_kill_enemy
+
+	; draw the explosion
+	pop hl
+	ld a, l
+	inc a
+	call enemy_handler_load_position_vram
+	ld hl, snowflake
+	call util_draw_tile
+	
+	ret
+
 
 powerups_use_slow:
 	; try to dec a charge, give up if we can't

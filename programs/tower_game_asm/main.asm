@@ -75,16 +75,23 @@ interrupt_handler:
 	cp $01
 	call z, enemy_handler_entry_point_compute_position_to_index_array
 
-	; handle tower attacks on the first subframe 3 of every cell frame
+	; handle tower attacks on the first subframe 2 of every cell frame
+	ld a, (real_frame_counter)
+	and $1f
+	cp $02
+	call z, tower_handler_entry_point_handle_attacks
+
+	; handle bomb attacks on the first subframe 3 of every cell frame
+	; so that enemies don't have a chance to move in to the bomb's cell
 	ld a, (real_frame_counter)
 	and $1f
 	cp $03
-	call z, tower_handler_entry_point_handle_attacks
+	call z, powerups_handle_bomb_explode_checks
 
-	; clear highlights from tower attacks on the second subframe 3 of every cell frame
+	; clear highlights from tower attacks on the second subframe 2 of every cell frame
 	ld a, (real_frame_counter)
 	and $1f
-	cp $0b
+	cp $0a
 	call z, tower_clear_attack_highlights
 
 	;; only do enemy spawning every other cell frame when the frame_counter is 0
@@ -676,6 +683,12 @@ current_attacked_enemy_position:
 	defb $00
 current_attacked_enemy_value:
 	defb $00
+
+; array of bomb positions
+; fe means empty, ff means end of array
+bomb_position_array:
+	defb $fe, $fe, $fe, $fe
+	defb $ff
 
 
 
