@@ -549,7 +549,7 @@ health_ones:
     defb 1
 
 money_tens:
-    defb 3
+    defb 5
 money_ones:
     defb 0
 
@@ -600,9 +600,9 @@ tower_buy_price_ones:
 
 ; filler, laser, flame, boost, 'basic' (unused)
 tower_upgrade_price_tens:
-    defb $00, $01, $03, $02, $01, $ff, $ff, $ff, $ff
+    defb $00, $01, $03, $02, $01, $0a, $0a, $0a, $0a
 tower_upgrade_price_ones:
-    defb $00, $05, $05, $05, $05, $ff, $ff, $ff, $ff
+    defb $00, $05, $05, $05, $05, $00, $00, $00, $00
 
 ; filler, laser, flame, boost, 'basic' (unused), laser+, flame+, boost+, unused+
 tower_sell_price_tens:
