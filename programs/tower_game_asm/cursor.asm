@@ -44,7 +44,7 @@ cursor_entry_point_handle_input:
     call cursor_check_powerups_collect
     call cursor_check_powerups_usage
 
-    call status_update_sell_price
+    call status_update_upgrade_sell_price
 	
 	ret
 

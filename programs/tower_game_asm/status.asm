@@ -121,7 +121,7 @@ status_update_tower_costs:
 
 ; d - cursor x position
 ; e - cursor y position
-status_update_sell_price:
+status_update_upgrade_sell_price:
     ; ignore if we're not on a valid build_tile
     call build_find_build_tile_index
     cp $ff
@@ -140,9 +140,42 @@ status_update_sell_price:
     pop af
     ret z
 
+    push af
+    push af
+    push af
+    ; update sell price based on the tower
+    ld hl, tower_upgrade_price_tens
+    add a, l
+    ld l, a
+    ld a, (hl)
+    add a, $30
+    ld e, a
+
+    pop af
+    ld hl, tower_upgrade_price_ones
+    add a, l
+    ld l, a
+    ld a, (hl)
+    add a, $30
+    ld d, a
+
+    ld (status_upgrade_price+4), de
+
+    ld a, 1
+    call 5633
+    ld de, status_upgrade_price
+    ld bc, status_upgrade_price_end-status_upgrade_price
+    call 8252
+
+    ld e, 22
+	ld d, 28
+	call cursor_get_cell_attr
+	ld (hl), $44
+
+
 
     ; update sell price based on the tower
-    ld c, a
+    pop af
     ld hl, tower_sell_price_tens
     add a, l
     ld l, a
@@ -150,7 +183,7 @@ status_update_sell_price:
     add a, $30
     ld e, a
 
-    ld a, c
+    pop af
     ld hl, tower_sell_price_ones
     add a, l
     ld l, a
@@ -181,7 +214,16 @@ status_clear_sell_price:
     ld bc, status_sell_end-status_sell
     call 8252
 
+    ld de, status_upgrade
+    ld bc, status_upgrade_end-status_upgrade
+    call 8252
+
     ld e, 23
+	ld d, 20
+	call cursor_get_cell_attr
+	ld (hl), $43
+
+    ld e, 22
 	ld d, 20
 	call cursor_get_cell_attr
 	ld (hl), $43
@@ -762,15 +804,19 @@ status_flame:
 status_flame_end: equ $
 
 status_tesla:
-	defb 22, 21, 20,'3:Boost $200'
+	defb 22, 21, 20,'3:% Dmg $200'
 status_tesla_end: equ $
 
 
 ; Printed using channel 1, so y offset is different
 
 status_upgrade:
-	defb 22, 0, 20,'R:Upgrade'
+	defb 22, 0, 20,'R:Upgr      '
 status_upgrade_end: equ $
+
+status_upgrade_price:
+    defb 22, 0, 28,'$000'
+status_upgrade_price_end: equ $
 
 status_sell:
 	defb 22, 1, 20,'G:Sell      '

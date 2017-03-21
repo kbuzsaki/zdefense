@@ -788,8 +788,8 @@ tower_type_data:
 	defw tower_bomb
 	defb $22
 	defb $ff
-	; tesla tower
-	defw tower_obelisk
+	; 3rd tower
+	defw tower_basic
 	defb $21
 	defb $ff
 	; basic tower
@@ -804,8 +804,8 @@ tower_type_data:
 	defw tower_bomb_upgrade
 	defb $22
 	defb $ff
-	; tesla tower+
-	defw tower_obelisk_upgrade
+	; 3rd tower+
+	defw tower_basic_upgrade
 	defb $21
 	defb $ff
 	; basic tower+
