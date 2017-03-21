@@ -171,8 +171,13 @@ title_load_interrupt_handler:
 	and 3
 	call z, level_select_handle_input
 
+    ; Sound effects
+    ld a, (sub_frame_counter)
+	and 4
+	call nz, sound_effect_entry
 
-    ld      a, 4
+
+    ; ld      a, 4
     ; out     ($fe), a
     ; Check keyboard input 
     ; For now, level 1 - w, level 2 - a, level 3 - s, level 4 - d
@@ -329,6 +334,11 @@ move_selection_up:
 
     ; Change minimap
     call    selection_change_minimap
+
+    ; Play sfx
+    ld      a, (sound_effect_flags)
+    or      $02
+    ld      (sound_effect_flags), a
     
 
 move_selection_up_end:
@@ -360,10 +370,22 @@ move_selection_down:
     ; Load new minimap
     call    selection_change_minimap
 
+
+    ; Play sfx
+    ld      a, (sound_effect_flags)
+    or      $02
+    ld      (sound_effect_flags), a
+
 move_selection_down_end:
     ret
 
 selection_load_map:
+
+    ; Play sfx
+    ld      a, (sound_effect_flags)
+    or      $20
+    ld      (sound_effect_flags), a
+
     ; Load the currently selected map
     ld      a, (level_select_choice)
 
