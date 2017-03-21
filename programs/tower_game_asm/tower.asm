@@ -21,10 +21,12 @@ tower_handler_handle_attacks_loop:
 	cp $ff
 	ret z
 
-    and $fe
+    and $01
 	cp $01
+	push af
     ; if tower type is even, use single target attack
 	call z, tower_handler_handle_laser_attack
+	pop af
 
     ; else, use aoe target attack
     call nz, tower_handler_handle_flame_attack
