@@ -1841,6 +1841,25 @@ heart:
     defb 60  	;   ####  
     defb 24  	;    ##   
 
+explosion:
+    defb $81    ; #      #
+    defb $24    ;   #  #  
+    defb $42    ;  #    # 
+    defb $18    ;    ##   
+    defb $18    ;    ##   
+    defb $42    ;  #    # 
+    defb $24    ;   #  #  
+    defb $81    ; #      #
+
+blood:
+    defb $80    ; #       
+    defb $c6    ; ##   ## 
+    defb $6c    ;  ## ##  
+    defb $78    ;  ####   
+    defb $7c    ;  #####  
+    defb $7a    ;  #### # 
+    defb $30    ;   ##    
+    defb $09    ;     #  #
 ; pad so enemy sprites are aligned
 defs $b400 - $
 
