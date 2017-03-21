@@ -1,4 +1,5 @@
 ; Sound effect engine based on randomflux's 1-bit audio tutorial
+; song: love is justice - code geass
 sound_effect_entry:
 	; disable interrupts for uninterrupted playing
 	; and increment the correct number of frames

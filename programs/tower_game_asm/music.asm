@@ -1,3 +1,5 @@
+; sound engine based off randomflux's 1-bit audio tutorial
+; song - dummy! by toby fox
 music_entry_point:
 	di					; 4
 	push ix
