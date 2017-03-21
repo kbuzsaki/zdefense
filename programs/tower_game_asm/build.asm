@@ -260,6 +260,59 @@ build_register_new_tower:
 
     ret
 
+build_upgrade_tower:
+    ; ignore if we're not on a valid build_tile
+    call build_find_build_tile_index
+    cp $ff
+    ret z
+
+    ; ignore if there is no tower on this build_tile
+    ; stash build tile index in l
+    ld hl, build_tile_towers
+    ld l, a
+    ld a, (hl)
+    cp $fe ; $fe is uninitialized value
+    ret z
+
+    push af ; store tower type id
+
+    push hl
+    ; increment money based on the tower
+    ld c, a
+    ld hl, tower_upgrade_price_tens
+    add a, l
+    ld l, a
+    ld b, (hl)
+
+    ld a, c
+    ld hl, tower_upgrade_price_ones
+    add a, l
+    ld l, a
+    ld c, (hl)
+
+    pop hl
+
+    ; subtract the cost of the tower from our money, give up if we don't have enough
+    call build_try_decrement_money
+    cp $00
+    jp z, build_upgrade_tower_end_cleanup
+
+    ; now that we've subtracted the money, actually store the tower
+    ; grab the tile index again and tower type byte again
+    ld b, l
+    pop af ; recover tower type id
+    add a, 4 ; increment tower type id to its upgraded version
+    ; register the new tower in the array
+    call build_register_new_tower
+
+    ; draw the new tower on the screen
+    call build_draw_tower
+
+    ret
+
+build_upgrade_tower_end_cleanup:
+    pop af
+	ret
 
 ; de - the xy coordinates of the possible tower to sell
 build_sell_tower:

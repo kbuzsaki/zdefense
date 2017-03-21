@@ -21,13 +21,13 @@ tower_handler_handle_attacks_loop:
 	cp $ff
 	ret z
 
-	; check for $01 (laser tower)
+    and $fe
 	cp $01
+    ; if tower type is even, use single target attack
 	call z, tower_handler_handle_laser_attack
 
-	; check for $02 (flame tower)
-	cp $02
-	call z, tower_handler_handle_flame_attack
+    ; else, use aoe target attack
+    call nz, tower_handler_handle_flame_attack
 
 	; increment loop counter and jump to beginning of loop
 tower_handler_handle_attacks_loop_increment:
@@ -160,7 +160,6 @@ tower_handler_handle_laser_attack_enemy:
 	call tower_handler_init_enemy_arrays
 	call tower_handler_tower_damage_enemy
 	ret
-
 
 ; todo: check if this tower has attacked already
 ; handles the attack for a laser tower
@@ -374,13 +373,69 @@ tower_handler_tower_damage_enemy:
 ;  (current_enemy_position_array)
 ; damages an enemy and does health cleanup / money rewards
 tower_handler_damage_enemy:
+    ld c, a ; save enemy index
+
+    ; figure out how much damage the tower should do, store value in b
+    call tower_handler_get_tower_damage
+    ld b, a 
+
+    ld a, c ; restore enemy index
+
+    ; get current enemy's health
 	ld hl, (current_enemy_health_array)
 	ld l, a
-	dec (hl)
 
-	; if we hit 0, remove the enemy
+    ; subtract tower damage from enemy's health
+    ld a, (hl)
+	sub b
+    ld (hl), a
+
+    ld a, c ; restore enemy index
+
+	; if we hit 0 or go negative, remove the enemy
 	call z, tower_handler_kill_enemy
+    call m, tower_handler_kill_enemy
+
 	ret
+
+; input:
+;   a - enemy index
+; (current_tower_index)
+; (current_enemy_health_array)
+; output:
+;  a - the damage the current tower should do against the current enemy
+tower_handler_get_tower_damage:
+    ld d, a ; save the enemy index
+
+     ; get the value in tower_damage_array for this tower id
+    ld a, (current_tower_index)
+    call tower_handler_load_tower_type
+    ld hl, tower_damage_array
+    add l
+    ld l, a
+    ld a, (hl)
+    
+    ; if the sign bit is not set, then a has the damage the tower should do 
+    bit 7, a
+    ret z
+    
+    ; else, the tower does percent of current health against the enemy
+    
+    and $7f
+    ld b, a
+
+    ; get the current enemy's current health
+    ld hl, (current_enemy_health_array)
+    ld l, d
+    ld a, (hl)
+
+tower_handler_get_tower_damage_shift_right:
+    srl a
+
+    djnz tower_handler_get_tower_damage_shift_right
+
+    ret
+    
 
 tower_handler_highlight_enemy:
 	; compute the offset into the attr byte address array

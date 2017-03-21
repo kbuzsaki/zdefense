@@ -88,6 +88,9 @@ cursor_check_tower_inputs:
     call input_is_g_down
     call z, build_sell_tower
 
+    call input_is_r_down
+    call z, build_upgrade_tower
+
 	ret
 
 cursor_check_powerups_usage:

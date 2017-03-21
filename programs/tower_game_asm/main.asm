@@ -588,9 +588,9 @@ powerup_three_x:
 powerup_three_y:
     defb 0
 
-; laser, flame, boost, 'basic' (unused)
+; laser, flame, boost, 'basic' (unused), laser+, flame+, boost+, unused+
 tower_byte_ids:
-    defb $01, $02, $03, $04
+    defb $01, $02, $03, $04, $05, $06, $07, $08
 
 ; filler, laser, flame, boost, 'basic' (unused)
 tower_buy_price_tens:
@@ -599,10 +599,21 @@ tower_buy_price_ones:
     defb $00, $00, $00, $00, $00
 
 ; filler, laser, flame, boost, 'basic' (unused)
+tower_upgrade_price_tens:
+    defb $00, $01, $03, $02, $01, $ff, $ff, $ff, $ff
+tower_upgrade_price_ones:
+    defb $00, $05, $05, $05, $05, $ff, $ff, $ff, $ff
+
+; filler, laser, flame, boost, 'basic' (unused), laser+, flame+, boost+, unused+
 tower_sell_price_tens:
-    defb $00, $00, $01, $01, $00
+    defb $00, $00, $01, $01, $00, $01, $03, $02, $01
 tower_sell_price_ones:
-    defb $00, $05, $05, $00, $05
+    defb $00, $05, $05, $00, $05, $00, $00, $00, $00
+
+; filler, laser, flame, boost, unused, laser+, flame+, boost+, unused+
+tower_damage_array:
+    defb $00, $01, $01, $82, $00, $02, $02, $81 , $00
+
     
 
 ; pixel address:
@@ -772,7 +783,7 @@ tower_type_data:
 	defb $27
 	defb $ff
 	; flame tower
-	defw tower_bomb_upgrade
+	defw tower_bomb
 	defb $22
 	defb $ff
 	; tesla tower
@@ -781,6 +792,22 @@ tower_type_data:
 	defb $ff
 	; basic tower
 	defw tower_basic
+	defb $23
+	defb $ff
+	; laser tower+
+	defw tower_zap_upgrade
+	defb $27
+	defb $ff
+	; flame tower+
+	defw tower_bomb_upgrade
+	defb $22
+	defb $ff
+	; tesla tower+
+	defw tower_obelisk_upgrade
+	defb $21
+	defb $ff
+	; basic tower+
+	defw tower_basic_upgrade
 	defb $23
 	defb $ff
 
