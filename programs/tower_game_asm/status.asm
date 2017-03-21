@@ -394,6 +394,7 @@ status_add_money_tens:
     ; else hard cap money_tens at 9
     ld a, 9
     ld (money_tens), a
+    ld (money_ones), a
 
 status_add_money_end:
     ret
