@@ -433,6 +433,8 @@ enemy_handler_handle_enemy_at_end:
 	ld a, (current_enemy_index)
 	call enemy_handler_clear_enemy_index
 
+	call enemy_handler_decrement_enemy_count
+
 	; Check whether we're on a faux-map or a real map
 	ld	hl, (tile_map)
 	ld a, h
@@ -441,7 +443,6 @@ enemy_handler_handle_enemy_at_end:
 	jr z, enemy_handler_handle_enemy_at_end_end
 
 	call enemy_handler_decrement_health
-	call enemy_handler_decrement_enemy_count
 
 enemy_handler_handle_enemy_at_end_end:
 	ret
