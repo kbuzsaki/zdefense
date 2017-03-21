@@ -142,6 +142,10 @@ main_init:
 	ld a, 0
 	ld (health_ones), a
 
+	; reset the frame counter
+	ld a, 0
+	ld (real_frame_counter), a
+
 	ret
 
 
