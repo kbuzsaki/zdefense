@@ -534,96 +534,57 @@ status_inc_slow:
     ret
 
 ; input:
-;   - reads from (bomb_charges)
+;   hl - address of charge counter (e.g. bomb_charges)
+;   d  - x coordinate of first charge
+;   e  - y coordinate of first charge 
 ; side effect:
-;   - decrements (bomb_charges) if it is > 0, else nothing
+;   - decrements (hl) if it is > 0, else nothing
 ; output:
 ;   a - 1 if a charge was used successfully, else 0
-status_dec_bomb:
+
+status_dec_charge:
+
 	; try to subtract a charge, give up and return 0 if we can't
-    ld a, (bomb_charges)
+    ld a, (hl)
     cp 0
 	ret z
     dec a
-    ld (bomb_charges), a
+    ld (hl), a
 
 	; get the xy coordinate in the status screen of the charge we used
+    add a, d
+    ld d, a
+
+	; clear that charge from the status screen
+    call cursor_get_cell_addr
+    ld d, h
+    ld e, l
+    ld hl, blank_tile
+    call util_draw_tile
+
+	; load 1 to indicate a charge was used successfully and return
+	ld a, 1
+	ret
+
+status_dec_bomb:
     ld e, 19
     ld d, 15
-    add a, d
-    ld d, a
+    ld hl, bomb_charges
+    call status_dec_charge
+    ret
 
-	; clear that charge from the status screen
-    call cursor_get_cell_addr
-    ld d, h
-    ld e, l
-    ld hl, blank_tile
-    call util_draw_tile
-
-	; load 1 to indicate a charge was used successfully and return
-	ld a, 1
-	ret
-
-; input:
-;   - reads from (zap_charges)
-; side effect:
-;   - decrements (zap_charges) if it is > 0, else nothing
-; output:
-;   a - 1 if a charge was used successfully, else 0
 status_dec_zap:
-	; try to subtract a charge, give up and return 0 if we can't
-    ld a, (zap_charges)
-    cp 0
-	ret z
-    dec a
-    ld (zap_charges), a
-
-	; get the xy coordinate in the status screen of the charge we used
     ld e, 20
     ld d, 15
-    add a, d
-    ld d, a
+    ld hl, zap_charges
+    call status_dec_charge
+    ret
 
-	; clear that charge from the status screen
-    call cursor_get_cell_addr
-    ld d, h
-    ld e, l
-    ld hl, blank_tile
-    call util_draw_tile
-
-	; load 1 to indicate a charge was used successfully and return
-	ld a, 1
-	ret
-
-; input:
-;   - reads from (slow_charges)
-; side effect:
-;   - decrements (slow_charges) if it is > 0, else nothing
-; output:
-;   a - 1 if a charge was used successfully, else 0
 status_dec_slow:
-	; try to subtract a charge, give up and return 0 if we can't
-    ld a, (slow_charges)
-    cp 0
-	ret z
-    dec a
-    ld (slow_charges), a
-
-	; get the xy coordinate in the status screen of the charge we used
     ld e, 21
     ld d, 15
-    add a, d
-    ld d, a
-
-	; clear that charge from the status screen
-    call cursor_get_cell_addr
-    ld d, h
-    ld e, l
-    ld hl, blank_tile
-    call util_draw_tile
-
-	; load 1 to indicate a charge was used successfully and return
-	ld a, 1
+    ld hl, slow_charges
+    call status_dec_charge
     ret
 
 ;; update the "enemies coming up" in the status
@@ -766,7 +727,7 @@ status_round:
 status_r_end: equ $
 
 status_enemy_count:
-	defb 22, 16, 9,'Enemies:0'
+	defb 22, 16, 9,'Enemies:00'
 status_ec_end: equ $
 
 status_money_life:
