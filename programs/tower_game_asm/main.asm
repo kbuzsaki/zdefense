@@ -662,7 +662,7 @@ tower_damage_array:
 
 ; per-level pointers set up in main_init to point to the appropriate level data
 enemy_spawn_script:
-	defw enemy_spawn_script_wave_1
+	defw enemy_spawn_script_demo_wave
 enemy_path:
 	defw $00
 enemy_path_attr:
@@ -855,6 +855,65 @@ tower_type_data:
 	; basic tower+
 	defw tower_basic_upgrade
 	defb $21
+	defb $ff
+
+enemy_spawn_script_demo_wave:
+	defb $01, $01, $fe
+	defb $01, $01, $fe
+	defb $01, $02, $fe
+	defb $01, $02, $fe
+	defb $02, $02, $fe
+	defb $02, $02, $fe
+	defb $01, $01, $02, $fe
+	defb $01, $01, $02, $02, $fe
+	defb $01, $02, $01, $02, $fe
+	defb $02, $02, $02, $02, $fe
+	defb $fe
+	defb $01, $01, $fe
+	defb $01, $01, $fe
+	defb $01, $02, $fe
+	defb $01, $02, $fe
+	defb $02, $02, $fe
+	defb $02, $02, $fe
+	defb $01, $01, $02, $fe
+	defb $01, $01, $02, $02, $fe
+	defb $01, $02, $01, $02, $fe
+	defb $02, $02, $02, $02, $fe
+	defb $fe
+	defb $01, $01, $fe
+	defb $01, $01, $fe
+	defb $01, $02, $fe
+	defb $01, $02, $fe
+	defb $02, $02, $fe
+	defb $02, $02, $fe
+	defb $01, $01, $02, $fe
+	defb $01, $01, $02, $02, $fe
+	defb $01, $02, $01, $02, $fe
+	defb $02, $02, $02, $02, $fe
+	defb $fe
+	defb $fe
+	defb $01, $01, $fe
+	defb $01, $01, $fe
+	defb $01, $02, $fe
+	defb $01, $02, $fe
+	defb $02, $02, $fe
+	defb $02, $02, $fe
+	defb $01, $01, $02, $fe
+	defb $01, $01, $02, $02, $fe
+	defb $01, $02, $01, $02, $fe
+	defb $02, $02, $02, $02, $fe
+	defb $fe
+	defb $01, $01, $fe
+	defb $01, $01, $fe
+	defb $01, $02, $fe
+	defb $01, $02, $fe
+	defb $02, $02, $fe
+	defb $02, $02, $fe
+	defb $01, $01, $02, $fe
+	defb $01, $01, $02, $02, $fe
+	defb $01, $02, $01, $02, $fe
+	defb $02, $02, $02, $02, $fe
+	defb $fe
 	defb $ff
 
 ; would have tower_type_1_up_1, tower_type_1_up_2, etc... for upgrades
