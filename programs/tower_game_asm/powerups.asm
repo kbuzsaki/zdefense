@@ -345,8 +345,7 @@ powerups_use_zap:
 	; flash the path
 	; todo: make this flash back and forth for a set period
 	; right now it stays lit for a semi-random number of frames
-	ld b, $75
-	call load_map_set_path_attr_bytes
+	call tower_set_path_highlights
 
 	; damage all of the enemies
 	; todo: maybe queue up the zap again so it flashes and then does damage?

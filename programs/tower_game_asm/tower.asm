@@ -624,3 +624,27 @@ tower_clear_path_highlights_loop:
 	; repeat
 	jp tower_clear_path_highlights_loop
 
+
+tower_set_path_highlights:
+	ld hl, (enemy_path_attr)
+
+tower_set_path_highlights_loop:
+	; check if at the end
+	ld a, (hl)
+	cp $ff
+	ret z
+
+	; load the address
+	ld e, a
+	inc hl
+	ld d, (hl)
+	inc hl
+
+	; set the highlight bit
+	ld a, (de)
+	or $40
+	ld (de), a
+
+	; repeat
+	jp tower_set_path_highlights_loop
+
