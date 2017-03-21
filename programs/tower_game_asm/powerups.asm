@@ -512,7 +512,7 @@ powerups_handle_bomb_explode:
 	; draw the explosion sprite
 	ld a, b
 	call enemy_handler_load_position_vram
-	ld hl, snowflake
+	ld hl, explosion
 	call util_draw_tile
 
 	; set the explosion attribute

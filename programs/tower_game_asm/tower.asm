@@ -519,7 +519,7 @@ tower_handler_draw_blood_splatter:
 	; draw the blood splatter sprite
 	ld a, b
 	call enemy_handler_load_position_vram
-	ld hl, snowflake
+	ld hl, blood
 	call util_draw_tile
 
 	; set the green blood attribute
