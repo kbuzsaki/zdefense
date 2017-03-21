@@ -611,8 +611,10 @@ tower_sell_price_ones:
     defb $00, $05, $05, $00, $05, $00, $00, $00, $00
 
 ; filler, laser, flame, boost, unused, laser+, flame+, boost+, unused+
+; if sign bit is set, damage is a percent of current enemy health, rounded down
+; where the percent is 2^(-<lower nibble>), (e.g. $83 is 1/8, $82 is 1/4)
 tower_damage_array:
-    defb $00, $01, $01, $82, $00, $02, $02, $81 , $00
+    defb $00, $01, $01, $83, $00, $02, $02, $82 , $00
 
     
 
