@@ -233,7 +233,6 @@ sound_effect_exit:
 	; increment music index
 	ld a, (sound_effect_music_sequence_index)
 	add a, 2
-	and 15
 	ld (sound_effect_music_sequence_index), a
 
 	; restore iy register
@@ -270,49 +269,201 @@ sound_effect_chan_3_is_music:
 
 
 ; sound effect and music sequences below
+;sound_effect_music_sequence_3:
+;	dw 3676
+;	dw 0
+;	dw 2453
+;	dw 0
+;	dw 2754
+;	dw 0
+;	dw 3275
+;	dw 0
+;	dw 4906
+;	dw 0
+;	dw 4126
+;	dw 0
+;	dw 3676
+;	dw 0
+;	dw 2453
+;	dw 0
+;	dw 2754
+;	dw 0
+;	dw 3275
+;	dw 0
+;	dw 4906
+;	dw 0
+;	dw 4126
+;	dw 0
+;	dw 3275
+;	dw 0
+;	dw 3676
+;	dw 0
+;	dw 4126
+;	dw 0
+;	dw 4368
+;	dw 0
+;	dw 3676
+;	dw 0
+;	dw 2453
+;	dw 0
+;	dw 2754
+;	dw 0
+;	dw 3275
+;	dw 0
+;	dw 4906
+;	dw 0
+;	dw 4126
+;	dw 0
+;	dw 3676
+;	dw 0
+;	dw 2453
+;	dw 0
+;	dw 2754
+;	dw 0
+;	dw 3275
+;	dw 0
+;	dw 4906
+;	dw 0
+;	dw 4126
+;	dw 0
+;	dw 3275
+;	dw 0
+;	dw 3676
+;	dw 0
+;	dw 4126
+;	dw 0
+;	dw 4368
+;	dw 0
 
 sound_effect_music_sequence:
-	dw 1
-	dw 1
-	dw 1
-	dw 1
-	dw 1
-	dw 1
-	dw 1
-	dw 1
-	dw 1
-	dw 1
-	dw 1
-	dw 1
-	dw 1
-	dw 1
-	dw 1
-	dw 1
-
-sound_effect_music_sequence_1:
-	dw 3275
+	dw 2180
+	dw 1838
+	dw 2180
+	dw 1838
+	dw 2453
+	dw 1838
+	dw 2453
+	dw 1838
+	dw 2180
+	dw 1838
+	dw 2180
+	dw 1838
+	dw 2453
+	dw 1838
+	dw 2453
+	dw 1838
+	dw 2063
+	dw 2063
+	dw 0
+	dw 0
+	dw 2063
+	dw 2063
+	dw 0
+	dw 0
+	dw 2063
+	dw 2063
+	dw 0
+	dw 0
+	dw 0
+	dw 0
+	dw 0
+	dw 0
+	dw 1838
+	dw 2063
+	dw 2180
+	dw 2760
+	dw 1838
+	dw 2063
+	dw 2180
+	dw 2760
+	dw 1838
+	dw 2063
+	dw 2180
+	dw 2760
+	dw 1838
+	dw 2063
+	dw 2180
+	dw 2760
+	dw 2063
+	dw 2180
+	dw 2453
+	dw 2760
+	dw 2063
+	dw 2180
+	dw 2453
+	dw 2760
+	dw 2063
+	dw 2180
+	dw 2453
+	dw 2760
+	dw 2063
+	dw 2180
+	dw 2453
+	dw 2760
+	dw 1838
+	dw 1838
+	dw 0
+	dw 0
+	dw 2760
+	dw 0
+	dw 0
+	dw 2180
+	dw 2920
+	dw 0
+	dw 0
+	dw 0
+	dw 0
+	dw 0
+	dw 0
 	dw 0
 	dw 2453
 	dw 0
-	dw 2599
+	dw 0
+	dw 0
+	dw 2453
+	dw 0
+	dw 0
+	dw 2180
+	dw 2063
+	dw 0
+	dw 0
+	dw 0
+	dw 0
+	dw 0
+	dw 0
 	dw 0
 	dw 1838
 	dw 0
+	dw 0
+	dw 0
+	dw 2760
+	dw 0
+	dw 0
+	dw 2180
+	dw 2920
+	dw 0
+	dw 0
+	dw 0
+	dw 0
+	dw 0
+	dw 0
+	dw 0
 	dw 2453
 	dw 0
-	dw 1638
 	dw 0
-	dw 1838
-	dw 0
-	dw 2599
-	dw 0
-	dw 2186
 	dw 0
 	dw 2453
 	dw 0
-	dw 2754
 	dw 0
-	dw 3091
+	dw 2180
+	dw 2063
+	dw 3470
+	dw 0
+	dw 0
+	dw 0
+	dw 0
+	dw 0
+	dw 0
 	dw 0
 
 sound_effect_laser_sequence:
@@ -370,19 +521,19 @@ sound_effect_enemy_death_sequence:
 	dw $ffff
 
 sound_effect_flame_sequence:
-	dw 1
-	dw 1
-	dw 1
-	dw 1
-	dw 1
-	dw 1
+	dw 587
+	dw 1000
+	dw 384
+	dw 384
+	dw 999
+	dw 1000
 	dw $ffff
 
 sound_effect_empty_sequence:
-	dw $1
-	dw $1
-	dw $1
-	dw $1
-	dw $1
-	dw $1
+	dw 0
+	dw 0
+	dw 0
+	dw 0
+	dw 0
+	dw 0
 	dw $ffff

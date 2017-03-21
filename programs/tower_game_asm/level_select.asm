@@ -173,9 +173,10 @@ title_load_interrupt_handler:
 
     ; Sound effects
     ld a, (sub_frame_counter)
-	and 4
-	call nz, sound_effect_entry
-
+    and 3
+    add a, 2
+    and 4
+	call nz, music_entry_point
 
     ; ld      a, 4
     ; out     ($fe), a

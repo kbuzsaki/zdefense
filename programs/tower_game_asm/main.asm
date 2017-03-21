@@ -3319,6 +3319,8 @@ defb $7f    ;  #######
 defb $7f    ;  #######
 defb $7f    ;  #######
 
+include "music.asm"
+
 ; filler labels to load into passed the tape boundary
 
 org $c000
