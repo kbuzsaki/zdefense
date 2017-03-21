@@ -129,7 +129,7 @@ level_select_setup_screen:
     call selection_change_minimap
 
 
-    ld  a, $A0
+    ld  a, $40
     ld (level_select_choice_attr), a
     ld  a, $59
     ld (level_select_choice_attr+1), a
@@ -463,7 +463,7 @@ level_select_choice_attr:
     defw $0000
 
 level_select_choice:
-    defb    3
+    defb    0
 
 wumbo_w:    defb 22, 9, 2,'SELECT LEVEL' 
             defb 13 
