@@ -325,6 +325,11 @@ status_update_wave_count:
     ld a, (wave_count)
     add a, $30
 
+    ld (status_round+10), a
+
+    ld a, (level_count)
+    add a, $30
+
     ld (status_round+8), a
 
     ld a, 2
@@ -757,11 +762,11 @@ status_enemy_preview_lookup:
 	defw strong_enemy + 96
 
 status_round:
-	defb 22, 16, 0,'Wave:0,'
+	defb 22, 16, 0,'Wave:0-0'
 status_r_end: equ $
 
 status_enemy_count:
-	defb 22, 16, 8,'Enemies:0'
+	defb 22, 16, 9,'Enemies:0'
 status_ec_end: equ $
 
 status_money_life:
