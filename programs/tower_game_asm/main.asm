@@ -592,6 +592,8 @@ wave_count:
     defb 1
 enemy_count:
     defb 0
+enemy_wave_color:
+	defb $30
 
 zap_charges:
     defb 0

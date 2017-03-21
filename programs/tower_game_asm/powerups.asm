@@ -673,7 +673,8 @@ powerups_clear_path_element_process_element:
 	inc hl
 	ld d, (hl)
 	ex de, hl
-	ld (hl), $30
+	ld a, (enemy_wave_color)
+	ld (hl), a
 
 	pop de
 	pop hl
