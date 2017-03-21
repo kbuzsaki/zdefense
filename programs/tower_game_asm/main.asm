@@ -146,6 +146,9 @@ main_init:
 	ld a, 0
 	ld (real_frame_counter), a
 
+	ld hl, enemy_spawn_script_wave_1
+	ld (enemy_spawn_script), hl
+
 	ret
 
 
