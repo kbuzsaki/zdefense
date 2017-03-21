@@ -9,7 +9,8 @@ load_map_init:
 
 
 load_map_init_path_attr_bytes:
-	ld b, $30
+	ld a, (enemy_wave_color)
+	ld b, a
 
 load_map_set_path_attr_bytes:
 	ld hl, (enemy_path_attr)

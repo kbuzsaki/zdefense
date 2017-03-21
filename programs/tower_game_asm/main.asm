@@ -146,6 +146,9 @@ main_init:
 	ld a, 0
 	ld (real_frame_counter), a
 
+	ld hl, enemy_spawn_script_wave_1
+	ld (enemy_spawn_script), hl
+
 	ret
 
 
@@ -527,7 +530,7 @@ include "enemy_handler.asm"
 include "enemy_sprite.asm"
 include "input.asm"
 include "load_map.asm"
-include "misc.asm"
+; include "misc.asm"
 include "status.asm"
 include "tower.asm"
 include "util.asm"
@@ -566,6 +569,9 @@ frame_counter:
 cell_frame_counter:
 	defb 0
 
+animation_frame_counter:
+	defb 0
+
 cursor_x:
 	defb 0
 cursor_y:
@@ -586,9 +592,11 @@ money_ones:
 level_count:
 	defb 1
 wave_count:
-    defb 0
+    defb 1
 enemy_count:
     defb 0
+enemy_wave_color:
+	defb $30
 
 zap_charges:
     defb 0
@@ -657,7 +665,7 @@ tower_damage_array:
 
 ; per-level pointers set up in main_init to point to the appropriate level data
 enemy_spawn_script:
-	defw enemy_spawn_script_wave_0
+	defw enemy_spawn_script_demo_wave
 enemy_path:
 	defw $00
 enemy_path_attr:
@@ -712,6 +720,9 @@ current_attacked_enemy_value:
 bomb_position_array:
 	defb $fe, $fe, $fe, $fe
 	defb $ff
+
+slow_counter:
+	defb $00
 
 
 
@@ -847,6 +858,65 @@ tower_type_data:
 	; basic tower+
 	defw tower_basic_upgrade
 	defb $21
+	defb $ff
+
+enemy_spawn_script_demo_wave:
+	defb $01, $01, $fe
+	defb $01, $01, $fe
+	defb $01, $02, $fe
+	defb $01, $02, $fe
+	defb $02, $02, $fe
+	defb $02, $02, $fe
+	defb $01, $01, $02, $fe
+	defb $01, $01, $02, $02, $fe
+	defb $01, $02, $01, $02, $fe
+	defb $02, $02, $02, $02, $fe
+	defb $fe
+	defb $01, $01, $fe
+	defb $01, $01, $fe
+	defb $01, $02, $fe
+	defb $01, $02, $fe
+	defb $02, $02, $fe
+	defb $02, $02, $fe
+	defb $01, $01, $02, $fe
+	defb $01, $01, $02, $02, $fe
+	defb $01, $02, $01, $02, $fe
+	defb $02, $02, $02, $02, $fe
+	defb $fe
+	defb $01, $01, $fe
+	defb $01, $01, $fe
+	defb $01, $02, $fe
+	defb $01, $02, $fe
+	defb $02, $02, $fe
+	defb $02, $02, $fe
+	defb $01, $01, $02, $fe
+	defb $01, $01, $02, $02, $fe
+	defb $01, $02, $01, $02, $fe
+	defb $02, $02, $02, $02, $fe
+	defb $fe
+	defb $fe
+	defb $01, $01, $fe
+	defb $01, $01, $fe
+	defb $01, $02, $fe
+	defb $01, $02, $fe
+	defb $02, $02, $fe
+	defb $02, $02, $fe
+	defb $01, $01, $02, $fe
+	defb $01, $01, $02, $02, $fe
+	defb $01, $02, $01, $02, $fe
+	defb $02, $02, $02, $02, $fe
+	defb $fe
+	defb $01, $01, $fe
+	defb $01, $01, $fe
+	defb $01, $02, $fe
+	defb $01, $02, $fe
+	defb $02, $02, $fe
+	defb $02, $02, $fe
+	defb $01, $01, $02, $fe
+	defb $01, $01, $02, $02, $fe
+	defb $01, $02, $01, $02, $fe
+	defb $02, $02, $02, $02, $fe
+	defb $fe
 	defb $ff
 
 ; would have tower_type_1_up_1, tower_type_1_up_2, etc... for upgrades

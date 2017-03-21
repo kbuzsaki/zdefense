@@ -3,7 +3,7 @@
 enemy_sprite_packing_test:
 
     ld      a, $01
-    ld      (frame_counter), a    ; default sprite position (neutral)
+    ld      (animation_frame_counter), a    ; default sprite position (neutral)
 
     ld      a, $00          ; direction - move up (REMEBER- only 0,1,2,3)
     ld      h, $F0          ; base address $F0 + enemy type $0 = $F0
@@ -47,7 +47,7 @@ enemy_sprite_draw_next_sprite:
 
     ; Pack ticker into l
     ld      l, a
-    ld      a, (frame_counter)
+    ld      a, (animation_frame_counter)
     sla     a
     sla     a
     sla     a
@@ -107,7 +107,7 @@ enemy_sprite_test_vertical:
     ;   2 - 4 - 4
     ;   3 - 2 - 6
     ; shift ticker by two for shift down val then sub from 8 for shift up val
-    ld      a, (frame_counter)
+    ld      a, (animation_frame_counter)
     sla     a                   ; multiply by two
     ld      c, a                ; We're gonna trash a, so c will contain that frame_counter*2
     srl     b                   ; test lsb of direction, 0 - up, 1 - down

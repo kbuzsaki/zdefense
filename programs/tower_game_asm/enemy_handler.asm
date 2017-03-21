@@ -6,8 +6,36 @@ enemy_handler_init:
 	ret
 
 
+enemy_handler_do_slow_counter:
+	; compute the cell frame counter slow frames
+	ld a, (real_frame_counter)
+	and $30
+	srl a
+	srl a
+	srl a
+	srl a
+	ld (animation_frame_counter), a
+
+	ret
+
 
 enemy_handler_entry_point_handle_enemies:
+	ld a, (frame_counter)
+	ld (animation_frame_counter), a
+
+	ld a, (slow_counter)
+	cp $00
+	jp z, enemy_handler_skip_slow_counter
+
+	ld b, a
+	ld a, (frame_counter)
+	and 1
+	ret nz
+	ld a, b
+	call enemy_handler_do_slow_counter
+
+enemy_handler_skip_slow_counter:
+
 	ld hl, weak_enemy
 	ld (current_enemy_sprite_page), hl
 	ld hl, weak_enemy_position_array
@@ -34,7 +62,7 @@ enemy_handler_entry_point_handle_enemies:
 
 enemy_handler_handle_enemy:
 	; if the frame counter is modulo 0, then run game logic (move enemies to next cell)
-	ld a, (frame_counter)
+	ld a, (animation_frame_counter)
 	cp 0
 	call z, enemy_handler_update_enemies
 	; no matter what, animate the enemies
@@ -45,6 +73,23 @@ enemy_handler_handle_enemy:
 	
 
 enemy_handler_entry_point_handle_spawn_enemies:
+	; check if we're in slow mode
+	ld a, (slow_counter)
+	cp $00
+	jp z, enemy_handler_entry_point_handle_spawn_enemies_skip_slow_counter
+
+	; dec and store slow counter
+	dec a
+	ld (slow_counter), a
+	call z, powerups_slow_end
+
+	; check if we should abort
+	ld a, (cell_frame_counter)
+	and 3
+	ret nz
+
+enemy_handler_entry_point_handle_spawn_enemies_skip_slow_counter:
+
 	ld hl, (enemy_spawn_script_ptr)
 
 	; if ff, then we've hit the end so return and do nothing
@@ -529,8 +574,8 @@ enemy_handler_decrement_enemy_count:
 
 	; check if enemy count is 0, if it is and there are no enemies left to spawn
 	; then advance to the next wave
-	cp $01
-	ret nz
+	sub 2
+	ret p
 
 	; if there are still enemies left to spawn, then don't increment the wave
 	ld hl, (enemy_spawn_script_ptr)
@@ -550,6 +595,24 @@ enemy_handler_wave_lookup:
 	defw enemy_spawn_script_wave_3
 	defw enemy_spawn_script_wave_4
 	defw $ffff
+
+enemy_handler_level_lookup:
+	defb $30
+	defb $30 ; 1 - black
+	defb $31 ; 2 - blue
+	defb $32 ; 3 - red
+	defb $35 ; 4 - cyan
+	defb $33 ; 5 - magenta
+	defb $37 ; 6 - white
+	defb $30 ; 7 - black
+	defb $31 ; 8 - blue
+	defb $32 ; 9 - red
+	defb $35 ; a - cyan
+	defb $33 ; b - magenta
+	defb $37 ; c - white
+	defb $30 ; d - black
+	defb $31 ; e - blue
+	defb $32 ; f - red
 
 enemy_handler_increment_wave:
 	ld a, (wave_count)
@@ -604,4 +667,16 @@ enemy_handler_increment_wave_increment_level:
 
 	ld hl, enemy_spawn_script_wave_1
 	ld (enemy_spawn_script_ptr), hl
+
+	; update the enemy color
+	ld a, (level_count)
+	ld hl, enemy_handler_level_lookup
+	ld d, 0
+	ld e, a
+	add hl, de
+	ld a, (hl)
+	ld (enemy_wave_color), a
+
+	call load_map_init_path_attr_bytes
+
 	ret

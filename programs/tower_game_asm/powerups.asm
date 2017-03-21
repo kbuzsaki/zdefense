@@ -404,6 +404,27 @@ powerups_do_zap_damage_generic_loop_increment:
 
 	jp powerups_do_zap_damage_generic_loop
 
+powerups_check_bomb_count:
+    ld hl, bomb_position_array
+
+powerups_check_bomb_loop:
+    ld a, (hl)
+
+    ; if a is $ff (end of array) then set b to 0 and return
+    cp $ff
+    ld b, 0
+    ret z
+
+    ; if a is $ff (empty) then set b to 1 and return
+    cp $fe
+    ld b, 1
+    ret z
+
+    ; else, check the next spot
+    inc hl
+    jp powerups_check_bomb_loop
+    
+    
 powerups_use_bomb:
 	; paint the bomb
 	ld a, (cursor_x)
@@ -419,6 +440,11 @@ powerups_use_bomb:
 
 	; stash the position index in c
 	ld c, a
+
+    call powerups_check_bomb_count
+    ld a, b
+    cp 0
+    ret z
 
 	; try to dec a charge, give up if we can't
 	push de
@@ -541,9 +567,27 @@ powerups_use_slow:
 	cp 0
 	ret z
 
-	; todo: actually make this do something
 
-    ret
+powerups_slow_start:
+	ld a, $10
+	ld (slow_counter), a 
+
+	; set the background color to cyan
+	ld a, $05
+	out ($fe), a
+	ld ($fdcc), a
+
+	ret
+
+powerups_slow_end:
+	; set the background color back to blue
+	ld a, $01
+	out ($fe), a
+	ld ($fdcc), a
+
+	ret
+
+
 
 ; inputs:
 ;   b - the position value
@@ -629,7 +673,8 @@ powerups_clear_path_element_process_element:
 	inc hl
 	ld d, (hl)
 	ex de, hl
-	ld (hl), $30
+	ld a, (enemy_wave_color)
+	ld (hl), a
 
 	pop de
 	pop hl
