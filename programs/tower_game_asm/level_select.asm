@@ -137,6 +137,15 @@ level_select_setup_screen:
     call toggle_highlight_level_choice
 
 
+    ; Put hardcoded powerups on the lakes
+    ld  d, 29
+    ld  e, 6
+    call powerups_spawn_life
+
+    ld  d, 4
+    ld  e, 3
+    call powerups_spawn_money
+
     ret
 
 
