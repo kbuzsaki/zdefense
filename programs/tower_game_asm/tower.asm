@@ -393,7 +393,9 @@ tower_handler_damage_enemy:
     ld a, c ; restore enemy index
 
 	; if we hit 0 or go negative, remove the enemy
+	push af
 	call z, tower_handler_kill_enemy
+	pop af
     call m, tower_handler_kill_enemy
 
 	ret
@@ -493,6 +495,11 @@ tower_handler_highlight_tower:
 ;   a - the enemy index
 tower_handler_kill_enemy:
 	call enemy_handler_clear_enemy_at_index
+
+	; now clear the position_to_index_array for this enemy
+	ld hl, enemy_position_to_index_array
+	ld l, b
+	ld (hl), $ff
 
 	; play the enemy dead sound effect
 	ld a, (sound_effect_flags)
