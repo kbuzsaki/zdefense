@@ -804,14 +804,14 @@ status_flame:
 status_flame_end: equ $
 
 status_tesla:
-	defb 22, 21, 20,'3:% Dmg $200'
+	defb 22, 21, 20,'3:Dark  $500'
 status_tesla_end: equ $
 
 
 ; Printed using channel 1, so y offset is different
 
 status_upgrade:
-	defb 22, 0, 20,'R:Upgr      '
+	defb 22, 0, 20,'R:Upgrd     '
 status_upgrade_end: equ $
 
 status_upgrade_price:

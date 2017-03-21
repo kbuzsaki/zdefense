@@ -618,21 +618,21 @@ tower_byte_ids:
 
 ; filler, laser, flame, boost, 'basic' (unused)
 tower_buy_price_tens:
-    defb $00, $01, $03, $02, $01
+    defb $00, $01, $03, $05, $01
 tower_buy_price_ones:
     defb $00, $00, $00, $00, $00
 
 ; filler, laser, flame, boost, 'basic' (unused)
 tower_upgrade_price_tens:
-    defb $00, $01, $03, $02, $01, $0a, $0a, $0a, $0a
+    defb $00, $01, $03, $05, $01, $0a, $0a, $0a, $0a
 tower_upgrade_price_ones:
     defb $00, $05, $05, $05, $05, $00, $00, $00, $00
 
 ; filler, laser, flame, boost, 'basic' (unused), laser+, flame+, boost+, unused+
 tower_sell_price_tens:
-    defb $00, $00, $01, $01, $00, $01, $03, $02, $01
+    defb $00, $00, $01, $02, $00, $01, $03, $02, $01
 tower_sell_price_ones:
-    defb $00, $05, $05, $00, $05, $00, $00, $00, $00
+    defb $00, $05, $05, $05, $05, $00, $00, $00, $00
 
 ; filler, laser, flame, boost, unused, laser+, flame+, boost+, unused+
 ; if sign bit is set, damage is a percent of current enemy health, rounded down
@@ -820,11 +820,11 @@ tower_type_data:
 	defb $ff
 	; 3rd tower
 	defw tower_basic
-	defb $21
+	defb $23
 	defb $ff
 	; basic tower
 	defw tower_basic
-	defb $23
+	defb $21
 	defb $ff
 	; laser tower+
 	defw tower_zap_upgrade
@@ -836,11 +836,11 @@ tower_type_data:
 	defb $ff
 	; 3rd tower+
 	defw tower_basic_upgrade
-	defb $21
+	defb $23
 	defb $ff
 	; basic tower+
 	defw tower_basic_upgrade
-	defb $23
+	defb $21
 	defb $ff
 
 ; would have tower_type_1_up_1, tower_type_1_up_2, etc... for upgrades
