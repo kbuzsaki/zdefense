@@ -343,9 +343,22 @@ status_update_wave_count:
 
 status_update_enemy_count:
     ld a, (enemy_count)
-	; only add 2f instead of 30 because enemy spawns are weird
-    add a, $2f
+    sub 1 ; accounting for some weird enemy count thing
 
+    ld b, -1
+status_update_enemy_count_tens_calc:
+
+    inc b
+    sub 10
+    jp p, status_update_enemy_count_tens_calc
+
+    add a, 10
+
+    add a, $30
+    ld (status_enemy_count+12), a
+
+    ld a, b
+    add a, $30
     ld (status_enemy_count+11), a
 
     ld a, 2
