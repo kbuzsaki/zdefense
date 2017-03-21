@@ -574,8 +574,8 @@ enemy_handler_decrement_enemy_count:
 
 	; check if enemy count is 0, if it is and there are no enemies left to spawn
 	; then advance to the next wave
-	cp $01
-	ret nz
+	sub 2
+	ret p
 
 	; if there are still enemies left to spawn, then don't increment the wave
 	ld hl, (enemy_spawn_script_ptr)
