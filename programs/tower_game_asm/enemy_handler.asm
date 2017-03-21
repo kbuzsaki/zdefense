@@ -418,6 +418,10 @@ enemy_handler_decrement_health:
 	; if not handling carry, just store the new health_ones back
 	ld (health_ones), a
 
+	; or in the tens to check if we are dead
+	ld b, a
+	ld a, (health_tens)
+	or b
 	; check if we're dead now
 	jp z, enemy_handler_decrement_health_handle_dead
 
@@ -426,9 +430,6 @@ enemy_handler_decrement_health:
 	; case where health_ones has overflowed and we have to borrow from health_tens
 enemy_handler_decrement_health_handle_tens_carry:
 	ld a, (health_tens)
-	; check if we're dead
-	cp 0
-	jp z, enemy_handler_decrement_health_handle_dead
 
 	dec a
 	ld (health_tens), a
