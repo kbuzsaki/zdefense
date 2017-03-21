@@ -136,8 +136,10 @@ main_init:
 	ld d, $ff
 	call util_fill_all_pixels
 
-	; todo: figure out what health value to use
+	; initialize health values because the title screen can modify them
 	ld a, 1
+	ld (health_tens), a
+	ld a, 0
 	ld (health_ones), a
 
 	ret
@@ -570,10 +572,10 @@ cursor_old_attr:
 health_tens:
     defb 0
 health_ones:
-    defb 1
+    defb 0
 
 money_tens:
-    defb 5
+    defb 3
 money_ones:
     defb 0
 
