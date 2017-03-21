@@ -596,6 +596,24 @@ enemy_handler_wave_lookup:
 	defw enemy_spawn_script_wave_4
 	defw $ffff
 
+enemy_handler_level_lookup:
+	defb $30
+	defb $30 ; 1 - black
+	defb $31 ; 2 - blue
+	defb $32 ; 3 - red
+	defb $35 ; 4 - cyan
+	defb $33 ; 5 - magenta
+	defb $37 ; 6 - white
+	defb $30 ; 7 - black
+	defb $31 ; 8 - blue
+	defb $32 ; 9 - red
+	defb $35 ; a - cyan
+	defb $33 ; b - magenta
+	defb $37 ; c - white
+	defb $30 ; d - black
+	defb $31 ; e - blue
+	defb $32 ; f - red
+
 enemy_handler_increment_wave:
 	ld a, (wave_count)
 	inc a
@@ -649,4 +667,16 @@ enemy_handler_increment_wave_increment_level:
 
 	ld hl, enemy_spawn_script_wave_1
 	ld (enemy_spawn_script_ptr), hl
+
+	; update the enemy color
+	ld a, (level_count)
+	ld hl, enemy_handler_level_lookup
+	ld d, 0
+	ld e, a
+	add hl, de
+	ld a, (hl)
+	ld (enemy_wave_color), a
+
+	call load_map_init_path_attr_bytes
+
 	ret

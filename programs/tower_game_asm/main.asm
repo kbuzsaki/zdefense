@@ -730,21 +730,6 @@ enemy_spawn_script_wave_0:
 	defb $ff, $ff, $ff, $ff, $ff, $ff
 
 enemy_spawn_script_wave_1:
-	defb $01, $01
-	defb $01, $01
-	defb $01, $01
-	defb $01, $01
-	defb $01, $01
-	defb $01, $01
-	defb $01, $01
-	defb $01, $01
-	defb $01, $01
-	defb $01, $01
-	defb $01, $01
-	defb $01, $01
-	defb $01, $01
-	defb $01, $01
-	defb $01, $01
 	defb $01, $fe
 	defb $01, $fe
 	defb $01, $01, $fe
