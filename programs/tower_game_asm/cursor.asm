@@ -82,8 +82,9 @@ cursor_check_tower_inputs:
     call input_is_3_down
     call z, build_slow_tower
 
-    call input_is_4_down
-    call z, build_basic_tower
+	; 4th tower type not implemented
+    ;call input_is_4_down
+    ;call z, build_basic_tower
 
     call input_is_g_down
     call z, build_sell_tower
