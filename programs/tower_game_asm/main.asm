@@ -145,6 +145,9 @@ main_init:
 	; reset the frame counter
 	ld a, 0
 	ld (real_frame_counter), a
+	; and the enemy count
+	ld a, 1
+	ld (enemy_count), a
 
 	ld hl, enemy_spawn_script_wave_1
 	ld (enemy_spawn_script), hl
