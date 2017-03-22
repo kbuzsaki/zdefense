@@ -641,9 +641,9 @@ tower_buy_price_ones:
 
 ; filler, laser, flame, boost, 'basic' (unused)
 tower_upgrade_price_tens:
-    defb $00, $01, $03, $05, $01, $0a, $0a, $0a, $0a
+    defb $00, $01, $03, $05, $01, $28, $28, $28, $28
 tower_upgrade_price_ones:
-    defb $00, $05, $05, $05, $05, $00, $00, $00, $00
+    defb $00, $05, $05, $05, $05, $28, $28, $28, $28
 
 ; filler, laser, flame, boost, 'basic' (unused), laser+, flame+, boost+, unused+
 tower_sell_price_tens:
