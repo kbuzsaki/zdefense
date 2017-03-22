@@ -423,6 +423,30 @@ powerups_check_bomb_loop:
     ; else, check the next spot
     inc hl
     jp powerups_check_bomb_loop
+
+
+; inputs:
+;   a - the position to check for
+; outputs:
+;   a - $ff if the position is empty, otherwise the bomb position
+powerups_check_bomb_position_occupied:
+	ld hl, bomb_position_array
+	ld b, a
+
+powerups_check_bomb_position_occupied_loop:
+	ld a, (hl)
+
+	; if it's the end of the array, return
+	cp $ff
+	ret z
+
+	; if it's the position we're checking for, return
+	cp b
+	ret z
+
+	; else loop back
+	inc hl
+	jp powerups_check_bomb_position_occupied_loop
     
     
 powerups_use_bomb:
@@ -441,6 +465,12 @@ powerups_use_bomb:
 	; stash the position index in c
 	ld c, a
 
+	; make sure that our position is not already a bomb
+	call powerups_check_bomb_position_occupied
+	cp $ff
+	ret nz
+
+	; make sure we have fewer than 4 bombs on the map
     call powerups_check_bomb_count
     ld a, b
     cp 0
